@@ -191,7 +191,6 @@ let defaultenv =
      "givenMenuTactic"      , aj                         "GIVEN"      givenMenuTactic;
      "hidecut"              , bj                         true         Boxdraw.hidecut;
      "hidehyp"              , bj                         true         Boxdraw.hidehyp;
-     "hidehypprev"          , bj                         false        Boxdraw.hidehypprev;
      "hidereflexivity"      , bj                         true         Boxdraw.hidereflexivity;
      "hidetransitivity"     , bj                         false        Boxdraw.hidetransitivity;
      "hideuselesscuts"      , bj                         false        Prooftree.Tree.hideuselesscuts;
@@ -210,6 +209,7 @@ let defaultenv =
      "outermostbox"         , bj                         true         Boxdraw.outermostbox;
      "patchalertdebug"      , bj                         false        Alert.patchalertdebug;
      "predicatedebug"       , bj                         false        Predicate.predicatedebug;
+     "priorAntes"           , bj                         false        Boxdraw.priorAntes;
      "prooftreedebug"       , bj                         false        Prooftree.Tree.prooftreedebug;
      "prooftreedebugheavy"  , bj                         false        Prooftree.Tree.prooftreedebugheavy;
      "prooftreerewinfdebug" , bj                         false        Prooftree.Tree.prooftreerewinfdebug;
@@ -264,8 +264,9 @@ let displaynames =
    "truncatereasons"] 
              
 let boxdisplaynames =
-  ["boxlinedressright"; "foldformulae"; "hidecut"; "hidehyp"; "hidehypprev"; "hidetransitivity";
-   "hidereflexivity"; "hideuselesscuts"; "multiassumptionlines"; "outermostbox"; "innerboxes"; "hidewhy"]
+  ["boxlinedressright"; "foldformulae"; "hidecut"; "hidehyp"; "hidetransitivity";
+   "hidereflexivity"; "hideuselesscuts"; "multiassumptionlines"; "outermostbox"; 
+   "innerboxes"; "hidewhy"; "priorAntes"]
 
 let treedisplaynames =
   ["foldsequents"]

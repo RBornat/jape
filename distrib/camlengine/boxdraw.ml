@@ -161,11 +161,12 @@ let innerboxes = ref true
 let hidewhy = ref false
 let hidecut = ref true
 let hidehyp = ref true
-let hidehypprev = ref false
 let hidetransitivity = ref true
 let hidereflexivity = ref true
 let showrelations = ref true
 let showboxfreshvs = ref true
+let priorAntes = ref false
+
 let boxseldebug = ref false
 let boxfolddebug = ref false
 
@@ -351,7 +352,7 @@ let rec pretransform prefixwithstile t =
      * But because it is impossible (cut transformation) to see just when a hypothesis 
      * appears at the end of a box, we do the checks about last line later.
      *)
-    (* the hidehyp / hidehypprev stuff is now in _L below. RB 07/2020 *)
+    (* the hidehyp stuff is now in _L below. RB 07/2020 *)
     match null newhyps, isStructureRulenode t IdentityRule  with
     | true , true  -> false, respt (aslines true)
     | false, true  -> boxpt (respt (aslines true))
@@ -556,9 +557,7 @@ let rec dependency tranreason deadf aenv pt =
   let rec linsubs pi justopt =
     match justopt with
     | Some (why, lprins, subpts) ->
-        Some
-          (pi, tranreason why, lprins,
-           (dependency tranreason ordinary aenv <* subpts))
+        Some (pi, tranreason why, lprins, (dependency tranreason ordinary aenv <* subpts))
     | None -> None
   in
   (* transforming stiles *)
@@ -717,17 +716,15 @@ let rec _Cr =
   | BoxID (s, f) -> if !innerboxes then (_IDr s ^ "-") ^ _IDr f     (* we never make a BoxID with s=f *)
                                    else _IDr f
   | HypID (l, n) -> (_IDr l ^ ".") ^ string_of_int n                (* we never make a HypID with l=0 *)
-  | NoID         -> 
-                    ""
+  | NoID         -> ""
 
 let rec _IDstring cids =
   string_of_list idf "," ((fun s -> s <> "") <| List.map _Cr cids)
 
-let rec mapn a1 a2 a3 =
-  match a1, a2, a3 with
-  | id, [], hn -> empty
-  | id, (h, _) :: elis, hn ->
-      (mapn id elis (hn + 1) ++ (h |-> HypID (id, hn)))
+let rec mapn id elis hn =
+  match elis with
+  | []             -> empty
+  | (h, _) :: elis -> (mapn id elis (hn + 1) ++ (h |-> HypID (id, hn)))
 
 type reasondesc = NoReason
                 | ReasonDesc of (pathinfo * textinfo * cID list)
@@ -750,22 +747,19 @@ type fitchboxrec = { outerbox   : box;
  and fitchstep = FitchLine of fitchlinerec
                | FitchBox  of fitchboxrec
 
-(* this datatype is included because without it, I get lost in monstrous tuples.
- * It is the type of information accumulated by (rev)folding the _L function (in linearise)
+(* this is the type of information accumulated by (rev)folding the _L function (in linearise)
  * across a list of subtrees.
  *)
-type laccrec = { id : lineID; acclines : fitchstep list; elbox : box; idW : int;
-                 reasonW : int; assW : int; lastmulti : bool 
-               }
-type lacc = Lacc of laccrec
+type lacc = { id : lineID; acclines : fitchstep list; elbox : box; idW : int;
+              reasonW : int; assW : int; lastmulti : bool 
+            }
 
-(* for similar reasons, here is the type of proof layouts *)
-type layoutrec =
+(* the type of proof layouts *)
+type layout =
       { lines : fitchstep list; colonplan : displayclass plan;
         idmargin : int; bodymargin : int; reasonmargin : int;
         sidescreengap : int; linethickness : int; bodybox : box 
       }
-type layout = Layout of layoutrec
 
 (* moved outside for OCaml *)
 type token =
@@ -995,10 +989,9 @@ let rec linearise screenwidth procrustean_reasonW dp =
     box_of_textbox bigelementsbox, tsW idsize, tsW reasonsize
   in
   let rec startLacc id pos =
-    Lacc {id = id; acclines = []; elbox = box pos nullsize; 
-          idW = 0; reasonW = 0; assW = 0; lastmulti = false}
+    {id = id; acclines = []; elbox = box pos nullsize; idW = 0; reasonW = 0; assW = 0; lastmulti = false}
   in
-  let rec nextpos b leading lastmulti thismulti =
+  let nextpos b leading lastmulti thismulti =
     if isemptybox b then topleft b 
     else downby (botleft b) (if lastmulti || thismulti then 2*leading else leading + 1)
   in
@@ -1006,12 +999,11 @@ let rec linearise screenwidth procrustean_reasonW dp =
    *   true means disappear if you like;
    *   false means you are the last line of a box, so disappear iff you refer to the previous line.
    *)
-  let rec _L wopt hypmap idok dp (Lacc accrec as acc) =
+  let rec _L wopt hypmap idok dp (accrec as acc) =
       let rec getIdDep el =
         match mapped sameresource hypmap el with
         | Some cid -> cid, acc
-        | None     ->
-            raise (Catastrophe_ ["linearise can't find hypothesis "; string_of_element el])
+        | None     -> raise (Catastrophe_ ["linearise can't find hypothesis "; string_of_element el])
       in
       let getcid = _L wopt hypmap true in
       (* convert reasoninfo -- reason and antecedent information -- 
@@ -1024,30 +1016,34 @@ let rec linearise screenwidth procrustean_reasonW dp =
             let lcids =
               (fun lp ->
                  try _The (mapped sameresource hypmap lp) with
-                 | _The_ -> raise (Catastrophe_
-                                     ["linearise can't decode lprin "; string_of_element lp])) 
+                 | _The_ -> raise (Catastrophe_ ["linearise can't decode lprin "; string_of_element lp])
+              ) 
               <* lprins
             in
             let rec dosub (dp, (cids, acc)) =
               let (cid, acc') = getcid dp acc in cid :: cids, acc'
             in
             let (cids', acc') = nj_revfold dosub subdps (List.rev lcids, acc) in
+            (* here is where we do the priorAntes stuff. RB 08/2020 
+               We have generated the subproofs for the antecedents, giving us the lines (rev cids').
+               If we have priorAntes, we may need to put in some hyp lines.
+             *)
+            if !priorAntes then
+              consolereport["priorAntes: at line "; _IDr acc'.id; "; antes are "; bracketed_string_of_list _Cr ";" (List.rev cids')];
             acc', Some (pi, rinf, List.rev cids')
       in
       (* plan a line: mkp does the content *)
       let rec doconcline mkp needsreason (acc, justinf) multi =
-        let (Lacc {id = id; acclines = lines; elbox = elbox;
-                   idW = idW; reasonW = reasonW; assW = assW; lastmulti=lastmulti}) = acc in
+        let ({id = id; acclines = lines; elbox = elbox;
+              idW = idW; reasonW = reasonW; assW = assW; lastmulti=lastmulti}) = acc in
         let eplaninf =
           mkelementsplan mkp (not needsreason || bool_of_opt justinf)
         in
         let (line, ebox, iW, rW) =
-          mkLine eplaninf (mkreasonplan justinf) id
-            (nextpos elbox textleading lastmulti multi)
+          mkLine eplaninf (mkreasonplan justinf) id (nextpos elbox textleading lastmulti multi)
         in
-        id,
-        Lacc {id = _RR id; acclines = line :: lines; elbox = elbox +||+ ebox;
-              idW = max iW (idW); reasonW = max rW (reasonW); assW = assW; lastmulti=multi}
+        id, {id = _RR id; acclines = line :: lines; elbox = elbox +||+ ebox;
+             idW = max iW (idW); reasonW = max rW (reasonW); assW = assW; lastmulti=multi}
       in
       (* info to prefix a line with a turnstile *)
       let rec stprefix stopt restf p =
@@ -1061,10 +1057,8 @@ let rec linearise screenwidth procrustean_reasonW dp =
                            | Some (LineID id') -> accrec.id = _RR id'
                            | _                 -> false
           in
-          if (idok && (!hidehyp || (!hidehypprev && is_prev ()))) || 
-             ((!hidehyp || !hidehypprev) && is_prev ())
-          then
-            getIdDep el
+          if (idok && !hidehyp) || (!hidehyp && is_prev ())
+          then getIdDep el
           else _L wopt hypmap false lindep acc
       | LinDep (concels, stopt, justopt) ->
           let concels' =
@@ -1140,7 +1134,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
                 in
                 foldline scopes, foldline norms, single <* (doit <* specials)
           in
-          let dohypline numbered (hypelis, (hypmap, Lacc haccrec)) =
+          let dohypline numbered (hypelis, (hypmap, haccrec)) =
             let word, hypmap' =
               match hypelis with
               | [(h, Some s)]         -> s               , (hypmap ++ (fst h |-> LineID haccrec.id))
@@ -1161,13 +1155,13 @@ let rec linearise screenwidth procrustean_reasonW dp =
               | _   -> sW (bSize linebox) + 2 * posX innerpos
             in
             hypmap',
-            Lacc {id = _RR haccrec.id; acclines = line :: haccrec.acclines;
-                  elbox = if null haccrec.acclines then linebox else haccrec.elbox +||+ linebox;
-                  idW = max haccrec.idW lineidW; reasonW = max haccrec.reasonW linereasonW;
-                  assW = max haccrec.assW lineassW; lastmulti = false
-                 }
+            {id = _RR haccrec.id; acclines = line :: haccrec.acclines;
+             elbox = if null haccrec.acclines then linebox else haccrec.elbox +||+ linebox;
+             idW = max haccrec.idW lineidW; reasonW = max haccrec.reasonW linereasonW;
+             assW = max haccrec.assW lineassW; lastmulti = false
+            }
           in
-          let (hypmap', (Lacc {id = id'} as acc')) =
+          let (hypmap', ({id = id'} as acc')) =
             let scopes, norms, specials = hyplines in
             (*
                consolereport ["here it is: scopes ="; 
@@ -1180,8 +1174,8 @@ let rec linearise screenwidth procrustean_reasonW dp =
             let hypmap, lacc = nj_revfold (dohypline false) specials (hypmap, startLacc accrec.id innerpos) in
             nj_revfold (dohypline true) norms (hypmap, lacc)
           in
-          let (cid, Lacc {id = id''; acclines = innerlines; elbox = innerbox;
-                          idW = idW'; reasonW = reasonW'; assW = assW'})
+          let (cid, {id = id''; acclines = innerlines; elbox = innerbox;
+                     idW = idW'; reasonW = reasonW'; assW = assW'})
             = _L wopt hypmap' false dp acc'
           in
           let outerbox = bOutset innerbox (size hindent vindent) in
@@ -1193,16 +1187,16 @@ let rec linearise screenwidth procrustean_reasonW dp =
             | NoID          -> raise (Catastrophe_ ["NoID in BoxDep"])
           in
           cid',
-          Lacc {id = id'';
-                acclines = 
-                  FitchBox {outerbox = outerbox; 
-                            boxlines = innerlines; 
-                            boxed    = boxed
-                           } 
-                  :: accrec.acclines;
-                elbox = accrec.elbox +||+ outerbox; idW = max accrec.idW idW';
-                reasonW = max accrec.reasonW (reasonW'); assW = max accrec.assW assW'; 
-                lastmulti = false }
+          {id = id'';
+           acclines = 
+             FitchBox {outerbox = outerbox; 
+                       boxlines = innerlines; 
+                       boxed    = boxed
+                      } 
+             :: accrec.acclines;
+           elbox = accrec.elbox +||+ outerbox; idW = max accrec.idW idW';
+           reasonW = max accrec.reasonW (reasonW'); assW = max accrec.assW assW'; 
+           lastmulti = false }
       | CutDep (ldp, cutel, rdp, tobehidden) ->
           (* this is where we hide cut hypotheses completely, if asked.  If the lhs is a single 
            * line, with some antecedents, we replace references to the cut formula by reference 
@@ -1241,7 +1235,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
             let (acc', just') = dolinsubs hypmap acc just in
             (s, f, just') :: ts, acc'
           in
-          let (revts, (Lacc {id = id'} as acc')) = nj_revfold phase1 tdeps ([], acc) 
+          let (revts, ({id = id'} as acc')) = nj_revfold phase1 tdeps ([], acc) 
           in
           (* revts is, of course, backwards ... *)
       
@@ -1298,16 +1292,16 @@ let rec linearise screenwidth procrustean_reasonW dp =
       (if !boxlinedressright then reasonspace lines + reasonW else 0) +
     sidescreengap
   in
-  let answer (Lacc {acclines = lines; elbox = elbox; idW = idW; reasonW = reasonW; assW = assW}) =
-    Layout {lines = lines; colonplan = colonplan; idmargin = idmargin idW reasonW;
-            bodymargin = leftmargin idW reasonW; 
-            reasonmargin = reasonmargin lines idW reasonW elbox;
-            sidescreengap = sidescreengap; linethickness = linethickness;
-            bodybox = elbox}
+  let answer {acclines = lines; elbox = elbox; idW = idW; reasonW = reasonW; assW = assW} =
+    {lines = lines; colonplan = colonplan; idmargin = idmargin idW reasonW;
+     bodymargin = leftmargin idW reasonW; 
+     reasonmargin = reasonmargin lines idW reasonW elbox;
+     sidescreengap = sidescreengap; linethickness = linethickness;
+     bodybox = elbox}
   in
   (* we do it once, then see if we might be able to make it smaller *)
   let startacc = startLacc 1 origin in
-  let (_, (Lacc {elbox = elbox; idW = idW; reasonW = reasonW; assW = assW; acclines = lines} 
+  let (_, ({elbox = elbox; idW = idW; reasonW = reasonW; assW = assW; acclines = lines} 
            as firstlayout))
     = _L None empty false dp startacc
   in
@@ -1321,8 +1315,8 @@ let rec linearise screenwidth procrustean_reasonW dp =
       consolereport
         ["trying again, width "; string_of_int maxbestW; "; screenwidth ";
          string_of_int screenwidth];
-    let (_, (Lacc acc as secondlayout)) = _L (Some maxbestW) empty false dp startacc in
-    let Layout a = answer secondlayout in
+    let (_, (acc as secondlayout)) = _L (Some maxbestW) empty false dp startacc in
+    let a = answer secondlayout in
     let availableW = screenwidth - allbutreasonW a.lines acc.idW acc.elbox in
     let rereason line =
       let realignreasonplan (reasonplan, reasonbox, _) =
@@ -1346,7 +1340,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
       | FitchLine l -> FitchLine (rereason l)
       | FitchBox  b -> FitchBox {b with boxlines = List.map reline b.boxlines}
     in
-    Layout {a with lines = List.map reline a.lines}
+    {a with lines = List.map reline a.lines}
   else answer firstlayout
   (* end linearise *)
   
@@ -1393,9 +1387,9 @@ let rec elementsin ps =
   List.length ((iselementkind <.> info_of_plan) <| ps)
 
 let rec draw goalopt p aenv proof
-        (Layout {lines = lines; colonplan = colonplan; idmargin = idmargin;
-               bodymargin = bodymargin; reasonmargin = reasonmargin;
-               bodybox = bodybox; linethickness = linethickness}) =
+        {lines = lines; colonplan = colonplan; idmargin = idmargin;
+         bodymargin = bodymargin; reasonmargin = reasonmargin;
+         bodybox = bodybox; linethickness = linethickness} =
     let idx = posX p + idmargin in
     let reasonx = posX p + reasonmargin in
     (* unused
@@ -1465,9 +1459,9 @@ let rec draw goalopt p aenv proof
     drawinproofpane (); 
     List.iter (_D (rightby p bodymargin)) lines
 
-let rec print str goalopt p proof =
-  fun (Layout {lines = lines; colonplan = colonplan; idmargin = idmargin;
-               bodymargin = bodymargin; reasonmargin = reasonmargin}) ->
+let rec print str goalopt p proof 
+  {lines = lines; colonplan = colonplan; idmargin = idmargin;
+    bodymargin = bodymargin; reasonmargin = reasonmargin} =
     (* unused
        let rec samepath a1 a2 =
          match a1, a2 with
@@ -1520,8 +1514,7 @@ let cp hitkind (pi, el, kind) =
 
 let hp hitkind (pi, el, kind) = answerpath hitkind pi, el
 
-let hit_of_pos p (Layout {lines = lines; bodymargin = bodymargin; reasonmargin = reasonmargin})
-                 hitkind =
+let hit_of_pos p {lines = lines; bodymargin = bodymargin; reasonmargin = reasonmargin} hitkind =
   if !boxseldebug then
     consolereport
       ["hit_of_pos "; " "; string_of_pos p; " ... "; string_of_hitkind hitkind];
@@ -1562,7 +1555,7 @@ let hit_of_pos p (Layout {lines = lines; bodymargin = bodymargin; reasonmargin =
   in
   findfirst (_H (rightby p (-bodymargin))) lines
 
-let allFormulaHits pos (Layout {lines = lines; bodymargin = bodymargin}) =
+let allFormulaHits pos {lines = lines; bodymargin = bodymargin} =
   (* unused
      let targetpath =
        function
@@ -1607,7 +1600,7 @@ let rec locateHit pos classopt hitkind (p, proof, layout) =
                            string_of_option string_of_displayclass classopt]))
      | h -> h))
      
-let locateElement locel (p, proof, (Layout {lines = lines; bodymargin = bodymargin})) = 
+let locateElement locel (p, proof, {lines = lines; bodymargin = bodymargin}) = 
   let rec locate p ps =
     function 
     | FitchLine {elementsbox = elementsbox; elementsplan = elementsplan} ->
@@ -1656,7 +1649,7 @@ let rec notifyselect
           posclassopt 
           posclasslist
           ((proofpos, proof,
-             (Layout {lines = lines; bodymargin = bodymargin} (* unused as plan *)) as info) as stuff) =
+             ({lines = lines; bodymargin = bodymargin} (* unused as plan *)) as info) as stuff) =
     let rec bg emp =
       let rec reemphasise p line =
         match line with
@@ -1785,8 +1778,8 @@ let rec notifyselect
 
 let refineSelection = true
 
-let defaultpos screen (Layout {bodybox = bodybox; bodymargin = bodymargin;
-                        sidescreengap = sidescreengap; linethickness = linethickness}) =
+let defaultpos screen {bodybox = bodybox; bodymargin = bodymargin;
+                       sidescreengap = sidescreengap; linethickness = linethickness} =
     let prooforigin = bPos bodybox in
     (* leftby bodymargin not needed ... *)
     (*
@@ -1803,7 +1796,7 @@ let defaultpos screen (Layout {bodybox = bodybox; bodymargin = bodymargin;
     +<-+ prooforigin,
     screen, prooforigin
 
-let rec rootpos viewport (Layout {lines = lines}) =
+let rec rootpos viewport {lines = lines} =
     (* position of last line in proof, first in lines *)
     let rec p =
       function
@@ -1815,7 +1808,7 @@ let rec rootpos viewport (Layout {lines = lines}) =
     | _      -> origin
 
 let rec postoinclude screen box 
-                     (Layout {bodymargin = bodymargin; sidescreengap = sidescreengap} as layout) =
+                     ({bodymargin = bodymargin; sidescreengap = sidescreengap} as layout) =
     let (defpos, screen, prooforigin) = defaultpos screen layout in
     let otherdefpos = rightby (topleft screen) sidescreengap +<-+ prooforigin
     in
@@ -1854,8 +1847,8 @@ let rec layout viewport proof = _BoxLayout (sW (bSize viewport)) proof
   
 let targetbox pos target layout =
   match target, layout with
-  | None     , _                                               -> None
-  | Some path, Layout {lines = lines; bodymargin = bodymargin} ->
+  | None     , _                                        -> None
+  | Some path, {lines = lines; bodymargin = bodymargin} ->
       let ok =
         function 
         | ElementPlan ({path = epath}, _, ConcPlan) as plankind ->
@@ -1882,7 +1875,7 @@ let targetbox pos target layout =
       findfirst (search (rightby pos bodymargin)) lines
 
 let rec samelayout =
-  fun (Layout {lines = lines}, Layout {lines = lines'}) -> lines = lines'
+  fun ({lines = lines}, {lines = lines'}) -> lines = lines'
 
 let defaultpos screen = fst_of_3 <.> defaultpos screen
 

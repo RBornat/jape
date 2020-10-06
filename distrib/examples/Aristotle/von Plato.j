@@ -42,8 +42,8 @@ INITIALISE innerassumptionword "assumption"
 INITIALISE multiassumptionlines false
 
 INITIALISE hidecut true
-INITIALISE hidehyp false
-INITIALISE hidehypprev true
+INITIALISE hidehyp true
+INITIALISE priorAntes true
 INITIALISE hidewhy true
 
 INITIALISE multihypsel true
