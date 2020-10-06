@@ -1388,23 +1388,33 @@ let rec freshTheoremtoprove stuff =
   let (params, provisos, _, conseq) = freshRuletoprove stuff in
   params, provisos, conseq
 
+(* I have taken the decision that wehavestructurerule LeftWeakenRule/RightWeakenRule
+   can be satisfied by !autoAdditiveLeft/!autoAdditiveRight. Hope this won't lead
+   to unsoundness ... RB 06/10/20
+ *)
 let rec wehavestructurerule kind stilesopt proved =
   let names = (snd <* ((fun (k, _) -> k = kind) <| (getstructurerules ()))) in
   let rec getstile = fun (Seq (st, _, _)) -> st in
-  not (null names) &&
-  (match stilesopt with
-   | None -> true
-   | Some (cst :: asts) ->
-       List.exists
-         (fun name ->
-            match compiledthingnamed name with
-            | Some (CookedRule(_, (_, (params, provs, tops, bottom)), ax)) ->
-                (ax || proved name || !applyconjectures="all" || !applyconjectures="rules") && 
-                cst = getstile bottom &&
-                eqlists (fun (x, y) -> x = y) ((getstile <* tops), asts)
-            | _ -> false)
-         names
-   | _ -> false)
+  let r = not (null names) &&
+          (match stilesopt with
+           | None               -> true
+           | Some (cst :: asts) ->
+               List.exists
+                 (fun name ->
+                    match compiledthingnamed name with
+                    | Some (CookedRule(_, (_, (params, provs, tops, bottom)), ax)) ->
+                        (ax || proved name || !applyconjectures="all" || !applyconjectures="rules") && 
+                        cst = getstile bottom &&
+                        eqlists (fun (x, y) -> x = y) ((getstile <* tops), asts)
+                    | _ -> false)
+                 names
+           | _                  -> false)
+  in
+  r || (match kind with
+        | LeftWeakenRule  -> !autoAdditiveLeft
+        | RightWeakenRule -> !autoAdditiveRight
+        | _               -> false
+       )
 
 let rec ftaors fR fThm weakenthms name cxt stuff proved =
   match compiledthingnamed name with
