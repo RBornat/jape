@@ -534,6 +534,10 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
        know this is a sort of temporary thing, and perhaps we need a new mechanism to deal with
        it, but for now this is what I'm doing. RB 29/09/20
      *)
+    (* and now augmenthyps actually deals with FRESH provisos, because of the way 
+       that a hypothesis selection not-at-a-tip works. So there's no need (?) to steer clear of 
+       FRESH provisos. RB 05/10/20
+     *)
     let rec deepest_samehyps tree (FmtPath ks) =
       (* a strange recursion. shs goes to the end of path to find hs, and gives an empty path to that subtree.
          On the way back, if hs are the same, and it isn't a FRESH proviso node, it gives the same hs and an empty path.
@@ -555,11 +559,14 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
                   | Collection (_, BagClass FormulaClass, es),
                     Collection (_, BagClass FormulaClass, es') ->
                       null (listsub sameresource es es')
-                  | _ -> hs = hs') &&
-                 (match stepprovisos t with
-                  | Some provisos -> not (List.exists (isFreshProviso <.> snd) provisos)
-                  | None          -> true
-                 )
+                  | _ -> hs = hs') 
+                 (* not needed: see above. RB 05/10/20
+                    &&
+                    (match stepprovisos t with
+                     | Some provisos -> not (List.exists (isFreshProviso <.> snd) provisos)
+                     | None          -> true
+                    )
+                  *)
               then Some hs, (match format t with
                              | TreeFormat(HideRootFormat,_,_)
                              | TreeFormat(HideCutFormat,_,_)   -> f ns      (* we don't want this one -- take previous *)
