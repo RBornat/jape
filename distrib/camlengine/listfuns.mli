@@ -58,6 +58,7 @@ val drop : int -> 'a list -> 'a list
 val _BMzip : 'a list -> 'b list -> ('a * 'b) list
 val takewhile : ('a -> bool) -> 'a list -> 'a list
 val dropwhile : ('a -> bool) -> 'a list -> 'a list
+val tabulate : int -> (int -> 'a) -> 'a list
 (* get ready for change to proper fold semantics *)
 val foldr : ('a -> 'b -> 'b) -> 'b -> 'a list -> 'b
 val foldl : ('b -> 'a -> 'b) -> 'b -> 'a list -> 'b
