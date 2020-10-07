@@ -89,6 +89,6 @@ TACTIC fstep IS
     ALT (ANY (MATCH see)) (trueforward SKIP) /* avoid nasty 'hyp matches two ways', I hope */
 
 TACTIC applysyllogism (s) IS
-    WHEN (LETHYPS _As (CUTIN (WITHHYPSEL s)))
-         (SEQ (RESOLVE s) /* fstep fstep */)
+    WHEN (LETHYPS _As (CUTIN (RESOLVE s) (WITHHYPSEL see) (WITHHYPSEL see)))
+         (SEQ (RESOLVE s) fstep fstep )
          
