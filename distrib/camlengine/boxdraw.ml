@@ -299,8 +299,8 @@ let my_selstring = string_of_sel string_of_path
 type revpath = RevPath of int list          (* no more uncertainty *)
    
 type normalpt =
-  | LinPT of (revpath * bool * element list * string option *
-                (reason * element list * normalpt list) option)
+  | LinPT of (revpath * bool * element list * string option *       (* elements are the conclusions *)
+                (reason * element list * normalpt list) option)     (* elements are the antecedents *)
   | BoxPT of (revpath * bool * (string * string) * element list * normalpt)
   | CutPT of (revpath * element * normalpt * normalpt * bool * bool)
   | TransitivityPT of (element * normalpt * normalpt)
@@ -357,10 +357,10 @@ let rec pretransform prefixwithstile t =
     | true , true  -> false, respt (aslines true)
     | false, true  -> boxpt (respt (aslines true))
     | false, false -> boxpt (respt (pt rp hs t))
-    | _            ->
+    | true , false ->
         ((* not an Id or a box ... *)
          (* The cut transformation applies to cut nodes in which
-          * the first antecedent has a single rhs formula (why?).
+          * the first antecedent has a single rhs formula.
           * If the left antecedent is proved then the cut line is treated as a hypothesis (CutHyp); 
           * otherwise, if the right has no open Tips which could use the cut formula then 
           * it's treated as a conclusion (CutConc); 
@@ -400,7 +400,7 @@ let rec pretransform prefixwithstile t =
   in
   match respt (pt [] [] t) with
   | BoxPT (pi, _, _, hs, ptr) -> BoxPT (pi, !outermostbox, outerwords, hs, ptr)
-  | ptr                          -> ptr
+  | ptr                       -> ptr
 
 (******** Step 2: compute class of each element, element texts and sizes, and paths ********)
 
@@ -484,14 +484,15 @@ type elementinfo_of_plan = textinfo * elementplankind
 type elinfo = element * elementinfo_of_plan
 type wordp = textinfo * textinfo
 type dependency =
-  | LinDep of (elementinfo_of_plan list * textinfo option * reasoninfo)
+  | LinDep of lindep
   | BoxDep of (bool * (textinfo * textinfo) * textinfo option list * elinfo list * dependency)
-  | IdDep of (element * dependency)
+  | IdDep of (element * lindep)
   | CutDep of (dependency * element * dependency * bool)
   | TranDep of (textinfo option * elementinfo_of_plan * trandep list)
 and reasoninfo = (pathinfo * textinfo * element list * dependency list) option
+and lindep = elementinfo_of_plan list * textinfo option * reasoninfo
 and trandep = textinfo * elementinfo_of_plan * reasoninfo
-(*   op         formula        *)
+         (*   op         formula        *)
 
 let string_of_elementinfo_of_plan =
   string_of_pair string_of_textinfo string_of_elementplankind ", "
@@ -506,19 +507,22 @@ and string_of_reasoninfo r =
        (bracketed_string_of_list string_of_element ",")
        (bracketed_string_of_list string_of_dependency ",") ",")
     r
+and string_of_lindep (elis, txopt, ropt) =
+  Printf.sprintf "%s,%s,%s"
+                 (bracketed_string_of_list string_of_elementinfo_of_plan "," elis)
+                 (string_of_option string_of_textinfo txopt)
+                 (string_of_reasoninfo ropt)
 and string_of_dependency d =
   match d with
   | LinDep l ->
-      "LinDep" ^
-        string_of_triple (bracketed_string_of_list string_of_elementinfo_of_plan ",")
-          (string_of_option string_of_textinfo) string_of_reasoninfo "," l
+      Printf.sprintf "LinDep(%s)" (string_of_lindep l)
   | BoxDep d ->
       "BoxDep" ^
         string_of_quintuple string_of_bool
           (string_of_pair string_of_textinfo string_of_textinfo ",")
           (bracketed_string_of_list (string_of_option string_of_textinfo) ";")
           (bracketed_string_of_list string_of_elinfo ";") string_of_dependency "," d
-  | IdDep i -> "IdDep" ^ string_of_pair string_of_element string_of_dependency "," i
+  | IdDep i -> "IdDep" ^ string_of_pair string_of_element string_of_lindep "," i
   | CutDep c ->
       "CutDep" ^
         string_of_quadruple string_of_dependency string_of_element string_of_dependency
@@ -572,10 +576,10 @@ let rec dependency tranreason deadf aenv pt =
       let rec mkplan e =
         textinfo_of_element e, deadf (bool_of_opt justopt) mkconcplan pi e
       in
-      let dep = LinDep ((mkplan <* concs), dostopt stopt, linsubs pi justopt) in
+      let ldep = (mkplan <* concs), dostopt stopt, linsubs pi justopt in
       (match isid, justopt with
-       | true, Some (_, [lp], []) -> IdDep (lp, dep)
-       | _                        -> dep
+       | true, Some (_, [lp], []) -> IdDep (lp, ldep)
+       | _                        -> LinDep ldep
       )
   | BoxPT (rp, boxit, (sing, plur), hs, pt') ->
       let pi = ordinarypi rp in
@@ -924,12 +928,12 @@ let rec linearise screenwidth procrustean_reasonW dp =
   let rec mkreasonplan reason p =
     match reason with
     | None                 -> [], emptytextbox, NoReason
-    | Some (pi, why, cids) ->
+    | Some (pi, why, _, _, cids) ->
         let rplan, rbox =
           (let reasonf = plan_of_textinfo why (ReasonPlan pi) in
            let antesf =
              plan_of_textinfo (textinfo_of_string ReasonFont (_IDstring cids))
-               ReasonPunctPlan
+                              ReasonPunctPlan
            in
            if !boxlinedressright then
              planfollowedby (reasonf p)
@@ -996,10 +1000,14 @@ let rec linearise screenwidth procrustean_reasonW dp =
     else downby (botleft b) (if lastmulti || thismulti then 2*leading else leading + 1)
   in
   (* idok is what to do if you are an IdDep -- 
-   *   true means disappear if you like;
-   *   false means you are the last line of a box, so disappear iff you refer to the previous line.
+   *    true means disappear if you like;
+   *    false means you are the last line of a box, so disappear iff you refer to the previous line.
+   * wopt is None on the first pass, Some bestW on the second pass of _L, 
+   *    when we have estimates of how wide the rendering is
+   * fpA is force priorAntes --
+   *    make the antecedents of a line appear in order before it.
    *)
-  let rec _L wopt hypmap idok dp (accrec as acc) =
+  let rec _L wopt hypmap idok dp acc =
       let rec getIdDep el =
         match mapped sameresource hypmap el with
         | Some cid -> cid, acc
@@ -1024,13 +1032,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
               let (cid, acc') = getcid dp acc in cid :: cids, acc'
             in
             let (cids', acc') = nj_revfold dosub subdps (List.rev lcids, acc) in
-            (* here is where we do the priorAntes stuff. RB 08/2020 
-               We have generated the subproofs for the antecedents, giving us the lines (rev cids').
-               If we have priorAntes, we may need to put in some hyp lines.
-             *)
-            if !priorAntes then
-              consolereport["priorAntes: at line "; _IDr acc'.id; "; antes are "; bracketed_string_of_list _Cr ";" (List.rev cids')];
-            acc', Some (pi, rinf, List.rev cids')
+            acc', Some (pi, rinf, lprins, subdps, List.rev cids')
       in
       (* plan a line: mkp does the content *)
       let rec doconcline mkp needsreason (acc, justinf) multi =
@@ -1054,17 +1056,17 @@ let rec linearise screenwidth procrustean_reasonW dp =
       match dp with
       | IdDep (el, lindep) -> (* this is where we now decide whether to hide identity lines. RB 07/2020 *)
           let is_prev () = match mapped sameresource hypmap el with
-                           | Some (LineID id') -> accrec.id = _RR id'
+                           | Some (LineID id') -> acc.id = _RR id'
                            | _                 -> false
           in
           if (idok && !hidehyp) || (!hidehyp && is_prev ())
           then getIdDep el
-          else _L wopt hypmap false lindep acc
+          else _L wopt hypmap false (LinDep lindep) acc  (* This does not rebuild anything, because it has no subtrees *)
       | LinDep (concels, stopt, justopt) ->
           let concels' =
             match !foldformulae, wopt with
             | true, Some bestW ->
-                   foldformula (bestW - 2 * posX (topleft accrec.elbox) - commaW) <* concels
+                   foldformula (bestW - 2 * posX (topleft acc.elbox) - commaW) <* concels
             | _ -> concels
           in
           let rec mkp p =
@@ -1072,10 +1074,55 @@ let rec linearise screenwidth procrustean_reasonW dp =
               (plans_of_things (uncurry2 plan_of_textinfo) commaf nullf concels')
               p
           in
-          let (id', acc') =
-            doconcline mkp true (dolinsubs hypmap acc justopt) (List.length concels'>1)
+          let acc', justinf = dolinsubs hypmap acc justopt in
+          (* here is where we do the priorAntes stuff. RB 08/2020 
+             We have generated the subproofs for the antecedents, giving us the linenumbers cids.
+             If we have priorAntes, we may need to put in some hyp lines.
+           *)
+          let justinf', acc'' =
+            match !priorAntes, justinf with 
+            | true, Some (pi,rinf,lprins,subdps,cids) ->
+                (* separate the lprins cids: we can't deal with them *)
+                let lpcids, cids = Listfuns.take (List.length lprins) cids, Listfuns.drop (List.length lprins) cids in
+                consolereport["priorAntes: at line "; _IDr acc'.id; "; antes are "; bracketed_string_of_list _Cr ";" cids];
+                (* are they all there already? *)
+                let idealcids acc cids = List.rev (Listfuns.tabulate (List.length cids) (fun k -> LineID (acc.id - k - 1))) in
+                let check acc cids =
+                  let pairs = cids|||idealcids acc cids in
+                  let ok = function
+                    | LineID i, LineID j    -> i=j
+                    | LineID i, BoxID (j,k) -> i=k
+                    | _                     -> false
+                  in
+                  List.for_all ok pairs
+                in
+                (* recursively check the cids; try to patch them up with identity lines *)
+                let rec repair acc revcids revdps = 
+                  consolereport ["repair "; bracketed_string_of_list _Cr ";" revcids; " "; 
+                                            bracketed_string_of_list string_of_dependency ";" revdps];
+                  if check acc (List.rev revcids) then
+                    (consolereport [" -- ok "; bracketed_string_of_list _Cr ";" (List.rev revcids)];
+                     revcids, acc
+                    )
+                  else
+                    (let revcids', acc = repair acc (List.tl revcids) (List.tl revdps) in
+                     let dp = List.hd revdps in
+                     match dp with
+                     | IdDep (_,lindep) -> consolereport ["repair patching with "; string_of_dependency dp];
+                                           let id, acc = _L wopt hypmap false (LinDep lindep) acc in
+                                           consolereport ["got id "; _Cr id];
+                                           id::revcids', acc
+                     | _                -> consolereport ["repair sees "; string_of_dependency dp]; List.hd revcids::revcids', acc
+                    )
+                in
+                let revcids, acc = repair acc' (List.rev cids) (List.rev subdps) in
+                Some (pi,rinf,lprins,subdps,lpcids@List.rev revcids), acc
+            | _ -> justinf, acc'
           in
-          LineID id', acc'
+          let (id', acc''') =
+            doconcline mkp true (acc'', justinf') (List.length concels'>1)
+          in
+          LineID id', acc'''
       | BoxDep (boxed, hypdescwords, hypassts, hypelis, dp (* as stuff *)) ->
              (* consolereport ["BoxDep "; string_of_quintuple string_of_bool
                                                               (string_of_pair string_of_textinfo string_of_textinfo ",")
@@ -1087,13 +1134,13 @@ let rec linearise screenwidth procrustean_reasonW dp =
                         ]; *)
           let (topleftpos, hindent, vindent, innerpos) =
             if boxed then
-              let topleftpos = nextpos accrec.elbox boxleading accrec.lastmulti false in
+              let topleftpos = nextpos acc.elbox boxleading acc.lastmulti false in
               let hindent = linethickness + boxhspace in
               let vindent = linethickness + boxvspace in
               topleftpos, hindent, vindent,
               topleftpos +->+ pos hindent vindent
             else
-              let topleftpos = nextpos accrec.elbox textleading accrec.lastmulti false in
+              let topleftpos = nextpos acc.elbox textleading acc.lastmulti false in
               topleftpos, 0, 0, topleftpos
           in
           let isScopeElinfo = bool_of_opt <.> Paragraph.isScopeHyp <.> stripelement <.> fst in
@@ -1170,8 +1217,8 @@ let rec linearise screenwidth procrustean_reasonW dp =
                       bracketed_string_of_list (bracketed_string_of_list string_of_elinfo ";") ";" norms
                      ];
              *)
-            let hypmap, lacc = nj_revfold (dohypline false) scopes (hypmap, startLacc accrec.id innerpos) in
-            let hypmap, lacc = nj_revfold (dohypline false) specials (hypmap, startLacc accrec.id innerpos) in
+            let hypmap, lacc = nj_revfold (dohypline false) scopes (hypmap, startLacc acc.id innerpos) in
+            let hypmap, lacc = nj_revfold (dohypline false) specials (hypmap, startLacc acc.id innerpos) in
             nj_revfold (dohypline true) norms (hypmap, lacc)
           in
           let (cid, {id = id''; acclines = innerlines; elbox = innerbox;
@@ -1181,9 +1228,9 @@ let rec linearise screenwidth procrustean_reasonW dp =
           let outerbox = bOutset innerbox (size hindent vindent) in
           let cid' =
             match cid with
-            | LineID jd     -> BoxID (accrec.id, jd)
-            | BoxID (_, jd) -> BoxID (accrec.id, jd)
-            | HypID _       -> if accrec.id = id' then LineID accrec.id else BoxID (accrec.id, id')
+            | LineID jd     -> BoxID (acc.id, jd)
+            | BoxID (_, jd) -> BoxID (acc.id, jd)
+            | HypID _       -> if acc.id = id' then LineID acc.id else BoxID (acc.id, id')
             | NoID          -> raise (Catastrophe_ ["NoID in BoxDep"])
           in
           cid',
@@ -1193,9 +1240,9 @@ let rec linearise screenwidth procrustean_reasonW dp =
                        boxlines = innerlines; 
                        boxed    = boxed
                       } 
-             :: accrec.acclines;
-           elbox = accrec.elbox +||+ outerbox; idW = max accrec.idW idW';
-           reasonW = max accrec.reasonW (reasonW'); assW = max accrec.assW assW'; 
+             :: acc.acclines;
+           elbox = acc.elbox +||+ outerbox; idW = max acc.idW idW';
+           reasonW = max acc.reasonW (reasonW'); assW = max acc.assW assW'; 
            lastmulti = false }
       | CutDep (ldp, cutel, rdp, tobehidden) ->
           (* this is where we hide cut hypotheses completely, if asked.  If the lhs is a single 
@@ -1216,14 +1263,14 @@ let rec linearise screenwidth procrustean_reasonW dp =
             match tobehidden, ldp with
             | true, LinDep (_, _, Some just) ->
                 (match just with
-                 | _, _, [el], [] -> getIdDep el
-                 | _, _, [], [IdDep (el, _)] -> getIdDep el
-                 | _, _, [], [] -> NoID, acc
-                 | _ -> noway ()
+                 | _, _, [el], []              -> getIdDep el
+                 | _, _, []  , [IdDep (el, _)] -> getIdDep el
+                 | _, _, []  , []              -> NoID, acc
+                 | _                           -> noway ()
                 )
             | true, IdDep (el, _) -> getIdDep el
-            | true, _ -> noway ()
-            | _ -> leftdefault ()
+            | true, _             -> noway ()
+            | _                   -> leftdefault ()
           in
           _L wopt ((hypmap ++ (cutel |-> cutelid))) idok rdp acc'
       | TranDep (stopt, terminf, tdeps) ->
@@ -1329,7 +1376,7 @@ let rec linearise screenwidth procrustean_reasonW dp =
           let w = availableW - (tsW (textsize_of_planlist reasonplan) - tsW (fst why)) in
           let trunc, why' = textinfo_procrustes (max minreasonW w) origin why in
           reasonstruncated := !reasonstruncated || trunc;
-          {line with reasonplan = realignreasonplan (mkreasonplan (Some (pi, why', cids)) origin)}
+          {line with reasonplan = realignreasonplan (mkreasonplan (Some (pi, why', [], [], cids)) origin)}
       | ReasonWord why ->
           let trunc, why' = textinfo_procrustes (max minreasonW availableW) origin why in
           reasonstruncated := !reasonstruncated || trunc;
