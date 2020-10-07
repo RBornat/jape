@@ -218,6 +218,14 @@ let rec split f =
   | x :: xs ->
       let (yess, nos) = split f xs in
       if f x then x :: yess, nos else yess, x :: nos
+      
+let tabulate n f =
+  let rec tab i xs =
+    if i>=n then List.rev xs
+            else tab (i+1) (f i::xs)
+  in
+  tab 0 []
+
 
 (* smooth applicative merge sort
  * Taken from "ML for the Working Programmer", Paulson, pp 99-100
