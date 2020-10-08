@@ -30,21 +30,21 @@ USE "Syllogisms syntax.j"
 USE "Syllogisms rules.j"
 
 INITIALISE autoAdditiveLeft true
-INITIALISE applyconjectures none
+INITIALISE applyconjectures none    /* see RADIOBUTTON below */
 
-INITIALISE displaystyle box
-INITIALISE outermostbox false
-INITIALISE innerboxes false
+INITIALISE displaystyle box         /* see RADIOBUTTON below */
+INITIALISE outermostbox false       
+INITIALISE innerboxes false         /* see RADIOBUTTON below */
 
 INITIALISE outerassumptionword "assumption"
 INITIALISE innerassumptionword "assumption"
 
 INITIALISE multiassumptionlines false
 
-INITIALISE hidecut true
-INITIALISE hidehyp true
+INITIALISE hidecut true 
+INITIALISE hidehyp true             
 INITIALISE priorAntes true
-INITIALISE hidewhy true
+INITIALISE hidewhy true             /* see RADIOBUTTON below */
 
 INITIALISE multihypsel true
 
@@ -129,10 +129,11 @@ MENU Rules IS
                    
   SEPARATOR
   
-  ENTRY contra IS "contra-tac"
+  /* ENTRY contra IS "contra-tac" */
 
-  ENTRY same IS SEQ remstar (WHEN (LETHYP _A (see _A))
-                                 see)
+  ENTRY "see previous" IS SEQ remstar (WHEN (LETHYP _A (see _A))
+                                            see
+                                      )
 END
 
 MENU Edit
@@ -151,5 +152,13 @@ MENU Edit
   AND  "just numbers"       IS true
   INITIALLY true
   END
+  RADIOBUTTON applyconjectures
+       "apply only proved theorems and rules"   IS none
+  AND  "apply unproved theorems"                IS theorems
+  AND  "apply unproved rules"                   IS rules
+  AND  "apply unproved theorems and rules"      IS all
+  INITIALLY none
+  END
+  
 END
 
