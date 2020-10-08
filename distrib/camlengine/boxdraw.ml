@@ -1082,9 +1082,8 @@ let rec linearise screenwidth procrustean_reasonW dp =
           let justinf', acc'' =
             match !priorAntes, justinf with 
             | true, Some (pi,rinf,lprins,subdps,cids) ->
-                (* separate the lprins cids: we can't deal with them *)
+                (* separate the lprins cids: we can't improve them *)
                 let lpcids, cids = Listfuns.take (List.length lprins) cids, Listfuns.drop (List.length lprins) cids in
-                consolereport["priorAntes: at line "; _IDr acc'.id; "; antes are "; bracketed_string_of_list _Cr ";" cids];
                 (* are they all there already? *)
                 let idealcids acc cids = List.rev (Listfuns.tabulate (List.length cids) (fun k -> LineID (acc.id - k - 1))) in
                 let check acc cids =
@@ -1098,25 +1097,19 @@ let rec linearise screenwidth procrustean_reasonW dp =
                 in
                 (* recursively check the cids; try to patch them up with identity lines *)
                 let rec repair acc revcids revdps = 
-                  consolereport ["repair "; bracketed_string_of_list _Cr ";" revcids; " "; 
-                                            bracketed_string_of_list string_of_dependency ";" revdps];
-                  if check acc (List.rev revcids) then
-                    (consolereport [" -- ok "; bracketed_string_of_list _Cr ";" (List.rev revcids)];
-                     revcids, acc
-                    )
+                  if check acc (List.rev revcids) then revcids, acc
                   else
                     (let revcids', acc = repair acc (List.tl revcids) (List.tl revdps) in
                      let dp = List.hd revdps in
                      match dp with
-                     | IdDep (_,lindep) -> consolereport ["repair patching with "; string_of_dependency dp];
-                                           let id, acc = _L wopt hypmap false (LinDep lindep) acc in
-                                           consolereport ["got id "; _Cr id];
+                     | IdDep (_,lindep) -> let id, acc = _L wopt hypmap false (LinDep lindep) acc in
                                            id::revcids', acc
-                     | _                -> consolereport ["repair sees "; string_of_dependency dp]; List.hd revcids::revcids', acc
+                     | _                -> (* consolereport ["Boxdraw.repair sees "; string_of_dependency dp]; *) 
+                                           List.hd revcids::revcids', acc
                     )
                 in
-                let revcids, acc = repair acc' (List.rev cids) (List.rev subdps) in
-                Some (pi,rinf,lprins,subdps,lpcids@List.rev revcids), acc
+                let revcids, acc'' = repair acc' (List.rev cids) (List.rev subdps) in
+                Some (pi,rinf,lprins,subdps,lpcids@List.rev revcids), acc''
             | _ -> justinf, acc'
           in
           let (id', acc''') =
