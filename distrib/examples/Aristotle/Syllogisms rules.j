@@ -24,7 +24,8 @@
 
 INITIALISE seektipselection false       /* yes, we are going to use CUTIN */
 
-RULE see IS INFER A ⊢ A
+RULE see(A) IS INFER A ⊢ A
+
 RULE cut(B) IS FROM B AND B ⊢ C INFER C
 
 STRUCTURERULE IDENTITY   see
@@ -78,17 +79,3 @@ MACRO "Syllogism-tac" (rule, hpat1, hpat2, mpat, cpat) IS
        )
        (LETGOAL _A (Fail ("%t does not infer the conclusion %t", rule, _A)))       
 
-/* for applying syllogisms as theorems. Part-copied from ../forwardstep_technology/forwardstep.j */
-
-MACRO trueforward(tac) IS
-    LETGOAL _A 
-        (CUTIN (LETGOAL _B (UNIFY _A _B) tac)) 
-        (ANY (MATCH see))
-        
-TACTIC fstep IS
-    ALT (ANY (MATCH see)) (trueforward SKIP) /* avoid nasty 'hyp matches two ways', I hope */
-
-TACTIC applysyllogism (s) IS
-    WHEN (LETHYPS _As (CUTIN (RESOLVE s) (WITHHYPSEL see) (WITHHYPSEL see)))
-         (SEQ (RESOLVE s) fstep fstep )
-         
