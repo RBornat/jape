@@ -586,8 +586,11 @@ public class JapeMenu implements DebugConstants {
             if (s.length()!=0)
                 ss.add(s);
         }
-        if (ss.size()!=0)
-            Reply.sendCOMMAND("use",(String[])ss.toArray());
+        System.err.print(" "+ss+"\n");
+        if (ss.size()!=0) {
+            String[] uss = ss.toArray(new String[ss.size()]);
+            Reply.sendCOMMAND("use", uss);
+        }
     }
 
     private static class PrefsAction extends ItemAction {
