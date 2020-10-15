@@ -1,0 +1,33 @@
+\begin{thebibliography}{4}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Dyckhoff(1992)]{dyckhoff1992contraction}
+Roy Dyckhoff.
+\newblock Contraction-free sequent calculi for intuitionistic logic.
+\newblock \emph{The Journal of Symbolic Logic}, 57\penalty0 (3):\penalty0
+  795--807, 1992.
+
+\bibitem[Dyckhoff(2019)]{dyckhoff2019indefinite}
+Roy Dyckhoff.
+\newblock Indefinite proof and inversions of syllogisms.
+\newblock \emph{Bulletin of Symbolic Logic}, 2019.
+
+\bibitem[Dyckhoff et~al.(1989)Dyckhoff, Leslie, and Read]{dyckhoff1989malt}
+Roy Dyckhoff, Neil Leslie, and Stephen Read.
+\newblock {MALT St Andrews (MacLogic---a proof assistant for first-order
+  logic)}.
+\newblock \emph{Computerised Logic Teaching Bulletin}, 2\penalty0 (1):\penalty0
+  51--69, 1989.
+
+\bibitem[von Plato et~al.(2016)von Plato, Probst, and
+  Schuster]{von2016aristotle}
+Jan von Plato, D~Probst, and P~Schuster.
+\newblock Aristotle's deductive logic: a proof-theoretical study.
+\newblock \emph{Concepts of Proof in Mathematics, Philosophy, and Computer
+  Science}, 6:\penalty0 323, 2016.
+
+\end{thebibliography}
