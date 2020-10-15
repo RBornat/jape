@@ -1,5 +1,5 @@
 % !TEX root = roll_your_own.tex
-\chapter{The command language, environment variables and the default environment}
+\chapter{The command language and environment variables}
 \label{appx:GUIlang}
 
 
@@ -191,9 +191,6 @@ hidecut & {\raggedright true, false} & {\raggedright true} & {\raggedright hide 
 hidehyp & {\raggedright true, false} & {\raggedright true} & hide the application of identity rules (those declared by \textsc{structurerule identity}) in box display.\\
 \hline
 
-hidehypprev & {\raggedright true, false} & {\raggedright false} & hide the application of identity rules (those declared by \textsc{structurerule identity}) which refer to the previous line in box display.\\
-\hline
-
 hidereflexivity & true, false & true & hide the application of reflexivity rules (those declared by \textsc{reflexive}) in box display.\\
 \hline
 
@@ -215,11 +212,14 @@ multiassumptionlines & true, false & true & Allow more than one assumption on th
 
 multihypsel & true, false & false & Allow the user to select (with shift-click or the like) more than one hypothesis at a time. (There seems no need for a corresponding mechanism for conclusions.).\\ \hline
 
-outerassumptionplural & any string & "assumptions" & justification to use, in box display, on first line of a proof if it contains more than one assumption. (Often changed to "premises".)\\ \hline
+outerassumptionplural & any string & "assumptions" & justification to use, in box display, on first line of a proof if it contains more than one assumption. (Often changed to "premisses".)\\ \hline
 
 outerassumptionword & any string & "assumption" & justification to use, in box display, on first line of a proof if it contains only one assumption. (Often changed to "premise".)\\ \hline
 
 {\raggedright outermostbox} & {\raggedright true, false} & {\raggedright true} & {\raggedright when true, draw an outermost box in box display when proving a conjecture which has hypothesis formulae.}\\
+\hline
+
+priorAntes & true, false & false & In box display, precede each proved conclusion by a sequence of lines which contain its antecedents (the first of which can be the last line of a box). The antecedents will include identity (hyp) lines, even if hidehyp is true.\footnote{ At the time of writing, priorAntes needs help from the theory, which should use cut, \textsc{CUTIN} and identity steps so that the display can be properly constructed.}\\
 \hline
 
 rawfmt & any string & "{[}\%s{]}"  & Something to do with \textsc{layout}. Can't remember otherwise. Sorry.\\ \hline
@@ -256,6 +256,6 @@ There are at present few ways in which the value of a variable can be used, once
 \subsection{Debugging variables}
 
 
-Jape has a number of debugging variables. Setting any of them to true makes it print lots of stuff on the console. You can find out what they do by experiment and/or by reading the source code.
+Jape has a number of debugging variables. Setting any of them to true makes it print lots of stuff in the console window. You can find out what they do by experiment and/or by reading the source code.
 
  
