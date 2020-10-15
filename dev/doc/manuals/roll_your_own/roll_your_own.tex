@@ -18,6 +18,7 @@
 \definecolor{magenta}{cmyk}{0,1,0,0}
 \definecolor{halfgrey}{gray}{0.5}
 
+\usepackage[round]{natbib}
 \textwidth = 6.5 in
 \textheight = 9 in
 \oddsidemargin = 0.0 in
@@ -122,6 +123,11 @@
 \DeclareUnicodeCharacter{22A6}{\ensuremath{|-}}
 \DeclareUnicodeCharacter{22A7}{\ensuremath{|=}}
 \DeclareUnicodeCharacter{25C1}{\ensuremath{\triangleleft}}
+\DeclareUnicodeCharacter{220F}{\ensuremath{\Pi}}
+\DeclareUnicodeCharacter{2211}{\ensuremath{\Sigma}}
+\DeclareUnicodeCharacter{207A}{\ensuremath{^{+}}}
+\DeclareUnicodeCharacter{207B}{\ensuremath{^{-}}}
+
 
 \newcommand{\eqnref}[1]{(\ref{eqn:#1})}
 \newcommand{\figref}[1]{figure \ref{fig:#1}}
@@ -150,7 +156,7 @@
 
 \newcommand{\tab}{\hstrut{10pt}}
 
-\newenvironment{japeish}{\begin{quote}\tt\small}{\end{quote}}
+\newenvironment{japeish}{\begin{quote}\tt\footnotesize}{\end{quote}}
 \newcommand{\textj}[1]{{\tt\small{#1}}}
 
 \newenvironment{ruletab}[1]{\renewcommand{\arraystretch}{3.0}\begin{center}\begin{tabular}{#1}}%
@@ -161,6 +167,7 @@
 
 \begin{document}
 \maketitle
+\bibliographystyle{plainnat}
 
 \include{preface}
 \tableofcontents
@@ -176,6 +183,10 @@
 \include{I2L}
 \include{Kripke}
 \include{Hoare}
+\include{Aristotle}
+\clearpage
+\bibliography{roll_your_own}
+
 
 \appendix
 \include{paraformlang}
