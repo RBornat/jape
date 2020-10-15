@@ -115,7 +115,7 @@ public class LocalSettings implements SelectionConstants {
             // Jape.crash("The engine isn't responding!"); // if we return from handleQuit, we didn't exit
         });
         desktop.setOpenFileHandler(e -> {
-            System.err.print("JAPE OPEN FILESS: ");
+            System.err.print("JAPE OPEN FILES: ");
             JapeMenu.doOpenFiles(e.getFiles());
         });
 
