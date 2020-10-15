@@ -216,6 +216,9 @@ let defaultenv =
      "provisodebug"         , bj                         false        Proviso.provisodebug;
      "rawfmt"               , ajd                                     Prooftree.Tree.rawfmt;
      "reasonstyle"          , sj ["short"; "long"]       "long"       Prooftree.Tree.reasonstyle;
+     "sayDerived"           , bj                         true         Prooftree.Tree.sayDerived;
+     "sayResolve"           , bj                         true         Prooftree.Tree.sayResolve;
+     "sayTheorem"           , bj                         true         Prooftree.Tree.sayTheorem;
      "rewritedebug"         , bj                         false        Rewrite.rewritedebug;
      "selectiondebug"       , bj                         false        selectiondebug;
      "screenpositiondebug"  , bj                         false        screenpositiondebug;
