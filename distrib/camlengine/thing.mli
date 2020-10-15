@@ -70,7 +70,7 @@ val uniqueCut : unit -> name option
 
 val isRelation : term -> bool
 
-val thingdebug : bool ref
+val thingdebug      : bool ref
 val thingdebugheavy : bool ref
 
 exception Fresh_ of string list 
