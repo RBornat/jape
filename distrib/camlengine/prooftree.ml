@@ -158,6 +158,9 @@ module type Tree =
     exception FindTip_
     exception AlterProof_ of string list
     val reasonstyle : string ref
+    val sayTheorem : bool ref
+    val sayDerived : bool ref
+    val sayResolve : bool ref
   end
 
 module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
@@ -1462,6 +1465,9 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     (* **************************************** export **************************************** *)
     
     let reasonstyle = ref "long"
+    let sayTheorem = ref true
+    let sayDerived = ref true
+    let sayResolve = ref true
     
     let visible_subtrees showall =
       optf (fun pts -> (snd <* pts)) <.> visible_subtrees showall
@@ -1476,9 +1482,9 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
         else
           match thingnamed name with
           | Some (Theorem _, _) ->
-              [if proved name then "Theorem" else "Conjecture"; " "; string_of_name name]
+              [if proved name then (if !sayTheorem then "Theorem " else "") else "Conjecture "; string_of_name name]
           | Some (Rule (_, false), _) ->
-              [if proved name then "Derived Rule" else "Conjectured Rule"; " "; string_of_name name]
+              [if proved name then (if !sayDerived then "Derived Rule " else "") else "Conjectured Rule "; string_of_name name]
           | _ -> [string_of_name name]
       in
       let rec default_reason () =
@@ -1509,7 +1515,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
       in
       implode
         (if showall then
-           if step_resolve (j.how) then "Resolve " :: default_reason ()
+           if step_resolve (j.how) && !sayResolve then "Resolve " :: default_reason ()
            else default_reason ()
          else
            (* for some reason this put the default reason in the justification. I took it out
