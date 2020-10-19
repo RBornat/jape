@@ -34,6 +34,10 @@ What to do
 
 0. Download the InstallWindowsjape.jar file to your system. 
 
+   MAKE SURE YOU HAVE JAVA INSTALLED: version 9 is the earliest that will run
+   Jape properly. At the time of writing Java 15 is the one distributed by 
+   Oracle: that will run Jape perfectly.
+
 1. Run the program InstallWindowsjape.jar by double clicking on it, or by
    whatever other means you normally use to start a java program
    packaged as a .jar file. [See TROUBLESHOOTING note 2 below]

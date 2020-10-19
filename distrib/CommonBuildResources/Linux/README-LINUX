@@ -36,6 +36,10 @@ What to do
 0. Download the  InstallLinuxjape.jar file. **DO NOT DOUBLE-CLICK IT** (that unpacks
    it, and you want to execute it in the next step).
 
+   MAKE SURE YOU HAVE JAVA INSTALLED: version 9 is the earliest that will run
+   Jape properly. At the time of writing Java 15 is the one distributed by 
+   Oracle: that will run Jape perfectly.
+
 1. From a terminal window execute the jar file with
 
         java -jar InstallLinuxjape.jar

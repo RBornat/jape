@@ -2,13 +2,25 @@
 
 (The Jape version is shown in the Jape splash screen -- the window which comes up when you start Jape.)
 
+## Getting Jape
+
+Go to [github](https://github.com/RBornat/jape/releases) and download the latest version: for Macos it's called jape_*N*.dmg, where *N* is the version number. 
+
 ## Installation
 
-Copy Jape.app and the examples folder wherever you like. 
+Double-click the .dmg file. Copy Jape.app and the examples folder wherever you like. (But *don't* put the examples file on your Desktop; Jape isn't notarized by Apple yet, and it doesn't like Jape reading stuff from the Desktop.)
+
+## Java version
+
+Jape uses Java to drive its user interfaces (windows etc.). You need Java 9 or later to run it. It's ok to use the latest version (get it from Oracle). If you already have Java you can test the version you have by typing
+
+    java -version
+    
+in a Terminal window
 
 ## Running Jape
 
-The first time you run Jape, you will find that double-clicking it doesn't work, because we (Richard Bornat and Bernard Sufrin) haven't registered as Apple developers. So Ctrl-press on it, and choose Open from the pop-up menu, and say you trust us.
+The first time you run Jape, you will find that double-clicking it doesn't work, because we (Richard Bornat and Bernard Sufrin) haven't yet registered as Apple developers. Instead, the first time you use it you must Ctrl-press on the Jape application, and choose Open from the pop-up menu, and say you trust us.
 
 After that you can just double-click Jape to run it. 
 
@@ -20,7 +32,7 @@ So when you start Jape, go to Preferences in the Jape menu and choose a nice fon
 
 ## Choose a theory
 
-At present you have to open a theory file (.jt extension) through Jape's File menu (File>Open... or File>Open new theory...). The examples directory contains lots of example theories. The one I use in the Proof and Disproof book is `examples/natural_deduction/I2L.jt` .
+At present you have to open a theory file (.jt extension) through Jape's File menu (File>Open... or File>Open new theory...). The examples directory contains lots of example theories. The one I use in the Proof and Disproof book (see below) is `examples/natural_deduction/I2L.jt` .
 
 ## Have fun
 
