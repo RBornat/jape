@@ -186,7 +186,7 @@ let resnumbase = 1
  * dNd has to be complicated (sigh).
  * RB 14/viii/97
  *)
-(* Now that we have SingleDischargeProvisos, which include resnums, we have
+(* Now that we have DischargeProvisos, which include resnums, we have
    to number them as well. 
  *)
 
@@ -213,7 +213,7 @@ let rec numberrule (antes, conseq, provisos) =
   in
   let numberproviso antes (b,p as bp) ps =
     match p with
-    | Provisotype.SingleDischargeProviso rts ->
+    | Provisotype.DischargeProviso (nt,sing,rts) ->
         (* there won't be many of these, so we can do it the slow way *)
         let get_hes seq = let st, hkind, hes, gkind, ges = seq_entrails seq in hes in
         let all_hes = List.concat (List.map get_hes antes) in
@@ -229,7 +229,7 @@ let rec numberrule (antes, conseq, provisos) =
                                                       "; "; string_of_term t; " matches more than one antecedent hypothesis"
                                                      ])
         in
-        (b, Provisotype.SingleDischargeProviso (number_rt <* rts)) :: ps
+        (b, Provisotype.DischargeProviso (nt,sing,number_rt <* rts)) :: ps
     | _ -> bp::ps
   in
   let (n, leftenv, rightenv, conseq') = numberseq nj_fold _ResUnknown 1 empty empty conseq
@@ -291,9 +291,10 @@ let rec numberforapplication n (antes, conseq, provisos) =
   in
   let renumberproviso (b,p) = 
     b, match p with
-       | Provisotype.SingleDischargeProviso rts ->
-           Provisotype.SingleDischargeProviso
-             (List.map (function 
+       | Provisotype.DischargeProviso (nt,sing,rts) ->
+           Provisotype.DischargeProviso 
+             (nt,sing,
+              List.map (function 
                        | Resnum m', t -> Resnum (rnew m'),t
                        | rt -> raise (Catastrophe_ ["Thing.renumberproviso sees "; 
                                                    string_of_pair string_of_resnum string_of_term "," rt])

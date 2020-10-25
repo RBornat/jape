@@ -87,9 +87,13 @@ let catelim_invisbracketedstring_of_proviso b p tail =
   | DistinctProviso vs ->
       "DISTINCT " ::
          catelim_string_of_list (catelim_invisbracketedstring_of_term b) ", " vs tail
-  | SingleDischargeProviso rts -> (* we don't show the resnum *)
-      "SINGLEDISCHARGE " ::
-         catelim_string_of_list (fun (r,t) -> catelim_invisbracketedstring_of_term b t) ", " rts tail
+  | DischargeProviso (nt,sing,rts) -> (* we don't show the resnum *)
+      (match nt,sing with
+       | true , true  -> "SNTDISCHARGE"
+       | true , false -> "NTDISCHARGE"
+       | false, false -> "DISCHARGE"
+       | false, true  -> "??SDICHARGE??"
+      ) :: " " :: catelim_string_of_list (fun (r,t) -> catelim_invisbracketedstring_of_term b t) ", " rts tail
   
 let invisbracketedstring_of_proviso = stringfn_of_catelim <.> catelim_invisbracketedstring_of_proviso
 
@@ -149,12 +153,12 @@ let rec stripElement =
 let rec remapproviso env p =
   let _T = Match.remapterm env in
   match p with
-  | FreshProviso (h, g, r, v)     -> FreshProviso (h, g, r, _T v)
-  | NotinProviso (v, t)           -> NotinProviso (_T v, _T t)
-  | DistinctProviso vs            -> DistinctProviso (_T <* vs)
-  | NotoneofProviso (vs, pat, _C) -> NotoneofProviso ((_T <* vs), _T pat, _T _C)
-  | UnifiesProviso (_P1, _P2)     -> UnifiesProviso (_T _P1, _T _P2)
-  | SingleDischargeProviso rts    -> SingleDischargeProviso (List.map (fun (r, t) -> r, _T t) rts)
+  | FreshProviso (h, g, r, v)       -> FreshProviso (h, g, r, _T v)
+  | NotinProviso (v, t)             -> NotinProviso (_T v, _T t)
+  | DistinctProviso vs              -> DistinctProviso (_T <* vs)
+  | NotoneofProviso (vs, pat, _C)   -> NotoneofProviso ((_T <* vs), _T pat, _T _C)
+  | UnifiesProviso (_P1, _P2)       -> UnifiesProviso (_T _P1, _T _P2)
+  | DischargeProviso (nt,sing,rts)  -> DischargeProviso (nt,sing,List.map (fun (r, t) -> r, _T t) rts)
 
 let checkNOTINvars pname vars =
   List.iter
@@ -209,6 +213,11 @@ let rec parseProvisos () =
     ((fun v -> NotinProviso v) <* (vars >< terms))
   in
   let rec freshp p h g r v = p (h, g, r, v) in
+  let dp nt sing =
+    scansymb();
+    let ts = parseList canstartTerm parseTerm commasymbol in
+    [DischargeProviso (nt,sing,List.map (fun t -> Nonum, t) ts)]
+  in
   match currsymb () with
   | SHYID "FRESH" ->
       freshp _FreshProviso true true false <* parseNOTINvars "FRESH"
@@ -224,10 +233,9 @@ let rec parseProvisos () =
       freshp _FreshProviso false true true <* parseNOTINvars "CONCFRESH"
   | SHYID "DISTINCT" ->
       [DistinctProviso (parseNOTINvars "DISTINCT")]
-  | SHYID "SINGLEDISCHARGE" ->
-      scansymb();
-      let ts = parseList canstartTerm parseTerm commasymbol in
-      [SingleDischargeProviso (List.map (fun t -> Nonum, t) ts)]
+  | SHYID "SNTDISCHARGE" -> dp true  true
+  | SHYID "NTDISCHARGE"  -> dp true  false
+  | SHYID "DISCHARGE"    -> dp false false
   | sy ->
       if canstartTerm sy then
         let (class__, els) =
@@ -284,12 +292,12 @@ let rec parseProvisos () =
 let earlierproviso p1 p2 =
   let lin1 =
     function
-    | FreshProviso (h, g, r, v)     -> (if h then 10 else 0) + (if g then 20 else 0) + (if r then 40 else 0)
-    | DistinctProviso vs            -> 300
-    | NotinProviso (v, t)           -> 400
-    | NotoneofProviso (vs, pat, _C) -> 500
-    | UnifiesProviso (t, t')        -> 600
-    | SingleDischargeProviso rts    -> 700
+    | FreshProviso (h, g, r, v)         -> (if h then 10 else 0) + (if g then 20 else 0) + (if r then 40 else 0)
+    | DistinctProviso vs                -> 300
+    | NotinProviso (v, t)               -> 400
+    | NotoneofProviso (vs, pat, _C)     -> 500
+    | UnifiesProviso (t, t')            -> 600
+    | DischargeProviso (nt,sing,rts)    -> 700 + (if nt then 10 else 0) + (if sing then 10 else 0)
   in
   let lin2 =
     function
@@ -300,7 +308,7 @@ let earlierproviso p1 p2 =
         nj_fold (fun (v, ss) -> string_of_term v :: ss) vs
                 [string_of_term pat; string_of_term _C]
     | UnifiesProviso (t, t')        -> [string_of_term t; string_of_term t']
-    | SingleDischargeProviso rts    -> List.map (string_of_term <.> snd) rts
+    | DischargeProviso (nt,sing,rts)    -> List.map (string_of_term <.> snd) rts
   in
   let n1 = lin1 p1 in
   let n2 = lin1 p2 in
@@ -308,12 +316,12 @@ let earlierproviso p1 p2 =
 
 let provisovars termvars tmerge p =
   match p with
-  | FreshProviso (_, _, _, t)     -> termvars t
-  | UnifiesProviso (t1, t2)       -> tmerge (termvars t1) (termvars t2)
-  | NotinProviso (t1, t2)         -> tmerge (termvars t1) (termvars t2)
-  | DistinctProviso vs            -> nj_fold (uncurry2 tmerge) (termvars <* vs) []
-  | NotoneofProviso (vs, pat, _C) -> nj_fold (uncurry2 tmerge) (termvars <* vs) (termvars _C)
-  | SingleDischargeProviso rts    -> nj_fold (uncurry2 tmerge) ((termvars <.> snd) <* rts) []
+  | FreshProviso (_, _, _, t)       -> termvars t
+  | UnifiesProviso (t1, t2)         -> tmerge (termvars t1) (termvars t2)
+  | NotinProviso (t1, t2)           -> tmerge (termvars t1) (termvars t2)
+  | DistinctProviso vs              -> nj_fold (uncurry2 tmerge) (termvars <* vs) []
+  | NotoneofProviso (vs, pat, _C)   -> nj_fold (uncurry2 tmerge) (termvars <* vs) (termvars _C)
+  | DischargeProviso (nt,sing,rts)  -> nj_fold (uncurry2 tmerge) ((termvars <.> snd) <* rts) []
 
 let provisoVIDs p =
   orderVIDs ((vid_of_var <* provisovars termvars tmerge p))
@@ -323,15 +331,15 @@ let maxprovisoresnum p =
     nj_fold (uncurry2 max) ((int_of_resnum <* elementnumbers t)) n
   in
   match p with
-  | FreshProviso (_, _, _, t)     -> f t 0
-  | UnifiesProviso (t1, t2)       -> f t1 (f t2 0)
-  | NotinProviso (v, t)           -> f v (f t 0)
-  | DistinctProviso vs            -> nj_fold (uncurry2 f) vs 0
-  | NotoneofProviso (vs, pat, _C) -> nj_fold (uncurry2 f) vs (f _C 0)
-  | SingleDischargeProviso rts    -> (* an element is not a collection, whatever the type says. So we just look for max
-                                        in the resnums of rts
-                                      *)
-                                     nj_fold (uncurry2 max) ((int_of_resnum <.> fst) <* rts) 0
+  | FreshProviso (_, _, _, t)       -> f t 0
+  | UnifiesProviso (t1, t2)         -> f t1 (f t2 0)
+  | NotinProviso (v, t)             -> f v (f t 0)
+  | DistinctProviso vs              -> nj_fold (uncurry2 f) vs 0
+  | NotoneofProviso (vs, pat, _C)   -> nj_fold (uncurry2 f) vs (f _C 0)
+  | DischargeProviso (nt,sing,rts)  -> (* an element is not a collection, whatever the type says. So we just look for max
+                                          in the resnums of rts
+                                        *)
+                                       nj_fold (uncurry2 max) ((int_of_resnum <.> fst) <* rts) 0
 
 (* make DISTINCT out of several NOTINs and vice-versa; 
    make a single FRESH out of several
@@ -438,12 +446,12 @@ let rec groundedprovisos names provisos =
   let rec isop p =
     let r =
       match p with
-      | FreshProviso (_, _, _, v)     -> ismetav v && isot v
-      | NotinProviso (v, t)           -> ismetav v && isot v || isot t
-      | DistinctProviso vs            -> not (List.exists (not <.> isot) vs)
-      | NotoneofProviso (vs, pat, _C) -> not (List.exists (not <.> isot) vs) || isot _C
-      | UnifiesProviso (_P1, _P2)     -> isot _P1 && isot _P2
-      | SingleDischargeProviso rts    -> List.for_all (isot <.> snd) rts
+      | FreshProviso (_, _, _, v)       -> ismetav v && isot v
+      | NotinProviso (v, t)             -> ismetav v && isot v || isot t
+      | DistinctProviso vs              -> not (List.exists (not <.> isot) vs)
+      | NotoneofProviso (vs, pat, _C)   -> not (List.exists (not <.> isot) vs) || isot _C
+      | UnifiesProviso (_P1, _P2)       -> isot _P1 && isot _P2
+      | DischargeProviso (nt,sing,rts)  -> List.for_all (isot <.> snd) rts
     in
     if !provisodebug then
       consolereport
