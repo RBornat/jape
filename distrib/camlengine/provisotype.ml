@@ -36,7 +36,7 @@ type proviso =
   | NotinProviso of (term * term)
   | NotoneofProviso of (term list * term * term)
   | DistinctProviso of term list
-  | SingleDischargeProviso of (resnum * term) list
+  | DischargeProviso of (bool * bool * (resnum * term) list)
 
 (* Meaning of provisos at present :
    FreshProviso (h, g, r, v)     : Variable v doesn't occur free in hypotheses (if h), 
@@ -48,15 +48,15 @@ type proviso =
    NotoneofProviso (vs, pat, _C) : in any element of collection _C that matches pat,
                                    variables vs don't occur in the places indicated
                                    by pat.
-   SingleDischargeProviso rts    : the elements identified by rts 
-                                   must be discharged once, non-trivially. Requires a 
-                                   tree search. Used by Aristotle (von Plato).
+   DischargeProviso (nt,sing,rts)   : the elements identified by rts 
+                                   must be discharged; only once if sing, non-trivially if nt. 
+                                   Requires a tree search: see verifytreeprovisos. 
  *)
                       
 
-let _FreshProviso bbbt          = FreshProviso bbbt
-let _UnifiesProviso tt          = UnifiesProviso tt
-let _NotinProviso vt            = NotinProviso vt
-let _DistinctProviso vs         = DistinctProviso vs
-let _NotoneofProviso vspatc     = NotoneofProviso vspatc
-let _SingleDischargeProviso rts = SingleDischargeProviso rts
+let _FreshProviso bbbt            = FreshProviso bbbt
+let _UnifiesProviso tt            = UnifiesProviso tt
+let _NotinProviso vt              = NotinProviso vt
+let _DistinctProviso vs           = DistinctProviso vs
+let _NotoneofProviso vspatc       = NotoneofProviso vspatc
+let _DischargeProviso nt sing rts = DischargeProviso (nt,sing,rts)

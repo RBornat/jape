@@ -117,12 +117,12 @@ let rawinfProviso n (p, stuff) =
   let _RIT = rawinfTerm n in
   let _RRE ((r, t), stuff) = rawinfresnum (r, _RIT (t, stuff)) in
   match p with
-  | FreshProviso (_, _, _, v)     -> _RIT (v, stuff)
-  | NotinProviso (v, p)           -> _RIT (v, _RIT (p, stuff))
-  | DistinctProviso vs            -> nj_fold _RIT vs stuff
-  | NotoneofProviso (vs, pat, _C) -> nj_fold _RIT vs (_RIT (_C, stuff))
-  | UnifiesProviso (p1, p2)       -> _RIT (p1, _RIT (p2, stuff))
-  | SingleDischargeProviso rts    -> nj_fold _RRE rts stuff
+  | FreshProviso (_, _, _, v)       -> _RIT (v, stuff)
+  | NotinProviso (v, p)             -> _RIT (v, _RIT (p, stuff))
+  | DistinctProviso vs              -> nj_fold _RIT vs stuff
+  | NotoneofProviso (vs, pat, _C)   -> nj_fold _RIT vs (_RIT (_C, stuff))
+  | UnifiesProviso (p1, p2)         -> _RIT (p1, _RIT (p2, stuff))
+  | DischargeProviso (nt,sing,rts)  -> nj_fold _RRE rts stuff
   
 let rawinfElements n (es, stuff) =
   let rec _RE (e, stuff) =
@@ -286,12 +286,12 @@ let rec rew_Seq subst cxt =
 let rec rew_Proviso subst cxt p =
   let _RT = rew_Term subst cxt in
   match p with
-  | FreshProviso (h, g, r, v)     -> rew_ _RT v (fun v -> FreshProviso (h, g, r, v))
-  | NotinProviso vp               -> rew_ (rew_Pair _RT) vp _NotinProviso
-  | DistinctProviso vs            -> rew_ (option_rewritelist _RT) vs _DistinctProviso
-  | NotoneofProviso (vs, pat, _C) -> rew_3 (option_rewritelist _RT) vs _RT pat _RT _C _NotoneofProviso
-  | UnifiesProviso pp             -> rew_ (rew_Pair _RT) pp _UnifiesProviso
-  | SingleDischargeProviso rts    -> rew_ (option_rewritelist (rew_resnum_and_term subst cxt)) rts _SingleDischargeProviso
+  | FreshProviso (h, g, r, v)       -> rew_ _RT v (fun v -> FreshProviso (h, g, r, v))
+  | NotinProviso vp                 -> rew_ (rew_Pair _RT) vp _NotinProviso
+  | DistinctProviso vs              -> rew_ (option_rewritelist _RT) vs _DistinctProviso
+  | NotoneofProviso (vs, pat, _C)   -> rew_3 (option_rewritelist _RT) vs _RT pat _RT _C _NotoneofProviso
+  | UnifiesProviso pp               -> rew_ (rew_Pair _RT) pp _UnifiesProviso
+  | DischargeProviso (nt,sing,rts)  -> rew_ (option_rewritelist (rew_resnum_and_term subst cxt)) rts (_DischargeProviso nt sing)
   
 let rec rew_update a1 a2 a3 a4 =
   match a1, a2, a3, a4 with
