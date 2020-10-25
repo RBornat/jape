@@ -243,15 +243,15 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
                       hastipval : bool;
                       seq       : (seq * rewinf);
                       trs       : ('a prooftree list * rewinf);
-                      ress      : ((element list * element list) * rewinf)
+                      thins     : ((element list * element list) * rewinf)
                    }
-                   (* ress: resources consumed - elements that 
+                   (* thins: resources consumed - elements that 
                       matched hypotheses and conclusions
                       when the rule was applied.  This information is 
                       essential for the boxdraw display module; it 
                       isn't possible to get it from the rule and its 
-                      arguments (and now it's also used by
-                      SingleDischargeProviso RB 17/08/20)
+                      arguments (and now it's used by
+                      DischargeProviso RB 17/08/20)
                     *) 
 
 (* some functions to extract things from trees, because otherwise I get confused. RB *)
@@ -261,7 +261,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     let join_seq j = fst j.seq
     let join_subtrees j = fst j.trs
     let join_subtrees_rewinf j = snd j.trs
-    let join_thinned j = fst j.ress
+    let join_thinned j = fst j.thins
     
     let withsubtrees j ts = {j with trs=ts}
     let withhastipval j hastipval = {j with hastipval=hastipval}
@@ -277,8 +277,9 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
       | _               -> false
     let rewinfProoftree = function
       | Tip (seq, rewinf, fmt) -> rewinf
-      | Join j                 ->
-          rewinf_merge (snd j.args, rewinf_merge (snd j.seq, rewinf_merge (snd j.trs, snd j.ress)))
+      | Join j                 -> List.fold_left (curry2 rewinf_merge) 
+                                                      nullrewinf 
+                                                      [snd j.args; snd j.seq; snd j.trs; snd j.thins]
     let tip_seq (seq, rewinf, hastipval) = seq
     let joinopt f = function 
       | Tip _  -> None
@@ -319,14 +320,14 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     let tshaveTip ts =
       nj_fold (fun (a, b) -> a || b) ((hasTip <* ts)) false
     let subtrees = function
-      | Tip _ -> []
+      | Tip _  -> []
       | Join j -> join_subtrees j
     let sequent = function
       | Tip t -> tip_seq t
       | Join j -> join_seq j
     let rec format = function
       | Tip (_, _, fmt) -> fmt
-      | Join j -> j.fmt
+      | Join j          -> j.fmt
 
 
     (* -------------------------- generic tree traversal -------------------------- *)
@@ -396,7 +397,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
      *)
      
     type 'a navkind =
-        NormalNav of 'a prooftree list
+      | NormalNav of 'a prooftree list
       | CutNav of (int * int * 'a prooftree * 'a prooftree)
     
     let decode_cutnav j =
@@ -408,14 +409,14 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     let rec joinstep go stop skip j path =
       match j.cutnav, j.trs with
       | Some (l, r), ([tl; tr], _) ->
-          begin match path with
-          | n :: ns ->
-              if n = l then go n tl ns
-              else if n = r then
-                if null ns then stop () else joinstep go stop skip j ns
-              else skip (l, r, tl, tr) path
-          | [] -> skip (l, r, tl, tr) path
-          end
+          (match path with
+           | n :: ns ->
+               if n = l then go n tl ns
+               else if n = r then
+                 if null ns then stop () else joinstep go stop skip j ns
+               else skip (l, r, tl, tr) path
+           | [] -> skip (l, r, tl, tr) path
+          )
       |_, (ts, _) ->
           (* this is what makes the tip path work *)
           match path with
@@ -490,10 +491,9 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     let allTipConcs_ns t =
          (function
           | ns, Tip (Seq (_, hs, gs), _, _) -> ns, explodeCollection gs
-          | _ ->
-              raise
-                (Catastrophe_ ["allTips gave non-Tip in allTipConcs_ns"])) <*
-         allTips_ns t
+          | _                               -> 
+              raise (Catastrophe_ ["allTips gave non-Tip in allTipConcs_ns"])
+         ) <* allTips_ns t
     (* functions which look for a path *)
     
     let search opt n = (opt &~~ (fun ns -> Some (n :: ns)))
@@ -711,7 +711,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     
     let string_of_ns = bracketed_string_of_list string_of_int ","
     
-    let rec string_of_Join tlf subtreesf j =
+    let string_of_Join tlf subtreesf j =
       implode
         ["Join{"; "reason="; j.why; "; how="; string_of_prooftree_step j.how;
          "; cutnav="; string_of_option (string_of_pair string_of_int string_of_int ",") j.cutnav;
@@ -720,12 +720,12 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
          "; hastipval="; string_of_bool j.hastipval;
          "; seq="; string_of_pair elementstring_of_seq string_of_rewinf ", " j.seq;
          "; subtrees="; string_of_pair subtreesf string_of_rewinf ", " j.trs; 
-         "; j.ress=";
+         "; j.thins=";
          (let string_of_ths =
             bracketed_string_of_list (debugstring_of_element string_of_term) ", "
           in
           string_of_pair (string_of_pair string_of_ths string_of_ths ", ") string_of_rewinf ", "
-                         j.ress
+                         j.thins
          );
          "}"
         ]
@@ -734,7 +734,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     
     let string_of_proofnode tlf node =
       match node with
-      | Tip t -> string_of_tip tlf t
+      | Tip t  -> string_of_tip tlf t
       | Join j -> string_of_Join tlf (fun _ -> "...") j
       
     let rec string_of_prooftree tlf t =
@@ -892,15 +892,13 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     
     (* -------------------------- rewriting proof trees -------------------------- *)
         
-    let rec rew_ress cxt = rew_Pair (rew_elements true cxt)
+    let rec rew_thins cxt = rew_Pair (rew_elements true cxt)
     let rec getrawinfList rawf (xs, z) = nj_fold rawf xs z
-    let rec getrawinfPair rawf ((x1, x2), z) = rawf (x1, rawf (x2, z))
-    let rec getrawinfPairDiff rawf1 rawf2 ((x1, x2), z) =
-      rawf1 (x1, rawf2 (x2, z))
+    let rec getrawinfPair rawf1 rawf2 ((x1, x2), z) = rawf1 (x1, rawf2 (x2, z))
     let rec getrewinfList rawf xs =
       raw2rew_ (getrawinfList rawf (xs, nullrawinf))
-    let rec getrewinfPair rawf pair =
-      raw2rew_ (getrawinfPair rawf (pair, nullrawinf))
+    let rec getrewinfPair rawf1 rawf2 pair =
+      raw2rew_ (getrawinfPair rawf1 rawf2 (pair, nullrawinf))
     let rec getrewinfProoftreeList ts =
       nj_fold rewinf_merge (List.map rewinfProoftree ts) nullrewinf
     let prooftreerewinfdebug = ref false
@@ -953,13 +951,14 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     let rec rew_stuff cxt rew (x, inf) =
       match rew cxt x with
       | Some x -> x, updaterewinf cxt inf
-      | None -> x, inf
+      | None   -> x, inf
     let rec getrewinfSeq s cxt seq =
       if !prooftreerewinfdebug then
         consolereport ["getrewinfSeq "; s; " "; string_of_seq seq];
       raw2rew_ (rawinfSeq cxt (seq, nullrawinf))
-    let rec getrewinfargs cxt = getrewinfList (rawinfTerm cxt)
-    let rec getrewinfress cxt = getrewinfPair (rawinfElements cxt)
+    let getrewinfargs cxt = getrewinfList (rawinfTerm cxt)
+    let getrewinfthins cxt = getrewinfPair (rawinfElements cxt) (rawinfElements cxt)
+    let getrewinfels cxt els = raw2rew_ (rawinfElements cxt (els, nullrawinf))
     let rec rew_Prooftree a1 a2 =
       match a1, a2 with
       | cxt, (Tip (seq, rewinf, fmt) (* as t *)) ->
@@ -979,12 +978,12 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
           let (args, argsinf) = j.args in
           let (seq, seqinf) = j.seq in
           let (ts, tsinf) = j.trs in
-          let (ress, ressinf) = j.ress in
+          let (thins, thinsinf) = j.thins in
           let ra = rew_worthwhile true cxt argsinf in
           let rs = rew_worthwhile true cxt seqinf in
           let rts = rew_worthwhile true cxt tsinf in
-          let rress = rew_worthwhile true cxt ressinf in
-          if ((ra || rs) || rts) || rress then
+          let rthins = rew_worthwhile true cxt thinsinf in
+          if ra || rs || rts || rthins then
             (* let rec fst (x, _) = x in *)
             let a =
               if ra then
@@ -1009,8 +1008,8 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
                   (fun cxt -> option_rewritelist (rew_Prooftree cxt)) j.trs
               else j.trs
             in
-            let res = if rress then rew_stuff cxt rew_ress j.ress else j.ress in
-            Some (Join {j with args=a; seq=s; trs=t; ress=res})
+            let thins = if rthins then rew_stuff cxt rew_thins j.thins else j.thins in
+            Some (Join {j with args=a; seq=s; trs=t; thins=thins})
           else None
     
     let rec rewriteProoftree givens grounded cxt tree =
@@ -1082,10 +1081,10 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
      * work in rewriteProoftree later.  Hope I'm not wrong ...
      * RB 10/x/96
      *)
-    let rec mkJoin cxt why how args fmt seq tops ress =
+    let rec mkJoin cxt why how args fmt seq tops thins =
       let args = (rewrite cxt <* args) in
       let seq = rewriteseq cxt seq in
-      let ress = anyway (rew_ress cxt) ress in
+      let thins = anyway (rew_thins cxt) thins in
       Join {why         = why; 
             how         = how; 
             cutnav      = None;
@@ -1094,19 +1093,19 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
             hastipval   = tshaveTip tops;
             seq         = (seq, getrewinfSeq "mkJoin" cxt seq);
             trs         = (tops, getrewinfProoftreeList tops);
-            ress        = (ress, getrewinfress cxt ress)
+            thins       = (thins, getrewinfthins cxt thins)
            }
     
     exception AlterProof_ of string list
     
     let rec applytosubtree_ns path t f =
-      let rec ans () =
+      let ans () =
         let (infchanged, t') = f t in infchanged, pathto t', t'
       in
       match t with
       | Tip _   -> if null path then ans ()
                    else raise (AlterProof_ ["path extends beyond tip"])
-      | Join j -> let rec res infchanged ns subts =
+      | Join j -> let res infchanged ns subts =
                     let subinf =
                       if infchanged then getrewinfProoftreeList subts
                       else join_subtrees_rewinf j
@@ -1117,14 +1116,16 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
                     let nextinf = infchanged && subinf <> join_subtrees_rewinf j in
                     nextinf, ns, t'
                   in
-                  let rec go n subt ns =
+                  let go n subt ns =
                     let (infchanged, ns, subt) = applytosubtree_ns ns subt f in
-                    res infchanged (n :: ns)
-                      (match decode_cutnav j with
+                    let subts =
+                      match decode_cutnav j with
                        | NormalNav sts -> take n sts @ subt :: drop (n + 1) sts
-                       | CutNav (l, r, tl, tr) -> [subt; tr])
+                      | CutNav (l, r, tl, tr) -> [subt; tr]
+                    in
+                    res infchanged (n :: ns) subts
                   in
-                  let rec skip (l, r, tl, tr) ns =
+                  let skip (l, r, tl, tr) ns =
                     let (infchanged, ns, subt) = applytosubtree_ns ns tr f in
                     res infchanged ns [tl; subt]
                   in
@@ -1192,12 +1193,19 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     
     (* the same comment as in mkTip, about contexts and rewriting, applies to replaceTip *)
     (* this looks a bit dangerous ... I guess I've used it carefully *)
-    let rec replaceTip cxt (FmtPath ns) tree seq =
+    (* I've made it check that it doesn't change hypotheses *)
+    let rec replaceTip cxt (FmtPath ns) tree seq' =
       let (_, ns, tree) =
         applytosubtree_ns ns tree
           (function
-           | Tip (_, _, fmt) -> let t = mkTip cxt seq fmt in true, t
-           | _               -> raise (AlterProof_ ["replaceTip applied to Join"]))
+           | Tip (seq, _, fmt) -> 
+               let hs = seq_lefts seq in
+               let hs' = seq_lefts seq' in
+               if null (listsub sameresource hs hs') && null (listsub sameresource hs' hs) then
+                 (let t = mkTip cxt seq' fmt in true, t)
+               else raise (Catastrophe_ ["replaceTip "; string_of_seq seq; " => "; string_of_seq seq'])
+           | _                      -> 
+               raise (AlterProof_ ["replaceTip applied to Join"]))
       in
       tree
     
@@ -1221,8 +1229,8 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
      * calculates a list of 'fresh in the hypotheses' variables. RB 9.iii.2005
      *)
     let augmenthyps cxt tree els =
-      let rewinf = raw2rew_ (rawinfElements cxt (els, nullrawinf)) in
-      let rec augseq =
+      let rewinf = getrewinfels cxt els in
+      let augseq =
         fun (Seq (st, hs, cs)) ->
           try Seq (st, _The (augmentCollection hs els), cs) with
           | _The_ ->
@@ -1572,7 +1580,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
             let lpsNsubts' = (visp <.> snd) <* viss in
             let lps = nj_fold (uncurry2 (sortedmerge earlierresource))
                               (fst <* lpsNsubts')
-                              (sort earlierresource (fst (fst j.ress)))
+                              (sort earlierresource (fst (fst j.thins)))
             in
             let subts' = (snd <* lpsNsubts') in
             let hidecut =
