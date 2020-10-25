@@ -10,16 +10,19 @@ It was more difficult than I had expected, but I was working on it during the sp
 
 Von Plato's notation uses four kinds of formula, with terms $P$ and $M$
 \begin{quote}
-\begin{tabular}{ll}$∏⁺(P,M)$ & Every $P$ is a $M$ \\
-$∏⁻(P,M)$ & No $P$ is a $M$ \\
-$∑⁺(P,M)$ & Some $P$ is a $M$ \\
-$∑⁻(P,M)$ & Some $P$ is not a $M$ \\
+\begin{tabular}{ll}
+$∏⁺(P,M)$ & All $P$ are $M$ \\
+$∏⁻(P,M)$ & No $P$ is $M$ \\
+$∑⁺(P,M)$ & Some $P$ are $M$ \\
+$∑⁻(P,M)$ & Some $P$ is not $M$ \\
 \end{tabular}
 \end{quote}
-There's a notion of \emph{contrary formula} or \emph{contradictory formula}, which von Plato signals with a superscript tack $^{⊥}$; I couldn't find a way to do that in Unicode, so like Dyckhoff I use $^{*}$. $∏⁺(P,M)^{*}$ is $∑⁻(P,M)$; $∏⁻(P,M)^{*}$ is $∑⁺(P,M)$; and of course in each case the other way around as well. Dyckhoff points out that $A^{{*}{*}}$ is $A$. There is a notion of `equivalence' or `reversal': $∏⁻(P,M)$ is equivalent to $∏⁻(M,P)$; $∑⁺(P,M)$ to $∑⁺(M,P)$.
+\begin{figure}[b]\centering\includegraphics[scale=0.5]{pics/Aristotle/square_of_opposition}\caption{The square of opposition}\label{fig:Aristotle:square_of_opposition}\end{figure}
+Figure \ref{fig:Aristotle:square_of_opposition} shows the relationships which mediaeval European logicians drew between these formulas: \emph{contradictory} if one must be false when the other is true; \emph{contrary} if they can't both be true (though they can both be false); \emph{subaltern} if one implies the other. Von Plato makes use of subaltern and contradictory, using superscript tack $^{⊥}$ as a `contradictory' operator; I couldn't find a way to do that in Unicode, so like Dyckhoff I use $^{*}$. $∏⁺(P,M)^{*}$ is $∑⁻(P,M)$; $∏⁻(P,M)^{*}$ is $∑⁺(P,M)$; and in each case the other way around as well. Dyckhoff points out that $A^{{*}{*}}$ is $A$. There is also a notion of `equivalence' or `reversal': $∏⁻(P,M)$ is equivalent to $∏⁻(M,P)$; $∑⁺(P,M)$ to $∑⁺(M,P)$.
 
-The syntax is then almost trivial
-\begin{japeish}CLASS VARIABLE P S M X Y               /* TERM, really */\\
+Defining the syntax is almost trivial
+\begin{japeish}
+CLASS VARIABLE P S M X Y               /* TERM, really */\\
 CLASS FORMULA A B C\\
 \\
 PREFIX 100 ∏⁺ ∏⁻ ∑⁺ ∑⁻\\
@@ -38,8 +41,9 @@ SEQUENT IS BAG ⊢ FORMULA
 %STRUCTURERULE IDENTITY   see
 %STRUCTURERULE CUT        cut
 %
-%TACTIC Fail (x) IS SEQ (ALERT x) STOP%\end{japeish}
-The main issue with the logic is the peculiar form of proofs, illustrated in figure \ref{fig:Aristotle:Darapti_various}. In box style, as usual, cuts and identity steps are hidden, and figure \ref{fig:Aristotle:Darapti_1} shows how Jape would display a proof of a particular syllogism (Darapti). 
+%TACTIC Fail (x) IS SEQ (ALERT x) STOP
+%\end{japeish}
+The main difficulty of encoding von Plato's logic is the peculiar form of proofs, illustrated in figure \ref{fig:Aristotle:Darapti_various}. Figure \ref{fig:Aristotle:Darapti_1} shows how Jape would display a proof of a particular syllogism (Darapti) in box style with cuts and identity steps hidden. 
 \begin{figure}
 \centering
 \subfigure[with hidden cut and identity]{\centering
@@ -57,23 +61,28 @@ The encoding has to make use of new environment variables \textj{priorAntes} (se
 
 There is a condition on the IP rule which required a new proviso. Essentially the rule is
 \begin{japeish}
-FROM A* ⊢ B AND B* INFER A\end{japeish}
--- if the contrary of $A$ proves $B$ and we can separately prove the contrary of $B$, then by \emph{reductio ad absurdum} we can infer $A$. But the assumption $A^{*}$ has to be relevant to the proof: we can't trivially discharge it (if $B$ were $A^{*}$) and we can't have a proof of $B$ which doesn't discharge $A^{*}$ at all. In fact Aristotle, according to von Plato, insisted that in the left-antecedent proof $A^{*}$ should be discharged exactly once. Not having noticed that this was an issue of relevance, I at first called the proviso \textj{SINGLEDISCHARGE}, and to avoid too many contrary markers in the proof I made an \textj{ALT} of different versions of \textj{IP}.
+FROM A* ⊢ B AND B* INFER A
+\end{japeish}
+-- if the contrary of $A$ proves $B$ and we can separately prove the contrary of $B$, then by \emph{reductio ad absurdum} we can infer $A$. But the assumption $A^{*}$ has to be relevant to the proof: we can't trivially discharge it (i.e. $B$ cannot be $A^{*}$) and we can't have a proof of $B$ which doesn't discharge $A^{*}$ at all. Von Plato says that $A^{*}$ should have a single discharge: reading his paper I \emph{think} he means that it is discharged only in the left antecedent arm.\footnote{Because his linear proofs have no means of indicating the scope of an assumption, some confusion is to be expected.} The proviso is currently called \textj{SNTDISCHARGE} (for Single Non-Trivial discharge), and to avoid too many contrary markers in the proof I made an \textj{ALT} of different versions of \textj{IP}.
 \begin{japeish}
 RULES IP(B) ARE \\
-\tab\tab WHERE SINGLEDISCHARGE ∏⁺(S,P) FROM ∏⁺(S,P) ⊢ B AND B* INFER ∑⁻(S,P) \\ 
- AND WHERE SINGLEDISCHARGE ∏⁻(S,P) FROM ∏⁻(S,P) ⊢ B AND B* INFER ∑⁺(S,P)  \\
- AND WHERE SINGLEDISCHARGE ∑⁺(S,P) FROM ∑⁺(S,P) ⊢ B AND B* INFER ∏⁻(S,P)  \\
- AND WHERE SINGLEDISCHARGE ∑⁻(S,P) FROM ∑⁻(S,P) ⊢ B AND B* INFER ∏⁺(S,P) \\
-END\end{japeish}
+\tab\tab WHERE SNTDISCHARGE ∏⁺(S,P) FROM ∏⁺(S,P) ⊢ B AND B* INFER ∑⁻(S,P) \\ 
+ AND WHERE SNTDISCHARGE ∏⁻(S,P) FROM ∏⁻(S,P) ⊢ B AND B* INFER ∑⁺(S,P)  \\
+ AND WHERE SNTDISCHARGE ∑⁺(S,P) FROM ∑⁺(S,P) ⊢ B AND B* INFER ∏⁻(S,P)  \\
+ AND WHERE SNTDISCHARGE ∑⁻(S,P) FROM ∑⁻(S,P) ⊢ B AND B* INFER ∏⁺(S,P) \\
+END
+\end{japeish}
 \textj{IP} is applied via a tactic in the Rules menu
 \begin{japeish}
 WHEN (LETGOAL \_A (LAYOUT "IP" ALL IP (LAYOUT ASSUMPTION ("contradicting \%t",\_A)))) \\
-\tab\tab\tab                  (ALERT "Please select a consequent to be proved by IP") \\\end{japeish}
+\tab\tab\tab                  (ALERT "Please select a consequent to be proved by IP") \\
+\end{japeish}
 The rule which is applied is either \textj{IP'0}, \textj{IP'1}, \textj{IP'2} or \textj{IP'3}, depending on the conclusion of the step, but the first \textj{LAYOUT} names the step \textj{IP}. The second step applies \textj{LAYOUT} to the first antedecent, giving the text to be appended to `assumption'.
 
 But there's still a problem. The contrary marker $^{*}$ isn't really part of the logic, but it appears in proofs when you use the IP rule. Here, for example, is the first step in the proof of Darapti:
-\begin{quote}\includegraphics[scale=0.5]{pics/Aristotle/Darapti_0}\end{quote}
+\begin{quote}
+\includegraphics[scale=0.5]{pics/Aristotle/Darapti_0}
+\end{quote}
 If the proof develops so that we can determine \textj{\_B} on line 4 then the automatic application of a special rule will make the asterisk disappear:
 \begin{japeish}
 RULES contra ARE \\
@@ -85,7 +94,8 @@ END\\
 \\
 TACTIC "contra-tac" IS LAYOUT HIDEROOT contra\\
 \\
-AUTOMATCH "contra-tac"\end{japeish}
+AUTOMATCH "contra-tac"
+\end{japeish}
 \begin{figure}
 \centering
 \subfigure[first stage of proof]{\centering
