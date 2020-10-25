@@ -77,9 +77,9 @@ is written as
 \section{Explicit provisos}
 \label{sec:basics:provisos}
 
-Lots of rules have side conditions: the ∃-E rule above, for example, has two. There are traditional ways of dealing with these in proof machinery. Jape takes the simplistic route and includes explicit, visible \emph{provisos} in the proof. Jape's provisos at present are \textsc{notin} and \textsc{unifieswith}, plus three macro-relatives of \textsc{notin}: \textsc{fresh, hypfresh} and \textsc{concfresh}.
+Lots of rules have side conditions: the ∃-E rule above, for example, has two. There are traditional ways of dealing with these in proof machinery. Jape takes the simplistic route and includes explicit, visible \emph{provisos} in the proof. Jape's provisos at present are \textsc{notin} and \textsc{unifieswith}, three macro-relatives of \textsc{notin} --\textsc{fresh, hypfresh} and \textsc{concfresh} -- and three kinds of discharge -- \textsc{discharge}, \textsc{ntdischarge} and \textsc{sntdischarge}.
 
-Provisos are either satisfied or violated, and they constrain the application of rules. If an attempted application would violate a proviso, whether one contained in the rule itself or one left over from an earlier stage of the proof, then the attempt fails. If it is impossible to determine the status of a proviso, because it contains unknowns and/or substitution forms, then it is stored, displayed as part of the proof, and carried forward in the expectation that its status will become clearer.
+Provisos are either satisfied or violated, and they constrain the application of rules. If an attempted application would violate a proviso, whether one contained in the rule itself or one left over from an earlier stage of the proof, then the attempt fails. If it is impossible to determine the status of a proviso, because it contains unknowns and/or substitution forms, then it is stored, displayed in a pane below the proof, and carried forward in the expectation that its status will become clearer.
 
 The proviso $x$ \textsc{notin} $E$ is satisfied if $x$ doesn't appear free in $E$, and violated if it does --- or rather, it is satisfied if $x$ \emph{cannot} appear free in $E$, no matter what future unifications may happen and no matter how the schematic identifiers of the conjecture being proved are instantiated. The proviso $x$ \textsc{notin} $y$, for example, is not trivially satisfied if $x$ and $y$ are schematic parameters of a  conjecture being proved, even though visibly $y$ is not the same variable as $x$.
 
@@ -87,6 +87,8 @@ The proviso $x$ \textsc{notin} $E$ is satisfied if $x$ doesn't appear free in $E
 
 \var{E1,E2}
 The proviso $\<E1>$ \textsc{unifieswith} $\<E2>$ is internally generated. It allows Jape to defer difficult unifications where it can't find a most-general unifier. This can arise because of difficulties in unifying substitution forms, or when using multiplicative (context-splitting) rules. It plays a r\^{o}le in Jape's drag-and-drop mechanism for resolving context splits: see below.
+
+The proviso \textsc{discharge} $E$, where is a hypothesis introduced by a rule or a theorem, is satisfied if $E$ is discharged (used in a rule). It's violated if there is no way the proof can progress so that $E$ can be discharged. The variant \textsc{ntdischarge} $E$ is also violated if $E$ is trivially or immediately discharged (\textsc{nt} for non-trivial). \textsc{sntdischarge} $E$ is also violated if $E$ is trivially or multiply discharged (\textsc{s} for single).
 
 \section{Conjectures and theorems}
 
