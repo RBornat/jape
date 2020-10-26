@@ -7,7 +7,7 @@
 JAPES="Linux Windows"
 for jape in $JAPES
 do
-    mkdir ${jape}Jape ${jape}Jape/build
+    mkdir -p ${jape}Jape ${jape}Jape/build
     cp CommonBuildResources/${jape}/Makefile ${jape}Jape/build
 done
 
