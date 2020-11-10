@@ -144,13 +144,14 @@ The following command turns on maximal monitoring at install-time, which can be 
 </H2>
 
 <PRE>
-   -debug                             -- Turns on maximal monitoring at installer-construction time
-   -app           "the app name"      -- (not very optional) default is Jape
-   -splash        <I>image file</I>          -- (optional)  the installation splash image (should be a GIF or PNG)
-   -splashside    West, East or North -- (optional)  which side of the screen the splash image is placed on (default North)
+   -debug                                      -- Turns on maximal monitoring at installer-construction time
+   -app           "the app name"               -- (not very optional) default is Jape
+   -java          "min required java version"  -- (optional)  comment to made in the visible log as the installer runs
+   -splash        <I>image file</I>                   -- (optional)  the installation splash image (should be a GIF or PNG)
+   -splashside    West, East or North          -- (optional)  which side of the screen the splash image is placed on (default North)
    -installdir    <I>folder name</I>         --  the (default) path to the folder into which the software will be installed
-                                         This is relative to the path from which the installer is executed, and can be
-                                         changed at install-time.
+                                          This is relative to the path from which the installer is executed, and can be
+                                          changed at install-time.
 </PRE>
 
 
@@ -344,6 +345,7 @@ arrangements have to be made to delete these. The appropriate switches are:
                 InstallBuildInstaller.jar               \
                 installer.html                          \       
                 -app            "Build Installer"       \
+                -java           "any java version greater than 9" \
                 -autoinstall    buildinstaller          \
                 -autojar        buildinstaller.jar
 </pre>
@@ -372,6 +374,7 @@ arrangements have to be made to delete these. The appropriate switches are:
 $Id$
 </PRE>
         
+
 
 
 
