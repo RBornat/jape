@@ -70,6 +70,7 @@ distribution::  ; make encoder; make components; \
 AT="@"
 jarfile:        ; java -jar ../../CommonBuildResources/buildinstaller.jar Install$(OS)jape.jar                                  \
                 -app            "Jape"                                                          \
+                -java           "any java version later than 9"                                 \
                 -splash         $(SPLASH)                                                       \
                 -splashside     North                                                           \
                 -installdir     Jape                                                            \
@@ -82,6 +83,7 @@ jarfile:        ; java -jar ../../CommonBuildResources/buildinstaller.jar Instal
                 $(INSTALLRESOURCES)     \
                 $(ENGINEDIR)/_build$(OS)/$(ENGINETARGET)       \
                 ../../examples
+
 
 
 

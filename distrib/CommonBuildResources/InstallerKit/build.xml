@@ -143,6 +143,7 @@
          <arg value="xInstallerTest.jar"/>
          <arg value="-debug"/>
          <arg file="${SRC}/install.html"/>
+         <arg line="-java    'any java version later than 10'"/>
          <arg line="-cmdwindows         'explorer %INSTALL%'"/>
          <arg line="-cmdwindows1        'explorer %INSTALL%install.html'"/>
          <arg line="-app                'Installer Kit Test'"/>
@@ -201,4 +202,5 @@
       </java>
    </target>
 </project>
+
 

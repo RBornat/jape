@@ -805,6 +805,7 @@ public class install implements ActionListener
   String          installDirName   = null;
   String          installDirSuffix = null;
   String          appName          = null;
+  String          requiredJava     = null;
   static TextArea progress         = null;
   static int      length           = 0;
   
@@ -938,7 +939,8 @@ public class install implements ActionListener
   private install(Properties theProps)
   {
     this.props         = theProps;
-    appName            = props.getProperty("-app", "Jape");
+    appName            = props.getProperty("-app",  "Jape");
+    requiredJava       = props.getProperty("-java", "");
     jarFileName        = getJar();
     installDirSuffix   = props.getProperty("-installdir", appName);
     installDirName     = new File(installDirSuffix).getAbsolutePath();
@@ -953,11 +955,11 @@ public class install implements ActionListener
     JButton      choose  =
       new JButton(props.getProperty(
                                     "-choosebutton",
-                                    "Choose Installation Folder"
+                                    "Choose a new installation folder"
                                    )
                  );
     installBut = new JButton(props.getProperty("-installbutton", "Install"));
-    JLabel label = new JLabel(props.getProperty("-label", "Install to: "));
+    // JLabel label = new JLabel(props.getProperty("-label", "Installation folder"));
     autoInstall = props.getProperty("-autoinstall");
     if (autoInstall != null)
     {
@@ -992,8 +994,8 @@ public class install implements ActionListener
       installDirField.setText(new File(installDirName).getAbsolutePath());
     }
 
-    label.setFont(bFont);
-    progress = new TextArea("", 12, 60);
+    // label.setFont(bFont);
+    progress = new TextArea("", 12, 80);
     progress.setFont(tFont);
     frame.addWindowListener(new WindowAdapter()
       {
@@ -1036,17 +1038,42 @@ public class install implements ActionListener
                   splashside
                  );
     }
+    
+    Component[] dirFeedback =
+      new Component[]
+    { 
+        row(
+            hGlue(),
+            // label,
+            installDirField,
+            hGlue()
+           )
+    };
+    
+    JComponent dirPanel = column (dirFeedback);
+    dirPanel.setBorder(new CompoundBorder(
+                                       new EmptyBorder(5, 5, 5, 5),
+                                       new CompoundBorder(
+                                                          new TitledBorder(
+                                                                           new EtchedBorder(),
+                                                                           " Installation Folder "
+                                                                          ),
+                                                          new EmptyBorder(
+                                                                          5,
+                                                                          5,
+                                                                          5,
+                                                                          5
+                                                                         )
+                                                         )
+                                      )
+                   );
+    
 
     Component[] buttons =
       new Component[]
-      {
+      { 
         new JLabel(" "),
-        row(
-            hGlue(),
-            label,
-            installDirField,
-            hGlue()
-           ),
+        dirPanel,
         new JLabel(" "),
         row(
             hGlue(),
@@ -1067,12 +1094,13 @@ public class install implements ActionListener
            )
       };
     JComponent  panel = column(buttons);
+    
     panel.setBorder(new CompoundBorder(
                                        new EmptyBorder(5, 5, 5, 5),
                                        new CompoundBorder(
                                                           new TitledBorder(
                                                                            new EtchedBorder(),
-                                                                           "Installer"
+                                                                           ""
                                                                           ),
                                                           new EmptyBorder(
                                                                           5,
@@ -1084,38 +1112,39 @@ public class install implements ActionListener
                                       )
                    );
     content.add(progress, BorderLayout.CENTER);
-    content.add(panel, BorderLayout.SOUTH);
+    content.add(panel,    BorderLayout.SOUTH);
     choose.requestFocus();
     frame.setLocation(new Point(50, 50));
     frame.pack();
     frame.setVisible(true);
-    showProgress("Ready to install " + appName + " for "
+    String javaVersion = System.getProperty("java.version", "(unknown)");
+    showProgress("Ready to install " + appName 
+                 + ("".equals(requiredJava) ? "" : "\n(Requiring " + requiredJava + ")")
+                 + "\nFor:  "
                  + System.getProperty(
                                       "os.name",
                                       "unknown OS type (assumed to be Unixoid)"
                                      )
+                 + " (Currently running Java version: " + javaVersion +")"
+                 + "\nFrom: " + jarFileName
+                 
                 );
-    showProgress("Installing from " + jarFileName);
-    showProgress("Installing to   " + installDirName);
+                
     choose.addActionListener(new ActionListener()
       {
         public void actionPerformed(ActionEvent ev)
         {
-          JFileChooser fc = new JFileChooser(".");
+          JFileChooser fc = new JFileChooser();
           fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
           fc.setDialogType(JFileChooser.SAVE_DIALOG);
           fc.setApproveButtonText(props.getProperty(
                                                     "-setbutton",
-                                                    "Change Installation Folder"
+                                                    "Change the installation folder"
                                                    )
                                  );
           if (JFileChooser.APPROVE_OPTION == fc.showSaveDialog(frame))
           {
-            installDirName =
-                             new File(
-                                      fc.getSelectedFile(),
-                                      installDirSuffix
-                                     ).getAbsolutePath();
+            installDirName = fc.getSelectedFile().getAbsolutePath(); // Drop the suffix
             installDirField.setText(installDirName);
             exit.setEnabled(true);
           }
@@ -1838,6 +1867,7 @@ public class install implements ActionListener
     public Iterator iterator() { return symbols.iterator(); }
   }
 }
+
 
 
 
