@@ -90,6 +90,14 @@ The proviso $\<E1>$ \textsc{unifieswith} $\<E2>$ is internally generated. It all
 
 The proviso \textsc{discharge} $E$, where is a hypothesis introduced by a rule or a theorem, is satisfied if $E$ is discharged (used in a rule). It's violated if there is no way the proof can progress so that $E$ can be discharged. The variant \textsc{ntdischarge} $E$ is also violated if $E$ is trivially or immediately discharged (\textsc{nt} for non-trivial). \textsc{sntdischarge} $E$ is also violated if $E$ is trivially or multiply discharged (\textsc{s} for single).
 
+\subsection{Counting discharges}
+
+An hypothesis is discharged when it's used as an argument in a rule, broadly speaking. But the structural rules (cut, left weaken, etc. -- see \secref{basics:application}) somewhat complicate things. First, if a hypothesis is used in a left weaken rule it isn't discharged, it's discarded. Second, if a hypotheses is discharged in the left subtree of a cut, then it is implicitly discharged when the conclusion of the left-hand subtree is discharged as a hypothesis in the right subtree.
+
+The first difficulty can be avoided by declaring a left weaken rule to Jape, if your encoding has one (see \secref{paraformlang:structurerules}). Otherwise, Jape may count a discard as a discharge.
+
+The second difficulty is, currently, evaded. Discharge-counting only matters, and then only debatably, in the Syllogisms encoding (see \chapref{Aristotle}). Only explicit discharges are counted.
+
 \section{Conjectures and theorems}
 
 We allow the user to state a conjecture using the \textsc{theorem} directive.\footnote{Bernard and I had rows over this notation. I wanted to emphasise that it's a conjecture till it's proved; he wanted to emphasise that it is theorems, after all, that you are trying to prove. I still think I was righter than he was.} A proved conjecture becomes a theorem and can then be applied as a derived rule. If the state variable \texttt{applyconjectures} is set to theorems, or to all, then unproved conjectures can be applied as well.
@@ -126,6 +134,7 @@ The effect of our care with substitutions and provisos is that the proof tree wh
 
 \subsection{Applying a theorem: the r\^{o}le of structural rules}
 \label{sec:basics:application}
+(\emph{This section is confused and possibly nonsense. I'm working on it. RB 2020/10/26})
 
 A theorem is, in principle, a rule with no antecedents. So Jape can instantiate it as a rule and match it to a problem sequent just as a rule is matched. There are, however, a couple of interesting points.
 
