@@ -397,7 +397,12 @@ let verifytreeprovisos prooftree cxt =
         let check_rts (r,t as rt) rts =
           let isdischarge node =
             let res = let tes,_ = Fmttree.thinned node in
-                       is_there r tes 
+                      is_there r tes &&
+                      (match Fmttree.rule node with
+                       | Some rule -> not (isstructurerule LeftWeakenRule rule)
+                       | None      -> true
+                      )
+                      
             in
             (* consolereport ["isdischarge ("; string_of_resnum r; ") looking at "; 
                               Fmttree.string_of_proofnode node; " -> "; string_of_bool res];
