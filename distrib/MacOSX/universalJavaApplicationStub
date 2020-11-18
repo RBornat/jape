@@ -199,7 +199,7 @@ if [ $exitcode -eq 0 ]; then
 	# read the ClassPath in either Array or String style
 	JVMClassPath_RAW=$(plist_get_java ':ClassPath' | xargs)
 	if [[ $JVMClassPath_RAW == *Array* ]] ; then
-		JVMClassPath=.$(plist_get_java ':ClassPath' | grep "    " | sed 's/^ */:/g' | tr -d '\n' | xargs)
+		JVMClassPath=$(plist_get_java ':ClassPath' | grep "    " | sed 's/^ */:/g' | tr -d '\n' | xargs)
 	else
 		JVMClassPath=${JVMClassPath_RAW}
 	fi
