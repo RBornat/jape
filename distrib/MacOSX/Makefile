@@ -1,7 +1,5 @@
 #
-# $Id$
-#
-#       Copyright (C) 2007-9 Richard Bornat
+#       Copyright (C) 2007-20 Richard Bornat and Bernard Sufrin
 #    
 #       richard@bornat.me.uk
 #
@@ -24,6 +22,7 @@
 #
 GUISOURCE=../java_GUI
 ENGINESOURCE=../camlengine
+JARBUNDLER=./JarBundler
 
 local:   ;      $(MAKE) engine GUI
 release: ;      $(MAKE) engineclean GUIclean engine GUI                              
@@ -41,6 +40,8 @@ engineclean: ; cd $(ENGINESOURCE); $(MAKE) clean OS=OSX
 
 GUIclean:    ; ant clean; cd $(GUISOURCE); ant clean
 guiclean:    ; ant clean; cd $(GUISOURCE); ant clean
+
+bundler:  ; cd $(JARBUNDLER); ant clean; ant jar
 
 
 
