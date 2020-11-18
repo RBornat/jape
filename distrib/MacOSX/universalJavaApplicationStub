@@ -499,7 +499,6 @@ else
 	stub_logger "[JavaSearch] ... didn't find JAVA_HOME"
 fi
 
-
 # check for any other or a specific Java version
 # also if $JAVA_HOME exists but isn't executable
 if [ -z "${JAVACMD}" ] || [ ! -x "${JAVACMD}" ] ; then
