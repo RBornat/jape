@@ -166,7 +166,7 @@ if [ $exitcode -eq 0 ]; then
 	JavaFolder="${AppleJavaFolder}"
 	ResourcesFolder="${AppleResourcesFolder}"
 
-	APP_PACKAGE="${AppPackageFolder}"
+	APP_ROOT="${AppPackageFolder}"
 	JAVAROOT="${AppleJavaFolder}"
 	USER_HOME="$HOME"
 
@@ -180,7 +180,7 @@ if [ $exitcode -eq 0 ]; then
 		# AppPackageRoot is the standard WorkingDirectory when the script is started
 		WorkingDirectory="${AppPackageRoot}"
 	fi
-	# expand variables $APP_PACKAGE, $JAVAROOT, $USER_HOME
+	# expand variables $APP_ROOT, $JAVAROOT, $USER_HOME
 	WorkingDirectory=$(eval echo "${WorkingDirectory}")
 
 
