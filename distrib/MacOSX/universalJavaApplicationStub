@@ -245,6 +245,11 @@ else
 	# read the MainClass name
 	JVMMainClass="$(plist_get ':JVMMainClassName')"
 
+
+	# read the Java version we want to find
+	JVMVersion=$(plist_get ':JVMVersion')
+	# post processing of the version string follows below...
+
 	# read the SplashFile name
 	JVMSplashFile=$(plist_get ':JVMSplashFile')
 
@@ -280,10 +285,6 @@ else
 	MainArgs=($(xargs -n1 <<<$(plist_get ':JVMArguments' | tr -d '\n' | sed -E 's/Array \{ *(.*) *\}/\1/g' | sed 's/  */ /g')))
 	unset IFS
 	# post processing of the array follows further below...
-
-	# read the Java version we want to find
-	JVMVersion=$(plist_get ':JVMVersion' | xargs)
-	# post processing of the version string follows below...
 fi
 
 
