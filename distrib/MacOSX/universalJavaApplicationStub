@@ -203,7 +203,7 @@ if [ $exitcode -eq 0 ]; then
 	else
 		JVMClassPath=${JVMClassPath_RAW}
 	fi
-	# expand variables $APP_PACKAGE, $JAVAROOT, $USER_HOME
+	# expand variables $APP_ROOT, $JAVAROOT, $USER_HOME
 	JVMClassPath=$(eval echo "${JVMClassPath}")
 
 	# read the JVM Options in either Array or String style
@@ -258,12 +258,12 @@ else
 	JVMClassPath_RAW=$(plist_get ':JVMClassPath')
 	if [[ $JVMClassPath_RAW == *Array* ]] ; then
 		JVMClassPath=.$(plist_get ':JVMClassPath' | grep "    " | sed 's/^ */:/g' | tr -d '\n' | xargs)
-		# expand variables $APP_PACKAGE, $JAVAROOT, $USER_HOME
+		# expand variables $APP_ROOT, $JAVAROOT, $USER_HOME
 		JVMClassPath=$(eval echo "${JVMClassPath}")
 
 	elif [[ ! -z ${JVMClassPath_RAW} ]] ; then
 		JVMClassPath=${JVMClassPath_RAW}
-		# expand variables $APP_PACKAGE, $JAVAROOT, $USER_HOME
+		# expand variables $APP_ROOT, $JAVAROOT, $USER_HOME
 		JVMClassPath=$(eval echo "${JVMClassPath}")
 
 	else
