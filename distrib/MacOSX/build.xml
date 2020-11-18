@@ -3,14 +3,14 @@
     
     <property name="copyright"       value="Copyright &#xa9; Richard Bornat and Bernard Sufrin"/>
     <property name="launcherApple"   value="build/Jape.app/Contents/MacOS/JavaApplicationStub"/>
-    <property name="jarbundlerpath"  value="jarbundler-3.3.0-forjape.jar"/>
+    <property name="jarbundlerpath"  value="./JarBundler/build/jarbundler-3.3.1.jar"/>
     
     <property environment="env" />
 
     
       
     <target name="Jape.app"
-            description="Build the application using JarBundler 3.3.0-forjape to make the structure and universalJavaApplicationStub to launch it">
+            description="Build the application using JarBundler 3.3.1 to make the structure and universalJavaApplicationStub to launch it">
            <echo message="Jar bundler path ${jarbundlerpath}"/>
            <taskdef name="jarbundler" classname="com.ultramixer.jarbundler.JarBundler" >
                  <classpath>
@@ -18,6 +18,7 @@
                  </classpath>
            </taskdef>        
            <mkdir dir="build"/>
+        <!-- insist on java 9 or better -->
         <jarbundler dir="build"
                     name="Jape"
                     mainclass="uk.org.jape.Jape"
@@ -25,16 +26,15 @@
                     shortname="Jape"
                     icon="Jape.icns"
                     stubfile="universalJavaApplicationStub"
-                    useJavaXKey="true"
                     version="${appversion}"
-                    jvmversion="1.6+"
+                    jvmversion="9+"
                     >
             
             <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
             <javaproperty name="apple.awt.showGrowBox"      value="true"/>
             <javaproperty name="apple.awt.antialiasing"     value="true"/>
             <javaproperty name="apple.awt.rendering"        value="quality"/>
-            <javaproperty name="uk.org.jape.AppPackage"     value="$APP_PACKAGE"/>
+            <javaproperty name="uk.org.jape.AppPackage"     value="$APP_ROOT"/>
             <javaproperty name="NSHighResolutionCapable"     value="true"/>
             <documenttype name="Jape Theory"
                                 extensions= "jt,j,jp" 
