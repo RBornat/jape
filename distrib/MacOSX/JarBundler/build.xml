@@ -19,9 +19,14 @@
     
     <mkdir dir="classes"/>
         
+    <!-- java 13 won't compile this with source=1.6. It moans about 1.7.
+         The first version it is silent about is 1,8, but for MacOS users
+         that has GUI problems. 9 is the first good version, so that's what
+         it is.
+      -->
     <javac srcdir="core/src" 
            destdir="classes" 
-           source="1.6" 
+           source="9" 
            deprecation="yes" 
            classpath="${ant.jar}"
            includeAntRuntime="yes">
