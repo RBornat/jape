@@ -24,24 +24,27 @@ GUISOURCE=../java_GUI
 ENGINESOURCE=../camlengine
 JARBUNDLER=./JarBundler
 
-local:   ;      $(MAKE) engine GUI
-release: ;      $(MAKE) engineclean GUIclean engine GUI                              
-run:     ;      open build/Jape.app
+local:          ; $(MAKE) engine GUI bundler app
+release:        ; $(MAKE) clean engine GUI bundler app                          
+run:            ; open build/Jape.app
 
-engine:      ; cd $(ENGINESOURCE); make jape_engine OS=OSX
+engine:         ; cd $(ENGINESOURCE); make jape_engine OS=OSX
 
-GUI:         ;  export JAPEVERSION=`../CommonBuildResources/version.sh`; \
-                (cd $(GUISOURCE); echo `pwd`; ant -Dguiversion='"'$$JAPEVERSION'"' OSX.jar); \
-                ant Jape.app -Dappversion='"'$$JAPEVERSION'"'
+GUI:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
+                  (cd $(GUISOURCE); echo `pwd`; ant -Dguiversion='"'$$JAPEVERSION'"' OSX.jar)
 
-clean:       ; $(MAKE) engineclean GUIclean
+app:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
+                  ant Jape.app -Dappversion='"'$$JAPEVERSION'"'
 
-engineclean: ; cd $(ENGINESOURCE); $(MAKE) clean OS=OSX
+clean:          ; $(MAKE) engineclean GUIclean bundlerclean appclean
 
-GUIclean:    ; ant clean; cd $(GUISOURCE); ant clean
-guiclean:    ; ant clean; cd $(GUISOURCE); ant clean
+engineclean:    ; cd $(ENGINESOURCE); $(MAKE) clean OS=OSX
+GUIclean:       ; cd $(GUISOURCE); ant clean
+guiclean:       ; ant clean; cd $(GUISOURCE); ant clean
+bundlerclean:   ; cd $(JARBUNDLER); ant clean
+appclean:       ; ant clean
 
-bundler:  ; cd $(JARBUNDLER); ant clean; ant jar
+bundler:        ; cd $(JARBUNDLER); ant jar
 
 
 
