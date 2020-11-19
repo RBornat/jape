@@ -18,17 +18,17 @@
                  </classpath>
            </taskdef>        
            <mkdir dir="build"/>
-        <!-- insist on java 9 or better -->
-        <jarbundler dir="build"
-                    name="Jape"
-                    mainclass="uk.org.jape.Jape"
-                    jar="../java_GUI/build/jar/OSX/Jape.jar"
-                    shortname="Jape"
-                    icon="Jape.icns"
-                    stubfile="universalJavaApplicationStub"
-                    version="${appversion}"
-                    jvmversion="9+"
-                    >
+           <!-- insist on java 9 or better -->
+           <jarbundler dir="build"
+                       name="Jape"
+                       mainclass="uk.org.jape.Jape"
+                       jar="../java_GUI/build/jar/OSX/Jape.jar"
+                       shortname="Jape"
+                       icon="Jape.icns"
+                       stubfile="universalJavaApplicationStub"
+                       version="${appversion}"
+                       jvmversion="9+"
+                       >
             
             <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
             <javaproperty name="apple.awt.showGrowBox"      value="true"/>
