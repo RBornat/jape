@@ -3,7 +3,7 @@
     
     <property name="copyright"       value="Copyright &#xa9; Richard Bornat and Bernard Sufrin"/>
     <property name="launcherApple"   value="build/Jape.app/Contents/MacOS/JavaApplicationStub"/>
-    <property name="jarbundlerpath"  value="./JarBundler/build/jarbundler-3.3.1.jar"/>
+    <property name="jarbundlerpath"  value="${jarbundler}/build/jarbundler-3.3.1.jar"/>
     
     <property environment="env" />
 

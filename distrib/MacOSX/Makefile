@@ -34,7 +34,7 @@ GUI:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
                   (cd $(GUISOURCE); echo `pwd`; ant -Dguiversion='"'$$JAPEVERSION'"' OSX.jar)
 
 app:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
-                  ant Jape.app -Dappversion='"'$$JAPEVERSION'"'
+                  ant Jape.app -Dappversion='"'$$JAPEVERSION'"' -Djarbundler=$(JARBUNDLER)
 
 clean:          ; $(MAKE) engineclean GUIclean bundlerclean appclean
 
