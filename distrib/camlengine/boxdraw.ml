@@ -1204,14 +1204,17 @@ let rec linearise screenwidth procrustean_reasonW dp =
           let (hypmap', ({id = id'} as acc')) =
             let scopes, norms, specials = hyplines in
             (*
+               let show_el = string_of_pair string_of_elinfo (string_of_option string_of_textinfo) "," in
                consolereport ["here it is: scopes ="; 
-                      bracketed_string_of_list (bracketed_string_of_list string_of_elinfo ";") ";" scopes;
+                      bracketed_string_of_list (bracketed_string_of_list show_el ";") ";" scopes;
                       "; norms=";
-                      bracketed_string_of_list (bracketed_string_of_list string_of_elinfo ";") ";" norms
+                      bracketed_string_of_list (bracketed_string_of_list show_el ";") ";" norms;
+                      "; specials=";
+                      bracketed_string_of_list (bracketed_string_of_list show_el ";") ";" specials
                      ];
              *)
             let hypmap, lacc = nj_revfold (dohypline false) scopes (hypmap, startLacc acc.id innerpos) in
-            let hypmap, lacc = nj_revfold (dohypline false) specials (hypmap, startLacc acc.id innerpos) in
+            let hypmap, lacc = nj_revfold (dohypline false) specials (hypmap, lacc) in
             nj_revfold (dohypline true) norms (hypmap, lacc)
           in
           let (cid, {id = id''; acclines = innerlines; elbox = innerbox;
