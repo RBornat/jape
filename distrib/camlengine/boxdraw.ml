@@ -1139,6 +1139,11 @@ let rec linearise screenwidth procrustean_reasonW dp =
           let isScopeElinfo = bool_of_opt <.> Paragraph.isScopeHyp <.> stripelement <.> fst in
           let hypelis = hypelis ||| hypassts in
           let nullass = Some (textinfo_of_string ReasonFont "") in
+          (* three kinds of assumption lines:
+                norms get assumption words like premise, assumption as reason
+                scopes (see SCOPEHYP) get empty reason -- used in IFPFRESH encoding
+                specials (see LAYOUT ASSUMPTION) get pre-determined reason -- used in Aristotle
+           *)
           let hyplines =
             let single h = [h] in
             let partition (h,a as ha) (scopes, norms, specials) =
