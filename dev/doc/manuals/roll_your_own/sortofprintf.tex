@@ -1,0 +1,14 @@
+% !TEX root = roll_your_own.tex
+\chapter{A little bit of printf}
+\label{appx:sortofprintf}
+
+At various points in Jape's example files, you will see stuff which might remind you \textit{printf} in C or OCaml or I don't know where else: a tuple of a string containing \%\textit{c}, where c is a format character, and formulae which are to be evaluated and substituted into the string at the format positions. It's all dreadfully ad-hoc, inserted for convenience by me, and it behaves differently in different places. Oh dear. I'm writing this appendix in the hope that one day I shall be shamed into doing it all 
+
+\section{In alerts}
+\label{sec:printfalerts}
+
+Format specifiers in the string are  \%s for a string; \%t for a formula (a `term'); \%l for a `list' (actually a tuple: sorry). In the \%l case the argument can be ((t0,t1,...,tn), sep) or it can be ((t0,t1,...,tn), sep1, sep2): the first alternative gives you t0<sep>t1<sep>...<sep>tn; the second gives you t0<sep1>t1<sep1>...<sep2>tn.
+
+\section{In the engine-GUI communication mechanism}
+
+I hope you don't need to know about this.
