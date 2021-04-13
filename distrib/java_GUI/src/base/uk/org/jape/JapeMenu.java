@@ -729,7 +729,7 @@ public class JapeMenu implements DebugConstants {
         return i;
     }
     
-    private static int menumask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(); // deprecated in java 10+, but we are 9
+    private static int menumask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx(); 
     
     public static void addStdFileMenuItems(M filemenu) {
         if (LocalSettings.aboutMenuItemNeeded) {
