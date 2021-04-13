@@ -62,21 +62,41 @@ When a named tactic is applied to arguments, a new environment is created by zip
 \item \textsc{compress}
 \item \textsc{compress} \textit{label} \textit{antes}
 \item \textit{label} \textit{antes}
+\item \textsc{assumption} \textit{label}
 \end{itemize}
-in which \textit{label} can be \begin{itemize}
+In every case the tactics are run to produce a tree, whose display is then affected by the layout description. 
+\hspace{10pt}\begin{longtable}{|l|p{280pt}|} \hline
+\textsc{hideroot} & 
+{\raggedright shows the tree without its root (and, I think, works properly if there are several antecedents)} \\ \hline
+\textsc{hidecut} &
+{\raggedright hides the root of the tree iff it's a \textsc{cut} step} \\ \hline
+\hspace{-6pt}\begin{tabular}{l}
+\textsc{compress} \\
+\textsc{compress} \textit{label} \textit{antes} \\
+\textit{label} \textit{antes}
+\end{tabular}
+ &
+ {\raggedright shows the tree with some or all of its antecedents hidden, labelled at the root with \textit{label}} \\ \hline
+\textsc{assumption} \textit{label} & 
+{\raggedright in box display, provides a reason for the assumption/hypothesis/premise introduced by the root step of the tree} \\ \hline
+\end{longtable}
+
+\textit{label} can be \begin{itemize}
 \item a string
 \item an identifier
 \item an unknown
 \item a number 
-\item a non-empty bracketed tuple of the above
+\item a non-empty bracketed tuple of the above, which is handled a bit like \textit{printf} (see section \ref{sec:enhancedalerts} for a little explanation).
 \end{itemize}
-and \textit{antes} is a possibly-empty bracketed tuple of numbers or the word \textsc{all}. It's possible to omit \textit{antes}, in which case \textsc{all} is assumed; \textsc{compress} on its own means \textsc{compress} "\%s" \textsc{all}.
 
-In every case the tactics are run to produce a tree, part of which is then shown. \textsc{hideroot} shows the tree without its root (and, I think, works properly if there are several antecedents); \textsc{hidecut} hides the root iff it's a \textsc{cut} step; the others show the tree with some of its antecedents hidden. Antecedents are numbered from 0, so if \textit{antes} is (1,3), for example, only the second and fourth antecedents will be shown. By double-clicking on the justification produced by \textsc{layout} it's possible to toggle between various different displays of the tree -- essentially between `hidden' and `full' form. There are various variables, with names ending with `fmt' (see variable table below) which affect what happens with this tactical. (I wish I'd documented the thing when I still understood it, and I promise to update this if and when I ever understand it again.)
+\textit{antes} is a possibly-empty bracketed tuple of numbers or the word \textsc{all}. It's possible to omit \textit{antes}, in which case \textsc{all} is assumed; \textsc{compress} on its own means \textsc{compress} "\%s" \textsc{all}.
+
+Antecedents are numbered from 0, so if \textit{antes} is (1,3), for example, only the second and fourth antecedents will be shown. By double-clicking on the justification produced by \textsc{layout} it's possible to toggle between various different displays of the tree -- essentially between `hidden' and `full' form. There are various variables, with names ending with `fmt' (see variable table below) which affect what happens with this tactical. (I wish I'd documented the thing when I still understood it, and I promise to update this if and when I ever understand it again.)
 
 \item [Various \textsc{let}... \textit{tactic... tactic} tacticals]: tactics which test some property: if they succeed, bind some names or some unknowns and proceed with \textit{tactic... tactic}; otherwise they fail. Then can be used as be used as `guarded tactics' which can be used in \textsc{when}. Different tacticals use different mechanisms to make the test and the bindings. 
 
-\begin{description}\item [] The first group simply binds something to a name (may be an identifier or an unknown)
+\begin{description}
+\item [] The first group simply binds something to a name (may be an identifier or an unknown)
 \item [\textsc{letargtext} \textit{name tactic... tactic}]: if the user has made a \textit{single} text selection, bind the text to \textit{name} and succeed; 
 \item [\textsc{letgoalpath}  \textit{name tactic... tactic}]: bind the path to the current goal with \textit{name}, and succeed. 
 \end{description}
@@ -108,9 +128,11 @@ In every case the tactics are run to produce a tree, part of which is then shown
 \item [\textsc{letoccurs}]: ??;
 
 \item [\textsc{letsubstsel} \textit{pattern tactic... tactic}]: if the user has made a number of text selections within a single formula, each an instance of an identical sub-formula, convert the formula to a substitution (see chapter 1) and match it with \textit{pattern}; 
-\end{description}
 
-\begin{description}\item[] Last of all \textsc{letunify} uses symmetrical unification
+\end{description}
+
+\begin{description}
+\item[] Last of all \textsc{letunify} uses symmetrical unification
 \item [\textsc{letunify} \textit{pat1 pat2} \textit{tactic... tactic}]: unify \textit{pat1} with \textit{pat2};
 \end{description}
 
