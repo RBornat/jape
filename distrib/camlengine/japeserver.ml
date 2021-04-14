@@ -266,18 +266,17 @@ let setFontNames fs =
      fontnames := Array.of_list fs
 
 let rec getfontname n =
-  let k = Array.length !fontnames in
-  if n >= 0 && n < k
+  let nfonts = Array.length !fontnames in
+  if n >= 0 && n < nfonts
   then Array.get !fontnames n
   else 
-  if k = 0 then (* we never initialised it *) (
+  if nfonts = 0 then (* we never initialised it *) (
     writef "FONTNAMES\n" [];
     let fs = strings_of_reply (readline "FONTNAMES") in 
     setFontNames fs; getfontname n 
   )
   else
-    raise (Catastrophe_ ["Japeserver.getfontname can't decode fontnumber "; 
-                         string_of_int n])
+    raise (Catastrophe_ ["Japeserver.getfontname can't decode fontnumber "; string_of_int n])
 
 (* let rec getfontname n =
      try Array.get !fontnames n 
