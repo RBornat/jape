@@ -4,8 +4,8 @@
          There is a split between Java 8 and Java 9. This is a build file for
          Java 9 and up. Sorry.
     --> 
-    <property name="targetJVM"  value="9" /> 
-    <property name="sourceJava" value="9" /> 
+    <property name="targetJVM"  value="11" /> 
+    <property name="sourceJava" value="11" /> 
     
     <!-- Use environment to acquire JAPE version: too many differences in behaviour of
          shell+make between Linux and OS/X to do this by passing a -D parameter to ant.
@@ -31,7 +31,7 @@
             debuglevel="source,lines"
             includeantruntime="false"
             sourcepath="."
-            srcdir="src/base:src/OSX"
+            srcdir="src/base:src/OSX:src/module"
             destdir="build/classes/OSX"
         >
         </javac>
@@ -48,7 +48,7 @@
             debug="on"
             debuglevel="source,lines"
             sourcepath=""
-            srcdir="src/base:src/standard"
+            srcdir="src/base:src/standard:src/module"
             destdir="build/classes/standard"
         />
     </target>
@@ -65,31 +65,18 @@
         </echo>
     </target>
     
-    <target name="basejar">
-        <mkdir dir="build/jar"/>
-        <jar destfile="build/jar/base.jar" 
-             basedir="extras"
-             includes = "**/*.jpg **/*.gif"
-             >
-        </jar>
-    </target>
-    
-    <target name="OSX.jar" depends="version,basejar,OSXcompile">
+    <target name="OSX.jar" depends="version,OSXcompile">
         <mkdir dir="build/jar/OSX"/>
-        <copy file="build/jar/base.jar" tofile="build/jar/OSX/Jape.jar"/>
-        <jar destfile="build/jar/OSX/Jape.jar" 
+        <jar destfile="build/jar/OSX/uk.org.jape.jar" 
              basedir="build/classes/OSX"
              includes = "**/*.class"
              update="yes"
              duplicate="fail"
              >
-            <manifest>
-                <attribute name="Main-Class" value="uk.org.jape.Jape"/>
-            </manifest>
         </jar>
     </target>
     
-    <target name="Jape.jar" depends="version,basejar,standardcompile">
+    <target name="Jape.jar" depends="version,standardcompile">
         <mkdir dir="build/jar/standard"/>
         <copy file="build/jar/base.jar" tofile="build/jar/standard/Jape.jar"/>
         <jar destfile="build/jar/standard/Jape.jar" 
@@ -106,6 +93,28 @@
     
     <target name="run" depends="Jape.jar">
         <java jar="build/jar/standard/Jape.jar" fork="true"/>
+    </target>
+
+    <target name="jdepsclean">
+        <delete file="src/module/uk.org.jape/module-info.java" />
+        <delete file="build/classes/OSX/module-info.class" />
+        <delete file="build/jar/OSX/uk.org.jape.jar" />
+    </target>
+    
+    <target name="jdeps" depends="version,jdepsclean,OSX.jar"
+        description="Build a jre standalone-application">
+        <exec executable="${environment.JAVA_HOME}/bin/jdeps" failifexecutionfails="true">
+            <arg value="--generate-module-info" />
+            <arg value="src/module" />
+            <arg value="build/jar/OSX/uk.org.jape.jar" />
+        </exec>   
+        <!-- <OSXjar/>
+        <delete file="build/Jape.jmod"/>
+        <delete dir="build/jre"/>
+        <jmod destfile="build/Jape.jmod" classpath="../java_GUI/build/classes/OSX" mainclass="uk.org.jape.Jape"/>
+        <link destDir="build/jre" modulepath="build/Jape.jmod" modules="uk.org.jape">
+            <launcher name="jape" module="uk.org.jape" mainClass="uk.org.jape.Jape" />
+        </link> -->
     </target>
 
 </project>
