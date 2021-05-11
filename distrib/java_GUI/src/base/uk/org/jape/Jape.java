@@ -28,7 +28,10 @@ package uk.org.jape;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.Taskbar;
+import java.io.File;
 import java.util.Vector;
 
 public class Jape implements DebugConstants {
@@ -54,14 +57,19 @@ public class Jape implements DebugConstants {
         quitsent = false;
     }
 
-        public static void crash(String message) {
+    public static void crash(String message) {
         Logger.crash(message,2);
     }
     
     public static boolean onMacOSX, onLinux, onWindows, onUnix;
     public static Rectangle screenBounds;
+
+    public static File appDir, picsDir, engineDir, resourceDir;
+
     public static String defaultUnixEnginePath    = "./jape_engine";
     public static String defaultWindowsEnginePath = ".\\jape.exe"  ;
+    
+    public static Image icon=null;
     
     public static void main(String args[]) {
         // since platform independence seems not yet to have been achieved ...
@@ -72,6 +80,11 @@ public class Jape implements DebugConstants {
         onWindows = osName.startsWith("Windows");
         
         onUnix = onMacOSX || onLinux || onWindows;
+ 
+        appDir = new File (onMacOSX  ? System.getProperty("uk.org.jape.AppPackage") : ".");
+        engineDir = onMacOSX ? new File (appDir, "Contents/Engine") : appDir;
+        picsDir = onMacOSX ? new File (appDir, "Contents/Resources/Pics") : new File ("./Pics");
+        resourceDir = onMacOSX ? new File (appDir, "Contents/Resources") : new File ("./Resources");
         
         if (!(onMacOSX || onLinux  || onWindows)) {
             Logger.log.println("Jape.main doesn't recognise OS\n"+
@@ -95,6 +108,7 @@ public class Jape implements DebugConstants {
         else
             JapeMenu.checkboxDoubleBounce = false; 
 
+        
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
         GraphicsConfiguration[] gc = gd.getConfigurations();
@@ -109,7 +123,8 @@ public class Jape implements DebugConstants {
         new LocalSettings();
         final Vector<String> engineCmd = new Vector<String>();
         engineCmd.add(onWindows ? defaultWindowsEnginePath : 
-                      onMacOSX  ? System.getProperty("uk.org.jape.AppPackage")+"/Contents/Engine/"+defaultUnixEnginePath : defaultUnixEnginePath);
+                      onLinux   ? defaultUnixEnginePath    :
+                      /* macOS */ (new File (engineDir, "jape_engine")).toString());
 
         // all args (except for -engine <path>) sent to engine.
         
@@ -124,6 +139,9 @@ public class Jape implements DebugConstants {
             else
                 engineCmd.add(args[i]);
         }
+   
+        icon = Images.getImage(new File(resourceDir, "newicon.iconset/icon_128x128@2x.png"));
+
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 new Engine((String[])engineCmd.toArray(new String[engineCmd.size()]));
@@ -133,8 +151,24 @@ public class Jape implements DebugConstants {
                 if (tracing)
                     Logger.log.println("GUI initialised");
                 
-                    java.util.Properties props = System.getProperties();
-                    props.list(System.err);
+                java.util.Properties props = System.getProperties();
+                props.list(System.err);
+
+                if (Taskbar.isTaskbarSupported()) {
+                    final Taskbar taskbar = Taskbar.getTaskbar();
+
+                    if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
+                        try {
+                            //set icon for mac os (and other systems which do support this method)
+                            taskbar.setIconImage(icon);
+                        } catch (final UnsupportedOperationException e) {
+                            System.out.println("The os does not support: 'taskbar.setIconImage' -- ");
+                        } catch (final SecurityException e) {
+                            System.out.println("There was a security exception for: 'taskbar.setIconImage' -- ");
+                        }
+                    }
+                }
+
 
             }
         });
