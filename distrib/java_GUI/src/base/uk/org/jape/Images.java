@@ -26,27 +26,32 @@
 package uk.org.jape;
 
 import java.awt.Image;
-import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 /*
-    Because we now are a package, it's not a good idea to load our images
-    relative to a class. So we load them from the top level of the jar,
-    using ClassLoader.
+    We used to load images from the top level of the jar, using ClassLoader.
+    Now we use ImageIO.
 */
 
 public class Images
-{ private Images() {}
-  private static Images surrogate = new Images();
+{  
+    public static Image getPicsImage(String localname) {
+        return getImage(new File (Jape.picsDir, localname));
+    }
   
-  /** Use the place that THIS code was loaded from */
-  public static Image getImage(String localname) {
-	return getImage(surrogate, localname);
-  }
-  
-  /** Use the place that the host was loaded from */
-  public static Image getImage(Object host, String localname)
-  {  Toolkit tk = Toolkit.getDefaultToolkit();
-     return tk.getImage(java.lang.ClassLoader.getSystemClassLoader().getResource(localname));
-  }
+    public static Image getImage(File f) {
+        try {
+            return ImageIO.read(f);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            String s = "can't read image from file "+f+" (exception "+e+")\n";
+            Alert.guiAbort(s);
+            return null; // ouch
+        }
+    }
 }
 
