@@ -2,46 +2,46 @@
     <!-- ../camlengine/_buildOSX/jape_engine must be built before Jape.app (see makefile) -->
     
     <property name="copyright"       value="Copyright &#xa9; Richard Bornat and Bernard Sufrin"/>
-    <property name="launcherApple"   value="build/Jape.app/Contents/MacOS/JavaApplicationStub"/>
-    <property name="jarbundlerpath"  value="${jarbundler}/build/jarbundler-3.3.1.jar"/>
+    <property name="jrebundlerpath"  value="${jrebundler}/build/JREbundler-1.0.jar"/>
     
     <property environment="env" />
 
     
-      
-    <target name="Jape.app"
-            description="Build the application using JarBundler 3.3.1 to make the structure and universalJavaApplicationStub to launch it">
-           <echo message="Jar bundler path ${jarbundlerpath}"/>
-           <taskdef name="jarbundler" classname="com.ultramixer.jarbundler.JarBundler" >
+    <!-- depends="jre" --> 
+    <target name="Jape.app" depends="jre"
+            description="Build the application using JREBundler">
+           <echo message="JRE bundler path ${jrebundlerpath}"/>
+           <taskdef name="jrebundler" classname="org.rbornat.jrebundler.JREBundler" >
                  <classpath>
-                   <pathelement location="${jarbundlerpath}"/>
+                   <pathelement location="${jrebundlerpath}"/>
                  </classpath>
            </taskdef>        
            <mkdir dir="build"/>
-           <!-- insist on java 9 or better -->
-           <jarbundler dir="build"
+           <jrebundler dir="build"
                        name="Jape"
+                       JRE="build/jre"
                        mainclass="uk.org.jape.Jape"
-                       jar="../java_GUI/build/jar/OSX/Jape.jar"
+                       modulename="uk.org.jape"
                        shortname="Jape"
-                       icon="Jape.icns"
-                       stubfile="universalJavaApplicationStub"
+                       icon="newicon.icns"
                        version="${appversion}"
-                       jvmversion="9+"
+                       bundleid="uk.org.jape.Jape"
                        >
-            
-            <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
-            <javaproperty name="apple.awt.showGrowBox"      value="true"/>
-            <javaproperty name="apple.awt.antialiasing"     value="true"/>
-            <javaproperty name="apple.awt.rendering"        value="quality"/>
-            <javaproperty name="uk.org.jape.AppPackage"     value="$APP_ROOT"/>
-            <javaproperty name="NSHighResolutionCapable"     value="true"/>
-            <documenttype name="Jape Theory"
-                                extensions= "jt,j,jp" 
-                                ostypes=    "****" 
-                                iconfile=   "Jape.icns"
-                                role=       "None"/>
-        </jarbundler>
+                <resourcefileset dir="../java_GUI" includes="Pics/*.*"/> 
+                <resourcefileset dir="." includes="newicon.iconset/*.*"/> 
+                
+                <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
+                <javaproperty name="apple.awt.showGrowBox"      value="true"/>
+                <javaproperty name="apple.awt.antialiasing"     value="true"/>
+                <javaproperty name="apple.awt.rendering"        value="quality"/>
+                <javaproperty name="uk.org.jape.AppPackage"     value="$APP_ROOT"/>
+                <javaproperty name="NSHighResolutionCapable"     value="true"/>
+                <documenttype name="Jape Theory"
+                                    extensions= "jt,j,jp" 
+                                    ostypes=    "****" 
+                                    iconfile=   "Jape.icns"
+                                    role=       "None"/>
+            </jrebundler>
             
         <mkdir dir="build/Jape.app/Contents/Engine"/>
         <copy file="../camlengine/_buildOSX/jape_engine" tofile="build/Jape.app/Contents/Engine/jape_engine"/>
@@ -55,6 +55,17 @@
              </exec>
         -->
         
+    </target>
+    
+    <!-- jre target assumes $JAVA_HOME/bin is on PATH -->
+    <target name="jre"
+        description="Build a jre standalone-application">
+        <delete file="build/Jape.jmod"/>
+        <delete dir="build/jre"/>
+        <jmod destfile="build/Jape.jmod" classpath="../java_GUI/build/jar/OSX/uk.org.jape.jar" mainclass="uk.org.jape.Jape"/>
+        <link destDir="build/jre" modulepath="build/Jape.jmod" modules="uk.org.jape">
+            <launcher name="jape" module="uk.org.jape" mainClass="uk.org.jape.Jape" />
+        </link>
     </target>
     
     <target name="clean">

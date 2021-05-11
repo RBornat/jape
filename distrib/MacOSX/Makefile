@@ -20,31 +20,39 @@
 #       Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #       (or look at http://www.gnu.org).
 #
-GUISOURCE=../java_GUI
-ENGINESOURCE=../camlengine
-JARBUNDLER=./JarBundler
+GUIDIR=../java_GUI
+ENGINEDIR=../camlengine
+JREBUNDLER=./JREBundler
 
 local:          ; $(MAKE) engine GUI bundler app
 release:        ; $(MAKE) clean engine GUI bundler app                          
 run:            ; open build/Jape.app
 
-engine:         ; cd $(ENGINESOURCE); make jape_engine OS=OSX
+engine:         ; cd $(ENGINEDIR); make jape_engine OS=OSX
 
 GUI:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
-                  (cd $(GUISOURCE); echo `pwd`; ant -Dguiversion='"'$$JAPEVERSION'"' OSX.jar)
+                  (cd $(GUIDIR); echo `pwd`; ant -Dguiversion='"'$$JAPEVERSION'"' OSX.jar)
 
 app:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
-                  ant Jape.app -Dappversion='"'$$JAPEVERSION'"' -Djarbundler=$(JARBUNDLER)
+                  ant Jape.app -Dappversion='"'$$JAPEVERSION'"' -Djrebundler=$(JREBUNDLER)
+
+                # Amazingly, I can't find a jdeps task in ant. And so far I have managed
+                # to make jlink work in ant but not in the shell. Hence jdeps here, jmod
+                # and jlink in ant. Sob.
+jre:            ; make jmod; ant jre
+
+jmod:           ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
+                  cd $(GUIDIR); ant -Dguiversion='"'$$JAPEVERSION'"' jdeps OSX.jar
 
 clean:          ; $(MAKE) engineclean GUIclean bundlerclean appclean
 
-engineclean:    ; cd $(ENGINESOURCE); $(MAKE) clean OS=OSX
-GUIclean:       ; cd $(GUISOURCE); ant clean
-guiclean:       ; ant clean; cd $(GUISOURCE); ant clean
-bundlerclean:   ; cd $(JARBUNDLER); ant clean
+engineclean:    ; cd $(ENGINEDIR); $(MAKE) clean OS=OSX
+GUIclean:       ; cd $(GUIDIR); ant clean
+guiclean:       ; ant clean; cd $(GUIDIR); ant clean
+bundlerclean:   ; cd $(JREBUNDLER); ant clean
 appclean:       ; ant clean
 
-bundler:        ; cd $(JARBUNDLER); ant jar
+bundler:        ; cd $(JREBUNDLER); ant jar
 
 
 
