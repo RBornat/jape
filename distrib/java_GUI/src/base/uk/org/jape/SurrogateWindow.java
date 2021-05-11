@@ -43,7 +43,7 @@ import javax.swing.SwingConstants;
 public abstract class SurrogateWindow extends JapeWindow {
     static final String message = "Jape!";
     // private Font font = new Font("serif", Font.ITALIC+Font.BOLD, 36);
-    private ImageIcon logoIcon = new ImageIcon(Images.getImage("japelogo.gif"));
+    private ImageIcon logoIcon = new ImageIcon(Images.getPicsImage("japelogo.png"));
 
     public SurrogateWindow(String title) {
         super(title);
