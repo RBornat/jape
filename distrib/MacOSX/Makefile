@@ -39,7 +39,7 @@ jre:            ; ant jre
 
                 # GUI gets stuff ready for jre 
 GUI:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
-                  cd $(GUIDIR); ant -Dguiversion='"'$$JAPEVERSION'"' -Dtargetjar="OSX.jar" jdeps
+                  cd $(GUIDIR); ant -Dguiversion='"'$$JAPEVERSION'"' -Dtarget="OSX" jdeps
 
 clean:          ; $(MAKE) engineclean GUIclean bundlerclean appclean
 
