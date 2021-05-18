@@ -6,6 +6,7 @@
     --> 
     <property name="targetJVM"  value="11" /> 
     <property name="sourceJava" value="11" /> 
+    <!-- 'target' property is either OSX or standard -->
     
     <!-- Use environment to acquire JAPE version: too many differences in behaviour of
          shell+make between Linux and OS/X to do this by passing a -D parameter to ant.
@@ -55,7 +56,6 @@
     <target name="version">
 	<delete quiet="true" file="build/classes/standard/uk/org/jape/Version.class"> </delete>
 	<delete quiet="true" file="build/classes/standard/uk/org/jape/AboutBox.class"> </delete>
-
         <echo force="true" file="src/base/uk/org/jape/Version.java">
             package uk.org.jape; 
             public class Version { 
@@ -75,24 +75,22 @@
         </jar>
     </target>
     
-    <target name="Jape.jar" depends="version,standardcompile">
+    <target name="standard.jar" depends="version,standardcompile">
         <mkdir dir="build/jar/standard"/>
-        <copy file="build/jar/base.jar" tofile="build/jar/standard/Jape.jar"/>
-        <jar destfile="build/jar/standard/Jape.jar" 
+        <jar destfile="build/jar/standard/uk.org.jape.jar" 
              basedir="build/classes/standard"
              includes = "**/*.class"
              update="yes"
              duplicate="fail"
              >
-            <manifest>
-                <attribute name="Main-Class" value="uk.org.jape.Jape"/>
-            </manifest>
         </jar>
     </target>
     
+    <!-- no longer needed, I think
     <target name="run" depends="Jape.jar">
         <java jar="build/jar/standard/Jape.jar" fork="true"/>
     </target>
+      -->
 
     <target name="jdepsclean">
         <delete file="src/module/uk.org.jape/module-info.java" />
@@ -103,13 +101,13 @@
     
     <target name="jdeps" depends="version,jdepsclean"
         description="Build a jre standalone-application">
-        <antcall target="${targetjar}" />
+        <antcall target="${target}.jar" />
         <exec executable="${environment.JAVA_HOME}/bin/jdeps" failifexecutionfails="true">
             <arg value="--generate-module-info" />
             <arg value="src/module" />
-            <arg value="build/jar/OSX/uk.org.jape.jar" />
+            <arg value="build/jar/${target}/uk.org.jape.jar" />
         </exec>   
-        <antcall target="${targetjar}" />
+        <antcall target="${target}.jar" />
         <!-- <OSXjar/>
         <delete file="build/Jape.jmod"/>
         <delete dir="build/jre"/>
