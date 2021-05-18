@@ -25,6 +25,7 @@
 
 package uk.org.jape;
 
+import java.awt.Color;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -32,7 +33,14 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Taskbar;
 import java.io.File;
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Vector;
+
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class Jape implements DebugConstants {
 
@@ -71,6 +79,20 @@ public class Jape implements DebugConstants {
     
     public static Image icon=null;
     
+    private static void propslist(Properties p, PrintStream out) {
+        out.println("-- listing properties --");
+        Map<String, Object> h = new HashMap<>();
+        for (Map.Entry<Object, Object> e : p.entrySet()) {
+            String key = (String)e.getKey();
+            h.put(key, e.getValue());
+        }
+        for (Map.Entry<String, Object> e : h.entrySet()) {
+            String key = e.getKey();
+            String val = (String)e.getValue();
+            out.println(key + "=" + val);
+        }
+    }
+
     public static void main(String args[]) {
         // since platform independence seems not yet to have been achieved ...
         String osName = System.getProperty("os.name");
@@ -108,7 +130,6 @@ public class Jape implements DebugConstants {
         else
             JapeMenu.checkboxDoubleBounce = false; 
 
-        
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
         GraphicsConfiguration[] gc = gd.getConfigurations();
@@ -140,7 +161,7 @@ public class Jape implements DebugConstants {
                 engineCmd.add(args[i]);
         }
    
-        icon = Images.getImage(new File(resourceDir, "newicon.iconset/icon_128x128@2x.png"));
+        icon = Images.getPicsImage("japeicon.png");
 
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -151,8 +172,7 @@ public class Jape implements DebugConstants {
                 if (tracing)
                     Logger.log.println("GUI initialised");
                 
-                java.util.Properties props = System.getProperties();
-                props.list(System.err);
+                propslist(System.getProperties(), System.err);
 
                 if (Taskbar.isTaskbarSupported()) {
                     final Taskbar taskbar = Taskbar.getTaskbar();
@@ -169,12 +189,24 @@ public class Jape implements DebugConstants {
                     }
                 }
 
+                if (onMacOSX) {
+                    try {
+                        UIManager.setLookAndFeel("com.apple.laf.AquaLookAndFeel");
+                        UIManager.put("TabbedPane.foreground", Color.BLACK); // temporary fix (up to Java 16 at least) on Apple Silicon Big Sur
+                    }
+                    catch (ClassNotFoundException | InstantiationException
+                            | IllegalAccessException
+                            | UnsupportedLookAndFeelException e) {
+                        System.out.println("some exception e");
+                        e.printStackTrace();
+                    }
+                }
 
             }
         });
 
     }
-    
+ 
     /* *********************************** orphaned drags cause all sorts of problems ***********************************************/
     
     // deal with orphaned drags, which otherwise muck things up proper
