@@ -25,7 +25,7 @@
                        mainclass="uk.org.jape.Jape"
                        modulename="uk.org.jape"
                        shortname="Jape"
-                       icon="newicon.icns"
+                       icon="Jape.icns"
                        version="${appversion}"
                        bundleid="uk.org.jape.Jape"
                        >
