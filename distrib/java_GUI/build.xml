@@ -35,7 +35,6 @@
             destdir="build/classes/OSX"
         >
         </javac>
-        
     </target>
 
     <target name="standardcompile" depends="version">
@@ -99,15 +98,18 @@
         <delete file="src/module/uk.org.jape/module-info.java" />
         <delete file="build/classes/OSX/module-info.class" />
         <delete file="build/jar/OSX/uk.org.jape.jar" />
+        <delete file="build/jar/standard/uk.org.jape.jar" />
     </target>
     
-    <target name="jdeps" depends="version,jdepsclean,OSX.jar"
+    <target name="jdeps" depends="version,jdepsclean"
         description="Build a jre standalone-application">
+        <antcall target="${targetjar}" />
         <exec executable="${environment.JAVA_HOME}/bin/jdeps" failifexecutionfails="true">
             <arg value="--generate-module-info" />
             <arg value="src/module" />
             <arg value="build/jar/OSX/uk.org.jape.jar" />
         </exec>   
+        <antcall target="${targetjar}" />
         <!-- <OSXjar/>
         <delete file="build/Jape.jmod"/>
         <delete dir="build/jre"/>
