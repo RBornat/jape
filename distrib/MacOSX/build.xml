@@ -1,5 +1,7 @@
 <project>
-    <!-- ../camlengine/_buildOSX/jape_engine must be built before Jape.app (see makefile) -->
+    <!-- ../camlengine/_buildOSX/jape_engine must be built before Jape.app (see makefile) 
+         jre must be built before Jape.app
+      -->
     
     <property name="copyright"       value="Copyright &#xa9; Richard Bornat and Bernard Sufrin"/>
     <property name="jrebundlerpath"  value="${jrebundler}/build/JREbundler-1.0.jar"/>
@@ -7,8 +9,8 @@
     <property environment="env" />
 
     
-    <!-- depends="jre" --> 
-    <target name="Jape.app" depends="jre"
+    <!-- requires that you have built jre and ../java_GUI/jdeps+OSX.jar --> 
+    <target name="Jape.app"
             description="Build the application using JREBundler">
            <echo message="JRE bundler path ${jrebundlerpath}"/>
            <taskdef name="jrebundler" classname="org.rbornat.jrebundler.JREBundler" >
@@ -28,7 +30,6 @@
                        bundleid="uk.org.jape.Jape"
                        >
                 <resourcefileset dir="../java_GUI" includes="Pics/*.*"/> 
-                <resourcefileset dir="." includes="newicon.iconset/*.*"/> 
                 
                 <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
                 <javaproperty name="apple.awt.showGrowBox"      value="true"/>
@@ -57,14 +58,12 @@
         
     </target>
     
-    <!-- jre target assumes $JAVA_HOME/bin is on PATH -->
     <target name="jre"
         description="Build a jre standalone-application">
         <delete file="build/Jape.jmod"/>
         <delete dir="build/jre"/>
         <jmod destfile="build/Jape.jmod" classpath="../java_GUI/build/jar/OSX/uk.org.jape.jar" mainclass="uk.org.jape.Jape"/>
-        <link destDir="build/jre" modulepath="build/Jape.jmod" modules="uk.org.jape">
-            <launcher name="jape" module="uk.org.jape" mainClass="uk.org.jape.Jape" />
+        <link destDir="build/jre" modulepath="build" modules="uk.org.jape" includeManPages="false" includeHeaders="false">
         </link>
     </target>
     
