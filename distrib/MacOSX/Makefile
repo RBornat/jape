@@ -30,19 +30,16 @@ run:            ; open build/Jape.app
 
 engine:         ; cd $(ENGINEDIR); make jape_engine OS=OSX
 
-GUI:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
-                  (cd $(GUIDIR); echo `pwd`; ant -Dguiversion='"'$$JAPEVERSION'"' OSX.jar)
-
+                # make app doesn't build the GUI or the jre bundle.
 app:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
                   ant Jape.app -Dappversion='"'$$JAPEVERSION'"' -Djrebundler=$(JREBUNDLER)
 
-                # Amazingly, I can't find a jdeps task in ant. And so far I have managed
-                # to make jlink work in ant but not in the shell. Hence jdeps here, jmod
-                # and jlink in ant. Sob.
-jre:            ; make jmod; ant jre
+                # jre doesn't build the GUI
+jre:            ; ant jre
 
-jmod:           ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
-                  cd $(GUIDIR); ant -Dguiversion='"'$$JAPEVERSION'"' jdeps OSX.jar
+                # GUI gets stuff ready for jre 
+GUI:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
+                  cd $(GUIDIR); ant -Dguiversion='"'$$JAPEVERSION'"' -Dtargetjar="OSX.jar" jdeps
 
 clean:          ; $(MAKE) engineclean GUIclean bundlerclean appclean
 
