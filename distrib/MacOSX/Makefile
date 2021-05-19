@@ -35,11 +35,11 @@ app:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
                   ant Jape.app -Dappversion='"'$$JAPEVERSION'"' -Djrebundler=$(JREBUNDLER)
 
                 # jre doesn't build the GUI
-jre:            ; ant jre
+jre:            ; cd $(GUIDIR); ant -Dtarget="OSX" jre
 
                 # GUI gets stuff ready for jre 
 GUI:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
-                  cd $(GUIDIR); ant -Dguiversion='"'$$JAPEVERSION'"' -Dtarget="OSX" jdeps
+                  cd $(GUIDIR); ant -Dguiversion='"'$$JAPEVERSION'"' -Dtarget="OSX" uk.org.jape.jar
 
 clean:          ; $(MAKE) engineclean GUIclean bundlerclean appclean
 

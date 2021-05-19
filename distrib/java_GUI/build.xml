@@ -99,7 +99,7 @@
         <delete file="build/jar/standard/uk.org.jape.jar" />
     </target>
     
-    <target name="jdeps" depends="version,jdepsclean"
+    <target name="uk.org.jape.jar" depends="version,jdepsclean"
         description="Build a jre standalone-application">
         <antcall target="${target}.jar" />
         <exec executable="${environment.JAVA_HOME}/bin/jdeps" failifexecutionfails="true">
@@ -116,6 +116,19 @@
             <launcher name="jape" module="uk.org.jape" mainClass="uk.org.jape.Jape" />
         </link> -->
     </target>
+
+    <target name="jre" description="Build a minimal jre">
+        <mkdir dir="build/jmod"/>
+        <mkdir dir="build/jmod/${target}"/>
+        <mkdir dir="build/jre"/>
+        <mkdir dir="build/jre/${target}"/>
+        <delete file="build/jmod/${target}/Jape.jmod"/>
+        <delete dir="build/jre/${target}/jre"/>
+        <jmod destfile="build/jmod/${target}/Jape.jmod" classpath="build/jar/${target}/uk.org.jape.jar" mainclass="uk.org.jape.Jape"/>
+        <link destDir="build/jre/${target}/jre" modulepath="build/jmod/${target}" modules="uk.org.jape" includeManPages="false" includeHeaders="false">
+        </link>
+    </target>
+    
 
 </project>
 
