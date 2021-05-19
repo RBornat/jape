@@ -21,7 +21,7 @@
            <mkdir dir="build"/>
            <jrebundler dir="build"
                        name="Jape"
-                       JRE="build/jre"
+                       JRE="../java_GUI/build/jre/OSX/jre"
                        mainclass="uk.org.jape.Jape"
                        modulename="uk.org.jape"
                        shortname="Jape"
@@ -50,21 +50,6 @@
             <arg value="755"/>
             <arg value="build/Jape.app/Contents/Engine/jape_engine"/>
         </exec>
-        
-        <!-- <exec executable="./macunsign">
-                 <arg value="${launcherApple}"/>
-             </exec>
-        -->
-        
-    </target>
-    
-    <target name="jre"
-        description="Build a jre standalone-application">
-        <delete file="build/Jape.jmod"/>
-        <delete dir="build/jre"/>
-        <jmod destfile="build/Jape.jmod" classpath="../java_GUI/build/jar/OSX/uk.org.jape.jar" mainclass="uk.org.jape.Jape"/>
-        <link destDir="build/jre" modulepath="build" modules="uk.org.jape" includeManPages="false" includeHeaders="false">
-        </link>
     </target>
     
     <target name="clean">
