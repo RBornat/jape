@@ -45,7 +45,7 @@ cleanengine:    ; cd $(ENGINEDIR); make clean OS=$(OS)
 #
 GUI:            ; export JAPEVERSION=`$(BUILDRESOURCES)/version.sh`; \
                   (cd $(GUIDIR); ant -Dguiversion='"'$$JAPEVERSION'"' -Dtarget="standard" uk.org.jape.jar)
-cleanGUI:       ; (cd $(GUIDIR); ant clean)
+GUIclean:       ; (cd $(GUIDIR); ant clean)
 
 jre:            ; cd $(GUIDIR); ant -Dtarget="standard" jre
 
