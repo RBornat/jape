@@ -187,7 +187,11 @@ public class Jape implements DebugConstants {
                             System.out.println("There was a security exception for: 'taskbar.setIconImage' -- ");
                         }
                     }
+                    else
+                        Logger.log.println("no setIconImage on this machine");
                 }
+                else
+                    Logger.log.println("no TaskBar on this machine");
 
                 if (onMacOSX) {
                     try {
