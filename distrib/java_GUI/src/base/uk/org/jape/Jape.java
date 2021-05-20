@@ -34,6 +34,7 @@ import java.awt.Rectangle;
 import java.awt.Taskbar;
 import java.io.File;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -79,7 +80,7 @@ public class Jape implements DebugConstants {
     
     public static Image icon=null;
     
-    private static void propslist(Properties p, PrintStream out) {
+    private static void propslist(Properties p, PrintWriter out) {
         out.println("-- listing properties --");
         Map<String, Object> h = new HashMap<>();
         for (Map.Entry<Object, Object> e : p.entrySet()) {
@@ -172,7 +173,7 @@ public class Jape implements DebugConstants {
                 if (tracing)
                     Logger.log.println("GUI initialised");
                 
-                propslist(System.getProperties(), System.err);
+                propslist(System.getProperties(), Logger.log);
 
                 if (Taskbar.isTaskbarSupported()) {
                     final Taskbar taskbar = Taskbar.getTaskbar();
