@@ -159,11 +159,6 @@ import java.lang.System;
  * <dt>signature
  * <dd>Bundle Signature (default "????")
  * 
- * <dt>stubfile
- * <dd>The Java Application Stub file to copy for your application (default
- * MacOS system stub file)
- * </dl>
- * 
  * <p>
  * Rarely used optional attributes.
  * <dl>
