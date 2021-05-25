@@ -1333,6 +1333,7 @@ public class JREBundler extends MatchingTask {
 		try {
 			FileWriter f = new FileWriter(newStubFile);
 			
+			/* this is for MacOS only. Note that zsh gets $0 right, even when executing via 'source' */
 			f.write("#!/bin/zsh\n" + 
 			        "function stub_logger() {\n" + 
 			        "        syslog -s -k \\\n" + 
