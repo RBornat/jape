@@ -1,0 +1,7 @@
+#!/bin/bash
+LAUNCHDIR=`dirname $0`
+cd ${LAUNCHDIR}
+LAUNCHDIR=$(pwd)
+export APP_ROOT=`dirname ${LAUNCHDIR}`
+./jre/bin/java -m uk.org.jape/uk.org.jape.Jape
+
