@@ -1,7 +1,4 @@
 #
-# $Id$
-#
-#
 #       This include must come first
 #
 #
