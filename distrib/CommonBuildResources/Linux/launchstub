@@ -1,7 +1,9 @@
 #!/bin/bash
-LAUNCHDIR=`dirname $0`
-cd ${LAUNCHDIR}
-LAUNCHDIR=$(pwd)
-export APP_ROOT=`dirname ${LAUNCHDIR}`
-./jre/bin/java -m uk.org.jape/uk.org.jape.Jape
+# claims to be, in bash, the way to find source directory.
+# from https://stackoverflow.com/questions/59895/how-can-i-get-the-source-directory-of-a-bash-script-from-within-the-script-itsel/60157372#60157372
+full_path_to_script="$(realpath "$0")"
+launchdir="$(dirname "$full_path_to_script")"
+cd $launchdir
+export APP_ROOT=`dirname ${launchdir}`
+./jre/bin/java -Duk.org.jape.AppPackage=$APP_ROOT -m uk.org.jape/uk.org.jape.Jape
 
