@@ -52,17 +52,10 @@ jre:            ; cd $(GUIDIR); ant -Dtarget="standard" jre
 app:            ; rm -fr Jape.app; mkdir Jape.app; \
                  cp -pR $(GUIDIR)/build/jre/standard/jre Jape.app; \
                  cp -pR $(GUIDIR)/Pics Jape.app; \
-                 cp -p $(ENGINEDIR)/_build$(OS)/jape_engine Jape.app; \
-                 make stub
+                 cp -p $(ENGINEDIR)/_build$(OS)/jape_engine Jape.app
 
 run:           ; cd Jape.app; ./launchstub&
 		  
-#
-#       ditto the encoder
-#
-encoder:            ; (cd $(ENCODEDIR); $(MAKE) encoder.jar)
-cleanencoder:       ; (cd $(ENCODEDIR); $(MAKE) clean)
-
 #
 #       
 #
@@ -72,7 +65,7 @@ install:        components; \
                   rsync -v -t    $(BUILDRESOURCES)/installjape.sh . ;\
                   sh installjape.sh
 
-clean::          cleanengine cleanGUI cleanencoder
+clean::          cleanengine GUIclean
 
 distribution::  ; make encoder; make components; \
                   make jarfile
