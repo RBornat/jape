@@ -38,7 +38,7 @@ all: distribution
 #       
 #
 engine:         ; cd $(ENGINEDIR); make $(ENGINETARGET) OS=$(OS)
-cleanengine:    ; cd $(ENGINEDIR); make clean OS=$(OS)
+engineclean:    ; cd $(ENGINEDIR); make clean OS=$(OS)
 
 #
 #       Java is compile-once, run anywhere, so we can make the GUI in one place
@@ -54,8 +54,6 @@ app:            ; rm -fr Jape.app; mkdir Jape.app; \
                  cp -pR $(GUIDIR)/Pics Jape.app; \
                  cp -p $(ENGINEDIR)/_build$(OS)/jape_engine Jape.app
 
-run:           ; cd Jape.app; ./launchstub&
-		  
 #
 #       
 #
@@ -65,7 +63,7 @@ install:        components; \
                   rsync -v -t    $(BUILDRESOURCES)/installjape.sh . ;\
                   sh installjape.sh
 
-clean::          cleanengine GUIclean
+clean::          engineclean GUIclean
 
 distribution::  ; make encoder; make components; \
                   make jarfile
