@@ -52,9 +52,9 @@ jre:            ; cd $(GUIDIR); ant -Dtarget="standard" jre
 app:            ; rm -fr Jape.app; mkdir Jape.app; \
                  cp -pR $(GUIDIR)/build/jre/standard/jre Jape.app; \
                  cp -pR $(GUIDIR)/Pics Jape.app; \
-                 cp -p $(ENGINEDIR)/_build$(OS)/jape_engine Jape.app
+                 cp -p $(ENGINEDIR)/_build$(OS)/$(ENGINETARGET) Jape.app
 
-run:           ; cd Jape.app; ./launchstub&
+run:           ; Jape.app/launchstub&
 		  
 #
 #       
