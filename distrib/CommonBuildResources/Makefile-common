@@ -54,8 +54,6 @@ app:            ; rm -fr Jape.app; mkdir Jape.app; \
                  cp -pR $(GUIDIR)/Pics Jape.app; \
                  cp -p $(ENGINEDIR)/_build$(OS)/$(ENGINETARGET) Jape.app
 
-run:           ; Jape.app/launchstub&
-
 #
 #       
 #
