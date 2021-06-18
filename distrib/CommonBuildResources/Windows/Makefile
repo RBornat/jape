@@ -20,11 +20,6 @@ INSTALLRESOURCES=$(BUILDRESOURCES)/Windows/README-WINDOWS.txt           \
                  -autoicon $(BUILDRESOURCES)/japeicon.ico
 
 
+wrap:   ; cp launchstub.bat Jape.app
 
-
-
-
-
-
-
-
+run:    ; Jape.app/launchstub.bat
