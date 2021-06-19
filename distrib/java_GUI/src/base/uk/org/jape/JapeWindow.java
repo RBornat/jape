@@ -25,11 +25,15 @@
 
 package uk.org.jape;
 
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JFrame;
@@ -65,6 +69,23 @@ public abstract class JapeWindow extends JFrame {
         addWindowListener(windowListener);
         JapeMenu.windowAdded(titleForMenu(proofnum), this);
         
+        if (!Jape.taskbarIconSet) { // this works on Windows, and MacOS. Linux not yet tested ..
+            getWindowIcons();
+            this.setIconImages(icons);
+        }
+    }
+    
+    private static List<Image>icons = null;
+    
+    private static void getWindowIcons() {
+        if (icons==null) {
+            File iconDir = new File(Jape.appDir, "iconset");
+            String [] names = iconDir.list();
+            icons = new ArrayList<Image>();
+            for (String file : names) {
+                icons.add(Images.getImage(new File(iconDir, file)));
+            }
+        }
     }
 
     public abstract static class WindowAction {
