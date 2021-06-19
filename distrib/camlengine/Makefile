@@ -24,7 +24,7 @@
 #       (or look at http://www.gnu.org).
 #
 
-BUILDDIR=_build$(OS)
+BUILDDIR=../_build$(OS)
 
 # you must have ocamlbuild nowadays
 
