@@ -2,6 +2,7 @@
 GUIDIR=../../java_GUI
 ENCODEDIR=../../utf8_encoder
 ENGINEDIR=../../camlengine
+BUILDDIR=../../_build$(OS)
 BUILDRESOURCES=../../CommonBuildResources
 
 ##################################################################
@@ -52,7 +53,7 @@ jre:            ; cd $(GUIDIR); ant -Dtarget="standard" jre
 app:            ; rm -fr Jape.app; mkdir Jape.app; \
                  cp -pR $(GUIDIR)/build/jre/standard/jre Jape.app; \
                  cp -pR $(GUIDIR)/Pics Jape.app; \
-                 cp -p $(ENGINEDIR)/_build$(OS)/$(ENGINETARGET) Jape.app
+                 cp -p $(BUILDDIR)/$(ENGINETARGET) Jape.app
 
 #
 #       
