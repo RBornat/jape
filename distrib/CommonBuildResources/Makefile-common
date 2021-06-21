@@ -2,7 +2,7 @@
 GUIDIR=../../java_GUI
 ENCODEDIR=../../utf8_encoder
 ENGINEDIR=../../camlengine
-BUILDDIR=../../_build$(OS)
+BUILDDIR=../../_buildengine$(OS)
 BUILDRESOURCES=../../CommonBuildResources
 
 ##################################################################
