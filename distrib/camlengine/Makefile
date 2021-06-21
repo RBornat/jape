@@ -24,17 +24,18 @@
 #       (or look at http://www.gnu.org).
 #
 
-BUILDDIR=../_build$(OS)
+BUILDDIR=../_buildengine$(OS)
 
 # you must have ocamlbuild nowadays
 
 jape_engine:: version;\
+              mkdir -p $(BUILDDIR); \
               ocamlbuild -build-dir $(BUILDDIR) -lib unix -no-links main.native; \
-              rm -f $(BUILDDIR)/jape_engine; ln -s main.native $(BUILDDIR)/jape_engine ;\
-
+              rm -f $(BUILDDIR)/jape_engine; ln -s main.native $(BUILDDIR)/jape_engine 
 
 # windows ocaml 4.01 cannot do this (reports ''inconsistent assumptions''); but 4.02 and 4.00 work fine
 jape.exe::     version ;\
+               mkdir -p $(BUILDDIR); \
                ocamlbuild.native -classic-display -build-dir $(BUILDDIR) \
                       -lib unix -no-links \
                       main.native; \
@@ -46,8 +47,8 @@ version: ;              echo let version=\"`../CommonBuildResources/version.sh`\
 # for Windows on the assumption that a Unix build already happened -- not used any more
 #windowsversion:         version.ml ; echo "Re-using existing version.ml"
 
-clean:;                 rm -fr _build$(OS)  version.ml *.native *.cmi *.cmo *.cmx *.o jape_engine *.native
-cleanall:;              rm -fr _build* _log version.ml *.native *.cmi *.cmo *.cmx *.o jape_engine *.native
+clean:;                 rm -fr $(BUILDDIR)  version.ml 
+cleanall:;              rm -fr ../_buildengine* version.ml 
 
 
 
