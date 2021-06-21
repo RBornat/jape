@@ -7,7 +7,7 @@ appdir="$HOME/.local/share/Jape.app"
 echo $appdir
 rm -fr $appdir; mkdir $appdir
 cd $launchdir
-cp -pR jape_engine jre launchstub Pics $appdir
+cp -pR jape_engine jre launchstub iconset Pics $appdir
 cp -pR examples $USER_PWD
 rm -f $USER_PWD/Jape; ln -s $appdir/launchstub $USER_PWD/Jape
 cat <<ENDSCRIPT>Jape.desktop
