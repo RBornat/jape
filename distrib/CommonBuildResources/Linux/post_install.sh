@@ -5,7 +5,7 @@ full_path_to_script="$(realpath "$0")"
 launchdir="$(dirname "$full_path_to_script")"
 appdir="$HOME/.local/share/Jape.app"
 echo $appdir
-mkdir -p $appdir
+mkdir -p $appdir; rm -fr $appdir/*
 cd $launchdir
 cp -pR jape_engine jre launchstub iconset Pics $appdir
 cp -pR examples $USER_PWD
