@@ -6,7 +6,7 @@ OS=Linux
 
 run:        ; Jape.app/launchstub&
 
-wrap:       ; chmod +x launchstub installJape.sh; 
+wrap:       ; chmod +x launchstub installJape.sh; \
               cp launchstub Jape.app; \
               cp README_HOW_TO_RUN_JAPE Jape.app; \
               cp -pR ../../examples Jape.app; \
