@@ -1,0 +1,22 @@
+   How to run Jape
+   -------------------
+
+    You should have unpacked LinuxJape.tgz, and launched (double-click or bash) 
+    installJape.sh. There should now remain an examples directory, README_HOW_TO_RUN_JAPE 
+    (this file) and Jape.sh.
+
+ 1. Launch Jape.sh (double-click or bash). Jape will run and show its control window. From
+    the File menu, open the Jape logic theory you want to work with (e.g. 
+    examples/natural deduction/I2L.jt.)
+   
+ 2. When Jape runs on Ubuntu, it will put its icon in the taskbar. Add it to your favourites
+    (right-click and choose 'Add to Favourites') to make it easier to run Jape the next 
+    time. 
+   
+ 3. On other Linuxes, you may have to launch from the Jape.sh file each time you run Jape.
+    If you find a better way, please let me know.
+   
+   Richard Bornat
+   2021/06/24
+   richard@bornat.me.uk
+   
