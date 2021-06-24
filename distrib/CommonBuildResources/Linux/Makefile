@@ -11,5 +11,8 @@ wrap:       ; chmod +x launchstub installJape.sh; \
               cp README_HOW_TO_RUN_JAPE Jape.app; \
               cp -pR ../../examples Jape.app; \
               cp -pR ../../iconset Jape.app; \
-              tar -zcf LinuxJape.tgz installJape.sh Jape.app
+              mkdir -p LinuxJape; rm -fr LinuxJape/*; \
+              cp -pR installJape.sh Jape.app LinuxJape; \
+              tar -zcf LinuxJape.tgz LinuxJape; \
+              rm -fr LinuxJape
               
