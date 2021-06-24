@@ -25,7 +25,7 @@
 # 
 # Once Jape is installed, open the file README_HOW_TO_RUN_JAPE and follow the instructions.
 # 
-# You can close this file now.
+# You can close this window now.
 # 
 # -----------------
 
