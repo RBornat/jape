@@ -1,4 +1,49 @@
 #!/bin/bash
+# 
+# This is the launch script for Jape: a bunch of commands that start Jape properly.
+# 
+# To run Jape you must 'launch' this script. In some Linuxes (but not usually in Ubuntu)
+# you can double-click the file. If double-clicking shows you this text, then there are two
+# things you can try.
+#
+# 1. If you are on Ubuntu, and you'd like to tell it to launch shell scripts that you 
+#    double-click, then paste the following command into a terminal window and press return:
+#
+#       gsettings set org.gnome.nautilus.preferences executable-text-activation 'launch'
+#
+#    and then try double-clicking this file again (it should launch Jape).
+# 
+# 2. Otherwise, open a terminal window, change (cd) to the directory containing this script,
+#    then type or paste the following command and press return:
+#
+#       bash Jape.sh
+#
+#    (it should launch Jape).
+#
+# -----------------
+# 
+# Once Jape is launched, open the file README_HOW_TO_RUN_JAPE for more information.
+# 
+# You can close this window now.
+# 
+# -----------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # claims to be, in bash, the way to find source directory.
 # from https://stackoverflow.com/questions/59895/how-can-i-get-the-source-directory-of-a-bash-script-from-within-the-script-itsel/60157372#60157372
 full_path_to_script="$(realpath "$0")"
