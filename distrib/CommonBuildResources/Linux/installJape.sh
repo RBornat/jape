@@ -81,5 +81,5 @@ Categories=Development
 StartupWMClass=uk-org-jape-Jape
 ENDSCRIPT
 mv Jape.desktop Japestart.desktop ~/.local/share/applications
-rm installJape.sh
+rm installJape.sh README_HOW_TO_INSTALL_JAPE
 
