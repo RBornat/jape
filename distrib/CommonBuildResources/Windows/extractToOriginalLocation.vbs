@@ -17,7 +17,7 @@ Set objMyParent = objWMI.Get("Win32_Process.Handle='" & intMyParentPid & "'")
 intmyGrandParentPid = objWMI.Get("Win32_Process.Handle='" & intMyParentPid & "'").ParentProcessId
 Set objmyGrandParent = objWMI.Get("Win32_Process.Handle='" & intmyGrandParentPid & "'")
 
-WScript.Interactive = true
+WScript.Interactive = True
 Wscript.Echo "Parent is " & objMyParent.ExecutablePath & "; GrandParent is " & objmyGrandParent.ExecutablePath
 
 strGrandDir = """" & Left(objmyGrandParent.ExecutablePath, Len(objmyGrandParent.ExecutablePath)-Len("\JapeInstall.exe")) & """"
@@ -27,5 +27,9 @@ strLocalAppData = objShell.ExpandEnvironmentStrings("%LOCALAPPDATA%")
 strCopyCommand = "xcopy /y /s /e /i " & strLocalAppData & "\Jape\Jape.app\examples " & strGrandDir & "\examples"
 WScript.Echo "command is " & strCopyCommand, 0, True
 objShell.Run strCopyCommand, 0, True
+
+objShell.Run "xcopy /y /s /e /i Jape.lnk " & strGrandDir
+
+objShell.run "del " & strGrandDir & "\JapeInstall.exe"
 
 WScript.Echo "how did that go?"
