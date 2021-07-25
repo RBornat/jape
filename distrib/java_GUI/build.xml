@@ -6,7 +6,9 @@
     --> 
     <property name="targetJVM"  value="11" /> 
     <property name="sourceJava" value="11" /> 
-    <!-- 'target' property is either OSX or standard -->
+    <!-- 'target' property is either OSX or standard 
+	     'os' is OSX, Linux or Windows
+	  -->
     
     <!-- Use environment to acquire JAPE version: too many differences in behaviour of
          shell+make between Linux and OS/X to do this by passing a -D parameter to ant.
@@ -121,11 +123,11 @@
         <mkdir dir="build/jmod"/>
         <mkdir dir="build/jmod/${target}"/>
         <mkdir dir="build/jre"/>
-        <mkdir dir="build/jre/${target}"/>
+        <mkdir dir="build/jre/${os}"/>
         <delete file="build/jmod/${target}/Jape.jmod"/>
-        <delete dir="build/jre/${target}/jre"/>
+        <delete dir="build/jre/${os}/jre"/>
         <jmod destfile="build/jmod/${target}/Jape.jmod" classpath="build/jar/${target}/uk.org.jape.jar" mainclass="uk.org.jape.Jape"/>
-        <link destDir="build/jre/${target}/jre" modulepath="build/jmod/${target}" modules="uk.org.jape" includeManPages="false" includeHeaders="false">
+        <link destDir="build/jre/${os}/jre" modulepath="build/jmod/${target}" modules="uk.org.jape" includeManPages="false" includeHeaders="false">
         </link>
     </target>
     
