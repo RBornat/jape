@@ -17,7 +17,7 @@ Set objMyParent = objWMI.Get("Win32_Process.Handle='" & intMyParentPid & "'")
 intmyGrandParentPid = objWMI.Get("Win32_Process.Handle='" & intMyParentPid & "'").ParentProcessId
 Set objmyGrandParent = objWMI.Get("Win32_Process.Handle='" & intmyGrandParentPid & "'")
 
-WScript.Interactive = True
+WScript.Interactive = False
 Wscript.Echo "Parent is " & objMyParent.ExecutablePath & "; GrandParent is " & objmyGrandParent.ExecutablePath
 
 strGrandDir = """" & Left(objmyGrandParent.ExecutablePath, Len(objmyGrandParent.ExecutablePath)-Len("\JapeInstall.exe")) & """"
