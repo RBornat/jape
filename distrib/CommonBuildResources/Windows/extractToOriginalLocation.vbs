@@ -30,6 +30,4 @@ objShell.Run strCopyCommand, 0, True
 
 objShell.Run "xcopy /y /s /e /i Jape.lnk " & strGrandDir
 
-objShell.run "del " & strGrandDir & "\JapeInstall.exe"
-
 WScript.Echo "how did that go?"
