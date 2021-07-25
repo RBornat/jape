@@ -9,6 +9,7 @@ echo Set oWS = WScript.CreateObject("WScript.Shell") >> CreateShortcut.vbs
 echo sLinkFile = "Jape.lnk" >> CreateShortcut.vbs
 echo Set oLink = oWS.CreateShortcut(sLinkFile) >> CreateShortcut.vbs
 echo oLink.TargetPath = "%LOCALAPPDATA%\Jape\Jape.app\launchstub.bat" >> CreateShortcut.vbs
+echo oLink.IconLocation = "%LOCALAPPDATA%\Jape\Jape.app\Jape.ico" >> CreateShortcut.vbs
 echo oLink.Save >> CreateShortcut.vbs
 wscript CreateShortcut.vbs
 dir
