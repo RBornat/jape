@@ -23,7 +23,7 @@ SourceFiles=SourceFiles
 [Strings]
 InstallPrompt=
 DisplayLicense=
-FinishMessage=Done it
+FinishMessage=Jape installed!
 TargetName=JapeInstall.exe
 FriendlyName=JapeInstall
 AppLaunched=cmd.exe /c install.bat
