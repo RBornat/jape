@@ -1,3 +1,4 @@
+@echo off
 SETLOCAL ENABLEEXTENSIONS
 SET mypath=%~dp0
 SET mypath=%mypath:~0,-1%
