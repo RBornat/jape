@@ -94,6 +94,8 @@ public class Jape implements DebugConstants {
 
     public static boolean taskbarIconSet = false;
     
+    public static boolean starting = true;
+    
     public static void main(String args[]) {
         // since platform independence seems not yet to have been achieved ...
         String osName = System.getProperty("os.name");

@@ -293,8 +293,11 @@ public abstract class JapeWindow extends JFrame {
                 sw = LocalSettings.hideSurrogateWindow ? ((SurrogateWindow)new MenuHolder()) :
                     ((SurrogateWindow)new ControlWindow());
                 sw.setVisible(true);
-                sw.setAlwaysOnTop(true); 
-                sw.setAlwaysOnTop(false);
+                if (Jape.onWindows && Jape.starting ) {
+                    sw.setAlwaysOnTop(true); 
+                    sw.setAlwaysOnTop(false);
+                    Jape.starting = false;
+                }
         }
         JapeMenu.makeMenusVisible();
     }
