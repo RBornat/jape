@@ -9,6 +9,10 @@ description: |
 grade: devel # must be 'stable' to release into candidate/stable channels
 confinement: devmode # use 'strict' once you have the right plugs and slots
 
+layout:
+  /proc/1/cgroup:
+    bind: $SNAP_DATA/proc/1/cgroup
+    
 plugs:
   java-prefs:
     interface: personal-files

@@ -2,7 +2,7 @@
 # 
 # If you can see this text, you have opened the installation control file.
 #
-# Please close this file, and open READ_ME_HOW_TO_INSTALL_JAPE.
+# Please close this file, and open README_INSTALL.html
 #
 # -----------------
 
@@ -59,11 +59,12 @@ full_path_to_script="$(realpath "$0")"
 scriptdir="$(dirname "$full_path_to_script")"
 appdir="$HOME/.local/share/Jape.app"
 mkdir -p $appdir; rm -fr $appdir/*
-mv Jape.app $(dirname $appdir)
 cd $scriptdir
+mv .data $(dirname $appdir)
 cp -pR $appdir/examples .
-cp $appdir/README_HOW_TO_RUN_JAPE .
-rm -fr Jape.sh; ln -s $appdir/launchstub Jape.sh
+cp $appdir/README_RUN.html .
+rm -fr runJape.sh; ln -s $appdir/launchstub runJape.sh
+chmod +x runJape.sh
 cat <<ENDSCRIPT>Jape.desktop
 [Desktop Entry]
 Version=1.0
@@ -89,5 +90,7 @@ Categories=Development
 StartupWMClass=uk-org-jape-Jape
 ENDSCRIPT
 mv Jape.desktop Japestart.desktop ~/.local/share/applications
-rm installJape.sh README_HOW_TO_INSTALL_JAPE
+rm installJape.sh README_INSTALL.html
+./runJape.sh&
+
 
