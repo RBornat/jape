@@ -8,7 +8,7 @@ Jape needs OCaml 4.09.0 or later. Get opam, if it isn't there already (run the s
 
 The OCaml version I loaded is ` 4.09.0+mingw64c`: `opam switch list` will tell you what's available. `opam update` and `opam upgrade` can be very useful. You will need `ocamlbuild` and `ocamlfind`; opam can help.
 
-You will need Java; Jape needs version 9 or later. Get it from Oracle and install it.
+You will need Java; Jape needs version 9 or later. Get a JDK (preferable version 11, preferably from AdoptOpenJdk) and install it. You'll have to set JAVA_HOME to point to it.
 
 You will need Apache Ant. Get it from Apache, install it (which is a bit of a pain, but their instructions do work). 
 
@@ -27,9 +27,9 @@ Then, also in cygwin
         cd jape/distrib/CommonBuildResources/Windows
         make all
         
-It will build `InstallWindowsJape.jar`. Double-click it and follow the instructions.
+It will build `InstallJape.exe`. Move it somewhere convenient and double-click it. You'll find examples and Jape.lnk in that convenient location. Double-click Jape.lnk to run Jape.
 
 Richard Bornat
-2019/12/06
+2021/08/19
         
 
