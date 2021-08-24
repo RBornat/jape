@@ -1,8 +1,10 @@
 # How to install Jape on Linux
 
-To install Jape, you must run/launch/execute the file `installJape.sh`. 
+By unpacking LinuxJape.tgz, you have created a directory `LinuxJape` containing this file, `installJape.sh` and `.data`. To install Jape, you must run/launch/execute `installJape.sh`. 
 
-`installJape.sh`, when it runs, will do all the work and leave you with an `examples` directory and a new control file `runJape.sh`, and it will start Jape.
+`installJape.sh`, when it runs, will setup Jape and leave you with Jape's `examples` and a new control file `runJape.sh`. It will also start Jape.
+
+Once Jape is setup you can move `examples` and `runJape.sh` anywhere you like, and delete the `LinuxJape` directory if you like.
 
 ## 1. If Ubuntu is your Linux and Gnome is your GUI (it probably is)
 
@@ -18,15 +20,17 @@ To install Jape, you must run/launch/execute the file `installJape.sh`.
   
     Now `installJape.sh` will run when you double-click it (and so will `runJape.sh` when it's installed). 
 
-  **Just one more thing**: when it runs Jape, it puts a Jape icon in the task bar (left or bottom of the screen) -- right-click it and add it to your favourites, so you can click it to run Jape whenever you want to.
+    ### Just one more thing  
+
+    *  When Jape runs, it puts a Jape icon in the task bar (left or bottom of the screen) -- right-click the icon and add it to your favourites, so you can click it to run Jape whenever you want to.
   
 ## 2. If you are happy to use the command line (and why wouldn't you be?)
 
 * open a terminal window;
-* change (`cd`) to the directory where you unpacked the installer;
-* `./installJape.sh` will install Jape.
+* change (`cd`) to the directory where you unpacked the .tgz file;
+* `LinuxJape/installJape.sh` will install Jape.
   
-and then to run Jape, of course, `./runJape.sh`
+and then to run Jape: `LinuxJape/runJape.sh&`
         
        
 ## 3. If you find a better way of running installJape.sh on your Linux
