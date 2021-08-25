@@ -45,7 +45,7 @@
             </jrebundler>
             
         <mkdir dir="build/Jape.app/Contents/Engine"/>
-        <copy file="../camlengine/_buildOSX/jape_engine" tofile="build/Jape.app/Contents/Engine/jape_engine"/>
+        <copy file="../_buildOSX/jape_engine" tofile="build/Jape.app/Contents/Engine/jape_engine"/>
         <exec executable="chmod">
             <arg value="755"/>
             <arg value="build/Jape.app/Contents/Engine/jape_engine"/>

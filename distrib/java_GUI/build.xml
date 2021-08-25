@@ -19,8 +19,9 @@
     </condition>
 
     <target name="clean">
-        <delete dir="build"/>
-        <delete file="src/base/uk/org/jape/Version.java"/>
+        <delete quiet="true" dir="build/classes/${target}" />
+        <delete quiet="true" dir="build/jre/${os}" />
+        <delete quiet="true" file="src/base/uk/org/jape/Version.java" />
     </target>
 
     <target name="OSXcompile">
@@ -96,9 +97,8 @@
 
     <target name="jdepsclean">
         <delete file="src/module/uk.org.jape/module-info.java" />
-        <delete file="build/classes/OSX/module-info.class" />
-        <delete file="build/jar/OSX/uk.org.jape.jar" />
-        <delete file="build/jar/standard/uk.org.jape.jar" />
+        <delete file="build/classes/${target}/module-info.class" />
+        <delete file="build/jar/${target}/uk.org.jape.jar" />
     </target>
     
     <target name="uk.org.jape.jar" depends="version,jdepsclean"
