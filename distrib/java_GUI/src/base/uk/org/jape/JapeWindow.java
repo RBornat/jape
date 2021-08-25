@@ -79,7 +79,7 @@ public abstract class JapeWindow extends JFrame {
     
     private static void getWindowIcons() {
         if (icons==null) {
-            File iconDir = new File(Jape.appDir, "iconset");
+            File iconDir = new File(Jape.resourceDir, "iconset");
             String [] names = iconDir.list();
             icons = new ArrayList<Image>();
             for (String file : names) {
