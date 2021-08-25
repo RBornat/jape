@@ -44,7 +44,7 @@ GUI:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
 clean:          ; $(MAKE) engineclean GUIclean bundlerclean appclean
 
 engineclean:    ; cd $(ENGINEDIR); $(MAKE) clean OS=OSX
-GUIclean:       ; cd $(GUIDIR); ant clean
+GUIclean:       ; cd $(GUIDIR); ant -Dtarget="OSX" -Dos="OSX" clean
 guiclean:       ; ant clean; cd $(GUIDIR); ant clean
 bundlerclean:   ; cd $(JREBUNDLER); ant clean
 appclean:       ; ant clean
