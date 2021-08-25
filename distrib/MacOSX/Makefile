@@ -35,7 +35,7 @@ app:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
                   ant Jape.app -Dappversion='"'$$JAPEVERSION'"' -Djrebundler=$(JREBUNDLER)
 
                 # jre doesn't build the GUI
-jre:            ; cd $(GUIDIR); ant -Dtarget="OSX" jre
+jre:            ; cd $(GUIDIR); ant -Dtarget="OSX" -Dos="OSX" jre
 
                 # GUI gets stuff ready for jre 
 GUI:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
