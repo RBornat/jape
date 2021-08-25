@@ -51,10 +51,12 @@ GUI:            ; export JAPEVERSION=`$(BUILDRESOURCES)/version.sh`; \
 jre:            ; cd $(GUIDIR); ant -Dtarget="standard" -Dos="$(OS)" jre
 
 app:            ; rm -fr Jape.app; mkdir Jape.app; \
-                 cp -pR $(GUIDIR)/build/jre/$(OS)/jre Jape.app; \
-                 cp -pR $(GUIDIR)/Pics Jape.app; \
-                 cp -p $(BUILDDIR)/main.native Jape.app; \
-				 mv Jape.app/main.native Jape.app/$(ENGINETARGET)
+                  cp -pR $(GUIDIR)/build/jre/$(OS)/jre Jape.app; \
+                  cp -pR ../../iconset Jape.app; \
+                  cp -pR $(GUIDIR)/Pics Jape.app; \
+                  cp -p $(BUILDDIR)/main.native Jape.app; \
+                  mv Jape.app/main.native Jape.app/$(ENGINETARGET); \
+                  cp $(APPEXTRAS) Jape.app
 
 #
 #       
