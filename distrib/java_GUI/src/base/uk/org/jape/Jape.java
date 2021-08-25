@@ -108,8 +108,8 @@ public class Jape implements DebugConstants {
  
         appDir = new File (onMacOSX  ? System.getProperty("uk.org.jape.AppPackage") : ".");
         engineDir = onMacOSX ? new File (appDir, "Contents/Engine") : appDir;
-        picsDir = onMacOSX ? new File (appDir, "Contents/Resources/Pics") : new File ("./Pics");
-        resourceDir = onMacOSX ? new File (appDir, "Contents/Resources") : new File ("./Resources");
+        resourceDir = onMacOSX ? new File (appDir, "Contents/Resources") : appDir;
+        picsDir = new File (resourceDir, "Pics");
         
         if (!(onMacOSX || onLinux  || onWindows)) {
             Logger.log.println("Jape.main doesn't recognise OS\n"+
