@@ -30,6 +30,7 @@
                        bundleid="uk.org.jape.Jape"
                        >
                 <resourcefileset dir="../java_GUI" includes="Pics/*.*"/> 
+                <resourcefileset dir=".." includes="iconset/*.*"/> 
                 
                 <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
                 <javaproperty name="apple.awt.showGrowBox"      value="true"/>
