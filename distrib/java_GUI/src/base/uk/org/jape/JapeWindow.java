@@ -69,7 +69,7 @@ public abstract class JapeWindow extends JFrame {
         addWindowListener(windowListener);
         JapeMenu.windowAdded(titleForMenu(proofnum), this);
         
-        if (!Jape.taskbarIconSet) { // this works on Windows, and MacOS. Linux not yet tested ..
+        if (!Jape.taskbarIconSet) { // this works on Windows, and MacOS. Linux not really
             getWindowIcons();
             this.setIconImages(icons);
         }
@@ -99,6 +99,7 @@ public abstract class JapeWindow extends JFrame {
             String s = "[";
             for (int i=0; i<windowv.size(); i++) {
                 s=s+JapeUtils.enQuote(((JapeWindow)windowv.get(i)).title);
+                s=s+" "+((JapeWindow)windowv.get(i)).isVisible();
                 if (i+1<windowv.size())
                     s=s+"; ";
             }
