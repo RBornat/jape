@@ -24,8 +24,8 @@ GUIDIR=../java_GUI
 ENGINEDIR=../camlengine
 JREBUNDLER=./JREBundler
 
-local:          ; $(MAKE) engine GUI bundler app
-release:        ; $(MAKE) clean engine GUI bundler app                          
+local:          ; $(MAKE) engine GUI bundler jre app
+release:        ; $(MAKE) clean engine GUI bundler jre app                          
 run:            ; open build/Jape.app
 
 engine:         ; cd $(ENGINEDIR); make jape_engine OS=OSX
