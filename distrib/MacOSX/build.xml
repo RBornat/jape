@@ -39,10 +39,9 @@
                 <javaproperty name="uk.org.jape.AppPackage"     value="$APP_ROOT"/>
                 <javaproperty name="NSHighResolutionCapable"     value="true"/>
                 <documenttype name="Jape Theory"
-                                    extensions= "jt,j,jp" 
+                                    extensions= "jt j jp" 
                                     ostypes=    "****" 
-                                    iconfile=   "Jape.icns"
-                                    role=       "None"/>
+                                    role=       "Editor"/>
             </jrebundler>
             
         <mkdir dir="build/Jape.app/Contents/Engine"/>
