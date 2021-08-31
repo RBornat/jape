@@ -1338,6 +1338,8 @@ public class JREBundler extends MatchingTask {
 			        "                Message \"[$$][${CFBundleName:-$(basename \"$0\")}] $1\"\n" + 
 			        "}\n" + 
 			        "LAUNCHDIR=`dirname $0`\n" + 
+                    "# enable drag&drop to the dock icon (d'oh!)\n" +
+                    "export CFProcessPath=\"$0\"\n" +
 			        "cd ${LAUNCHDIR}/../..\n" + 
 			        "export APP_ROOT=$(pwd)\n" + 
 			        "stub_logger $(pwd)\n" + 
