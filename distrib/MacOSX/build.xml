@@ -5,6 +5,7 @@
     
     <property name="copyright"       value="Copyright &#xa9; Richard Bornat and Bernard Sufrin"/>
     <property name="jrebundlerpath"  value="${jrebundler}/build/JREbundler-1.0.jar"/>
+    <property name="jarbundlerpath"  value="./JarBundler/build/jarbundler-3.3.1.jar"/>
     
     <property environment="env" />
 
@@ -54,7 +55,50 @@
     
     <target name="clean">
         <delete dir="build"/>
-        <!-- <delete dir="build1.7"/> -->
+    </target>
+    
+    <target name="JARJape.app"
+            description="Build the application using JarBundler 3.3.1 to make the structure and universalJavaApplicationStub to launch it">
+           <echo message="Jar bundler path ${jarbundlerpath}"/>
+           <taskdef name="jarbundler" classname="com.ultramixer.jarbundler.JarBundler" >
+                 <classpath>
+                   <pathelement location="${jarbundlerpath}"/>
+                 </classpath>
+           </taskdef>        
+           <mkdir dir="build/JARJape"/>
+           <!-- insist on java 9 or better -->
+           <jarbundler dir="build/JARJape"
+                       name="Jape"
+                       mainclass="uk.org.jape.Jape"
+                       jar="../java_GUI/build/jar/OSX/uk.org.jape.jar"
+                       shortname="Jape"
+                       icon="Jape.icns"
+                       stubfile="universalJavaApplicationStub"
+                       version="${appversion}"
+                       jvmversion="9+"
+                       >
+            <resourcefileset dir="../java_GUI" includes="Pics/*.*"/> 
+            <resourcefileset dir=".." includes="iconset/*.*"/> 
+            
+            <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
+            <javaproperty name="apple.awt.showGrowBox"      value="true"/>
+            <javaproperty name="apple.awt.antialiasing"     value="true"/>
+            <javaproperty name="apple.awt.rendering"        value="quality"/>
+            <javaproperty name="uk.org.jape.AppPackage"     value="$APP_ROOT"/>
+            <javaproperty name="NSHighResolutionCapable"     value="true"/>
+            <documenttype name="Jape Theory"
+                                extensions= "jt,j,jp" 
+                                ostypes=    "****" 
+                                iconfile=   "Jape.icns"
+                                role=       "None"/>
+        </jarbundler>
+            
+        <mkdir dir="build/Jape.app/Contents/Engine"/>
+        <copy file="../_buildengineOSX/jape_engine" tofile="build/JARJape/Jape.app/Contents/Engine/jape_engine"/>
+        <exec executable="chmod">
+            <arg value="755"/>
+            <arg value="build/JARJape/Jape.app/Contents/Engine/jape_engine"/>
+        </exec>
     </target>
     
 </project>

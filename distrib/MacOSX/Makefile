@@ -27,12 +27,16 @@ JREBUNDLER=./JREBundler
 local:          ; $(MAKE) engine GUI bundler jre app
 release:        ; $(MAKE) clean engine GUI bundler jre app                          
 run:            ; open build/Jape.app
+JARrun:         ; open build/JarJape/Jape.app
 
 engine:         ; cd $(ENGINEDIR); make jape_engine OS=OSX
 
                 # make app doesn't build the GUI or the jre bundle.
 app:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
                   ant Jape.app -Dappversion='"'$$JAPEVERSION'"' -Djrebundler=$(JREBUNDLER)
+
+JARapp:         ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
+                  ant JARJape.app -Dappversion='"'$$JAPEVERSION'"'
 
                 # jre doesn't build the GUI
 jre:            ; cd $(GUIDIR); ant -Dtarget="OSX" -Dos="OSX" jre
