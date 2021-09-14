@@ -29,6 +29,8 @@ public class PreferencesDialog {
         }
     }
     
+    private static boolean firstclose = true;
+    
     public static void handlePrefs() {
         //Create and set up the window.
         Frame parent = JapeWindow.getTopWindow();
@@ -39,6 +41,14 @@ public class PreferencesDialog {
         if (q==Alert.OK) {
             JapeFont.actUpon(pane.fontpanel);
             DebugVars.actUpon(pane.debugpanel);
+        }
+        
+        /* filthy hack to stop weird behaviour on Linux when prefs window closes */
+        if (Jape.onLinux && firstclose) {
+            JapeWindow w = JapeWindow.findWindow("Jape console log");
+            w.setVisible(true);
+            w.closeWindow();
+            firstclose = false;
         }
  
         /*dialog.addWindowListener(new WindowAdapter() {

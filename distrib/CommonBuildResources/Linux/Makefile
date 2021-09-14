@@ -2,12 +2,18 @@
 #       This include must come first
 #
 include ../../CommonBuildResources/Makefile-common
-
 OS=Linux
+APPEXTRAS=launchstub
 
 run:        ; Jape.app/launchstub&
-          
-wrap:       ; cp launchstub Jape.app; \
+
+wrap:       ; chmod +x launchstub installJape.sh; \
+              cp launchstub Jape.app; \
+              cp README_RUN.html Jape.app; \
               cp -pR ../../examples Jape.app; \
-              cp post_install.sh Jape.app; \
-              ./makeself.sh Jape.app InstallJape.sh "Jape installer" ./post_install.sh
+              mkdir -p LinuxJape; rm -fr LinuxJape/*; \
+              cp -pR installJape.sh README_INSTALL.html Jape.app LinuxJape; \
+              mv LinuxJape/Jape.app LinuxJape/.data; \
+              tar -zcf LinuxJape.tgz LinuxJape; \
+              rm -fr LinuxJape
+              

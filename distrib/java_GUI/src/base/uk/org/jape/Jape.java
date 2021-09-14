@@ -77,9 +77,7 @@ public class Jape implements DebugConstants {
 
     public static String defaultUnixEnginePath    = "./jape_engine";
     public static String defaultWindowsEnginePath = ".\\jape.exe"  ;
-    
-    public static Image icon=null;
-    
+        
     private static void propslist(Properties p, PrintWriter out) {
         out.println("-- listing properties --");
         Map<String, Object> h = new HashMap<>();
@@ -94,6 +92,10 @@ public class Jape implements DebugConstants {
         }
     }
 
+    public static boolean taskbarIconSet = false;
+    
+    public static boolean starting = true;
+    
     public static void main(String args[]) {
         // since platform independence seems not yet to have been achieved ...
         String osName = System.getProperty("os.name");
@@ -106,8 +108,8 @@ public class Jape implements DebugConstants {
  
         appDir = new File (onMacOSX  ? System.getProperty("uk.org.jape.AppPackage") : ".");
         engineDir = onMacOSX ? new File (appDir, "Contents/Engine") : appDir;
-        picsDir = onMacOSX ? new File (appDir, "Contents/Resources/Pics") : new File ("./Pics");
-        resourceDir = onMacOSX ? new File (appDir, "Contents/Resources") : new File ("./Resources");
+        resourceDir = onMacOSX ? new File (appDir, "Contents/Resources") : appDir;
+        picsDir = new File (resourceDir, "Pics");
         
         if (!(onMacOSX || onLinux  || onWindows)) {
             Logger.log.println("Jape.main doesn't recognise OS\n"+
@@ -162,11 +164,9 @@ public class Jape implements DebugConstants {
                 engineCmd.add(args[i]);
         }
    
-        icon = Images.getPicsImage("japeicon.png");
-
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new Engine((String[])engineCmd.toArray(new String[engineCmd.size()]));
+               new Engine((String[])engineCmd.toArray(new String[engineCmd.size()]));
 
                 Logger.init();
                 
@@ -181,7 +181,9 @@ public class Jape implements DebugConstants {
                     if (taskbar.isSupported(Taskbar.Feature.ICON_IMAGE)) {
                         try {
                             //set icon for mac os (and other systems which do support this method)
+                            Image icon = Images.getPicsImage("japeicon.png");
                             taskbar.setIconImage(icon);
+                            taskbarIconSet = true;
                         } catch (final UnsupportedOperationException e) {
                             System.out.println("The os does not support: 'taskbar.setIconImage' -- ");
                         } catch (final SecurityException e) {

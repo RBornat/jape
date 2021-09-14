@@ -1338,10 +1338,12 @@ public class JREBundler extends MatchingTask {
 			        "                Message \"[$$][${CFBundleName:-$(basename \"$0\")}] $1\"\n" + 
 			        "}\n" + 
 			        "LAUNCHDIR=`dirname $0`\n" + 
+                    "# enable drag&drop to the dock icon (d'oh!)\n" +
+                    "export CFProcessPath=\"$0\"\n" +
 			        "cd ${LAUNCHDIR}/../..\n" + 
 			        "export APP_ROOT=$(pwd)\n" + 
 			        "stub_logger $(pwd)\n" + 
-			        "./Contents/Java/"+mJREName+"/bin/java "
+			        "exec ${APP_ROOT}/Contents/Java/"+mJREName+"/bin/java "
 			                           + getJREOptions()
 			                           + "-m " +bundleProperties.getModuleName()
 			                           + "/" +bundleProperties.getMainClass()+ " $@\n"
@@ -1349,7 +1351,7 @@ public class JREBundler extends MatchingTask {
 			f.close();
 			setExecutable(newStubFile);
 		} catch (IOException ex) {
-			throw new BuildException("Cannot write Java Application Stub " +newStubFile+ ": " + ex);
+			throw new BuildException("Cannot write application launch stub " +newStubFile+ ": " + ex);
 		}
 
 		// Set the permissions on the stub file to executable

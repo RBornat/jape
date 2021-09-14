@@ -2,6 +2,7 @@
 GUIDIR=../../java_GUI
 ENCODEDIR=../../utf8_encoder
 ENGINEDIR=../../camlengine
+BUILDDIR=../../_buildengine$(OS)
 BUILDRESOURCES=../../CommonBuildResources
 
 ##################################################################
@@ -11,18 +12,6 @@ BUILDRESOURCES=../../CommonBuildResources
 #       ENGINETARGET   -- what the architecture-specific make should try to build
 #
 ENGINETARGET=jape_engine
-#
-#       AFTERINSTALL         -- what to do afterwards InstallerKit/install options
-#       INSTALLRESOURCES     -- extra resources needed for the installation to work
-#       ENCODERESOURCES      -- extra resources for the encoder
-#       SPLASH               -- splash-image for the installer
-#
-#
-AFTERINSTALL=-cmdunix "chmod +x %INSTALL%/jape_engine"
-INSTALLRESOURCES=$(BUILDRESOURCES)/Linux/README-LINUX
-ENCODERESOURCES=$(ENCODEDIR)/README_encoder.txt $(ENCODEDIR)/encoder.jar
-SPLASH=$(BUILDRESOURCES)/japesplash.png
-#
 #
 ##################################################################
 
@@ -43,21 +32,24 @@ engineclean:    ; cd $(ENGINEDIR); make clean OS=$(OS)
 #
 #       Java is compile-once, run anywhere, so we can make the GUI in one place
 #
-GUIclean:       ; (cd $(GUIDIR); ant clean)
+GUIclean:       ; (cd $(GUIDIR); ant -Dtarget="standard" -Dos="$(OS)" clean)
 GUI:            ; export JAPEVERSION=`$(BUILDRESOURCES)/version.sh`; \
                   (cd $(GUIDIR); ant -Dguiversion='"'$$JAPEVERSION'"' -Dtarget="standard" uk.org.jape.jar)
 
-jre:            ; cd $(GUIDIR); ant -Dtarget="standard" jre
+jre:            ; cd $(GUIDIR); ant -Dtarget="standard" -Dos="$(OS)" jre
 
 app:            ; rm -fr Jape.app; mkdir Jape.app; \
-                 cp -pR $(GUIDIR)/build/jre/standard/jre Jape.app; \
-                 cp -pR $(GUIDIR)/Pics Jape.app; \
-                 cp -p $(ENGINEDIR)/_build$(OS)/jape_engine Jape.app
+                  cp -pR $(GUIDIR)/build/jre/$(OS)/jre Jape.app; \
+                  cp -pR ../../iconset Jape.app; \
+                  cp -pR $(GUIDIR)/Pics Jape.app; \
+                  cp -p $(BUILDDIR)/main.native Jape.app; \
+                  mv Jape.app/main.native Jape.app/$(ENGINETARGET); \
+                  cp $(APPEXTRAS) Jape.app
 
 #
 #       
 #
-components::    engine GUI
+components::    engine GUI jre app
 
 install:        components; \
                   rsync -v -t    $(BUILDRESOURCES)/installjape.sh . ;\

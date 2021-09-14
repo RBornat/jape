@@ -24,9 +24,10 @@ GUIDIR=../java_GUI
 ENGINEDIR=../camlengine
 JREBUNDLER=./JREBundler
 
-local:          ; $(MAKE) engine GUI bundler app
-release:        ; $(MAKE) clean engine GUI bundler app                          
+local:          ; $(MAKE) engine GUI bundler jre app
+release:        ; $(MAKE) clean engine GUI bundler jre app                          
 run:            ; open build/Jape.app
+JARrun:         ; open build/JarJape/Jape.app
 
 engine:         ; cd $(ENGINEDIR); make jape_engine OS=OSX
 
@@ -34,8 +35,11 @@ engine:         ; cd $(ENGINEDIR); make jape_engine OS=OSX
 app:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
                   ant Jape.app -Dappversion='"'$$JAPEVERSION'"' -Djrebundler=$(JREBUNDLER)
 
+JARapp:         ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
+                  ant JARJape.app -Dappversion='"'$$JAPEVERSION'"'
+
                 # jre doesn't build the GUI
-jre:            ; cd $(GUIDIR); ant -Dtarget="OSX" jre
+jre:            ; cd $(GUIDIR); ant -Dtarget="OSX" -Dos="OSX" jre
 
                 # GUI gets stuff ready for jre 
 GUI:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
@@ -44,7 +48,7 @@ GUI:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
 clean:          ; $(MAKE) engineclean GUIclean bundlerclean appclean
 
 engineclean:    ; cd $(ENGINEDIR); $(MAKE) clean OS=OSX
-GUIclean:       ; cd $(GUIDIR); ant clean
+GUIclean:       ; cd $(GUIDIR); ant -Dtarget="OSX" -Dos="OSX" clean
 guiclean:       ; ant clean; cd $(GUIDIR); ant clean
 bundlerclean:   ; cd $(JREBUNDLER); ant clean
 appclean:       ; ant clean
