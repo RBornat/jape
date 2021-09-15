@@ -15,10 +15,8 @@ APPEXTRAS=launchstub.bat Jape.ico
 ENGINETARGET=jape.exe
 
 
-wrap:   ; cp launchstub.bat Jape.app; \
-          cp -pR ../../examples Jape.app; \
-	  cp Jape.ico Jape.app; \
-	  powershell Compress-Archive -Force -Path Jape.app -DestinationPath Jape.app.zip; \
-	  iexpress /N JapeInstall.SED
+wrap:   ; cp -pR ../../examples Jape.app; \
+	      powershell Compress-Archive -Force -Path Jape.app -DestinationPath Jape.app.zip; \
+	      iexpress /N JapeInstall.SED
 
 run:    ; Jape.app/launchstub.bat&
