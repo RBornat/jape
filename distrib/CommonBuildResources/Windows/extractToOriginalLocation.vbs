@@ -23,7 +23,7 @@ Wscript.Echo "Parent is " & objMyParent.ExecutablePath & "; GrandParent is " & o
 strGrandDir = """" & Left(objmyGrandParent.ExecutablePath, Len(objmyGrandParent.ExecutablePath)-Len("\JapeInstall.exe")) & """"
 WScript.Echo "GrandDir is " & strGrandDir
 
-strLocalAppData = objShell.ExpandEnvironmentStrings("%LOCALAPPDATA%")
+strLocalAppData = """" & objShell.ExpandEnvironmentStrings("%LOCALAPPDATA%") & """"
 strCopyCommand = "xcopy /y /s /e /i " & strLocalAppData & "\Jape\Jape.app\examples " & strGrandDir & "\examples"
 WScript.Echo "command is " & strCopyCommand, 0, True
 objShell.Run strCopyCommand, 0, True
