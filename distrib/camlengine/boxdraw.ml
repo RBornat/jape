@@ -424,15 +424,15 @@ let rec pretransform prefixwithstile t =
 (* include paths in the plan information -- it makes interpreting clicks so much easier *)
 type pathinfo = { path : int list; layoutpath : int list option; prunepath : int list option }
 
-type elementplankind =
-    ElementPlan of elementplaninf
+type elementplan =
+  | ElementPlan of elementplaninf
   | AmbigElementPlan of (elementplaninf * elementplaninf)
   | ElementPunctPlan
 and elementkind = ConcPlan | HypPlan | TranPlan of side
 and elementplaninf = pathinfo * element * elementkind
 
 (* even reasons need pathinfo, these days *)
-type reasonplankind = ReasonPlan of pathinfo | ReasonPunctPlan
+type reasonplan = ReasonPlan of pathinfo | ReasonPunctPlan
 
 (* this won't last long, I hope *)
 let elementplanclass = function
@@ -460,7 +460,7 @@ let string_of_pathinfo {path = path; layoutpath = layoutpath; prunepath = prunep
     "}"
 
 (* how I HATE having to write these *)
-let rec string_of_elementplankind = function
+let rec string_of_elementplan = function
   | ElementPlan      pi   -> "ElementPlan" ^ string_of_elementplaninf pi
   | AmbigElementPlan pair -> "AmbigElementPlan" ^
                                 string_of_pair string_of_elementplaninf string_of_elementplaninf "," pair
@@ -474,13 +474,13 @@ and string_of_elementkind = function
 and string_of_elementplaninf epi =
   string_of_triple string_of_pathinfo string_of_element string_of_elementkind "," epi
   
-let string_of_reasonplankind pk =
+let string_of_reasonplan pk =
   match pk with
   | ReasonPlan pi   -> "ReasonPlan " ^ string_of_pathinfo pi
   | ReasonPunctPlan -> "ReasonPunctPlan"
   
 type textinfo = textsize * textlayout
-type elementinfo_of_plan = textinfo * elementplankind
+type elementinfo_of_plan = textinfo * elementplan
 type elinfo = element * elementinfo_of_plan
 type wordp = textinfo * textinfo
 type dependency =
@@ -495,7 +495,7 @@ and trandep = textinfo * elementinfo_of_plan * reasoninfo
          (*   op         formula        *)
 
 let string_of_elementinfo_of_plan =
-  string_of_pair string_of_textinfo string_of_elementplankind ", "
+  string_of_pair string_of_textinfo string_of_elementplan ", "
 
 let string_of_elinfo = string_of_pair string_of_element string_of_elementinfo_of_plan ","
 
@@ -670,7 +670,7 @@ let rec dependency tranreason deadf aenv pt =
             else AmbigElementPlan (con' pi' c', down)
           in
           (*  consolereport 
-                ["deadabove ", string_of_element c, " -- making ", string_of_elementplankind r];
+                ["deadabove ", string_of_element c, " -- making ", string_of_elementplan r];
            *)
           r
         in
@@ -733,13 +733,23 @@ let rec mapn id elis hn =
 type reasondesc = NoReason
                 | ReasonDesc of (pathinfo * textinfo * cID list)
                 | ReasonWord of textinfo
-              
+
+let string_of_reasondesc = function
+  | NoReason -> "NoReason"
+  | ReasonDesc (pathinfo, textinfo, cIDs) ->
+      Printf.sprintf "ReasonDesc(%s,%s,%s)"
+                        (string_of_pathinfo pathinfo)
+                        (string_of_textinfo textinfo)
+                        (bracketed_string_of_list _Cr ";" cIDs)
+  | ReasonWord textinfo ->
+      Printf.sprintf "ReasonWord(%s)" (string_of_textinfo textinfo)
+      
 type fitchlinerec = 
       { lineID       : lineID; 
         elementsbox  : textbox;
         idplan       : displayclass plan;
-        elementsplan : elementplankind plan list;
-        reasonplan   : reasonplankind plan list;
+        elementsplan : elementplan plan list;
+        reasonplan   : reasonplan plan list;
         reason       : reasondesc
       }
         
@@ -750,6 +760,22 @@ type fitchboxrec = { outerbox   : box;
                      
  and fitchstep = FitchLine of fitchlinerec
                | FitchBox  of fitchboxrec
+               
+ let rec string_of_fitchstep fstep = 
+   match fstep with
+   | FitchLine {lineID; elementsbox; idplan; elementsplan; reasonplan; reason} -> 
+       Printf.sprintf "FitchLine{lineID:%s; elementsbox:%s; idplan:%s; elementsplan:%s; reasonplan:%s; reason:%s}" 
+                            (_IDr lineID) 
+                            (string_of_textbox elementsbox)
+                            (string_of_plan idplan)
+                            (bracketed_string_of_list (debugstring_of_plan string_of_elementplan) ";" elementsplan)
+                            (bracketed_string_of_list (debugstring_of_plan string_of_reasonplan) ";" reasonplan)
+                            (string_of_reasondesc reason)
+   | FitchBox {outerbox; boxlines; boxed} ->
+       Printf.sprintf "FitchBox{%s; %s; %s}"
+                            (string_of_box outerbox)
+                            (bracketed_string_of_list string_of_fitchstep ";\n" boxlines)
+                            (string_of_bool boxed)
 
 (* this is the type of information accumulated by (rev)folding the _L function (in linearise)
  * across a list of subtrees.
@@ -765,12 +791,23 @@ type layout =
         sidescreengap : int; linethickness : int; bodybox : box 
       }
 
+let string_of_layout {lines; colonplan; idmargin; bodymargin; reasonmargin; sidescreengap; linethickness; bodybox} =
+  Printf.sprintf "{lines=%s; colonplan=%s; idmargin=%s; bodymargin=%s; reasonmargin=%s; sidescreengap=%s; linethickness=%s; bodybox=%s}"
+                    (bracketed_string_of_list string_of_fitchstep ";" lines)
+                    (debugstring_of_plan string_of_displayclass colonplan)
+                    (string_of_int idmargin)
+                    (string_of_int bodymargin)
+                    (string_of_int reasonmargin)
+                    (string_of_int sidescreengap)
+                    (string_of_int linethickness)
+                    (string_of_box bodybox)
+                    
 (* moved outside for OCaml *)
 type token =
   | S of (pos -> displayclass plan)
   | Num
-  | RA of (pos -> reasonplankind plan)
-  | AR of (pos -> reasonplankind plan)
+  | RA of (pos -> reasonplan plan)
+  | AR of (pos -> reasonplan plan)
 
 let rec linearise screenwidth procrustean_reasonW dp =
   let termfontleading = max 1 (thrd (fontinfo TermFont)) in
@@ -950,12 +987,12 @@ let rec linearise screenwidth procrustean_reasonW dp =
   let rec ljreasonplan ps box =
     let shift = pos (- tsW (tbS box)) 0 in
     (* consolereport ["Boxdraw.ljreasonplan "; 
-                   "(ps = "; bracketed_string_of_list (debugstring_of_plan string_of_reasonplankind) "; " ps; " )";
+                   "(ps = "; bracketed_string_of_list (debugstring_of_plan string_of_reasonplan) "; " ps; " )";
                    "(box = "; Box.string_of_textbox box; " )";
                    "(shift = "; Box.string_of_pos shift; " )"]; *)
     let r = List.map (fun p -> planOffset p shift) ps in
     (* consolereport ["shifted to "; 
-                   bracketed_string_of_list (debugstring_of_plan string_of_reasonplankind) "; " r]; *)
+                   bracketed_string_of_list (debugstring_of_plan string_of_reasonplan) "; " r]; *)
     r
   in
   let alignreasonplan reasonplan reasonbox =
@@ -1485,7 +1522,7 @@ let rec draw goalopt p aenv proof
                 else if validhyp proof downel gpath then ()
                 else dogrey ()
             | ElementPunctPlan -> ()
-            | _ -> raise (Catastrophe_ ["emp in _D "; debugstring_of_plan string_of_elementplankind plan])
+            | _ -> raise (Catastrophe_ ["emp in _D "; debugstring_of_plan string_of_elementplan plan])
           in
           let y = posY pdraw in
           let idpos = pos idx y in
@@ -1493,7 +1530,7 @@ let rec draw goalopt p aenv proof
           drawplan idf idpos colonplan;
           List.iter (drawplan elementplanclass pdraw) elementsplan;
           (* consolereport ["drawing reasonplan "; 
-                         bracketed_string_of_list (debugstring_of_plan string_of_reasonplankind) "; " reasonplan;
+                         bracketed_string_of_list (debugstring_of_plan string_of_reasonplan) "; " reasonplan;
                          " at pos "; Box.string_of_pos (pos reasonx y)]; *)
           List.iter (drawplan reasonplanclass (pos reasonx y)) reasonplan;
           (match goalopt with
@@ -1894,34 +1931,41 @@ let rec layout viewport proof = _BoxLayout (sW (bSize viewport)) proof
  *)
   
 let targetbox pos target layout =
-  match target, layout with
-  | None     , _                                        -> None
-  | Some path, {lines = lines; bodymargin = bodymargin} ->
-      let ok =
-        function 
-        | ElementPlan ({path = epath}, _, ConcPlan) as plankind ->
-            if !screenpositiondebug then
-              consolereport
-                ["Boxdraw.targetbox.ok "; string_of_path path; "; "; 
-                 string_of_elementplankind plankind; "; "; 
-                 string_of_bool (path = epath)];
-            path = epath
-        | _ -> false
-      in
-      let rec search pos =
-        function
-        | FitchLine {elementsplan = elementsplan; elementsbox = elementsbox} ->
-            if List.exists (ok <.> info_of_plan) elementsplan then
-               (if !screenpositiondebug then
-                  consolereport
-                    ["boxdraw targetbox gotcha "; string_of_textbox elementsbox];
-                Some (tbOffset elementsbox pos))
-            else None
-        | FitchBox {boxlines = lines} -> findfirst (search pos) lines 
-                                         (* oddly, no offset: see _D if you don't believe me *)
-      in
-      findfirst (search (rightby pos bodymargin)) lines
-
+  let r = match target, layout with
+          | None     , _                                        -> None
+          | Some path, {lines = lines; bodymargin = bodymargin} ->
+              let ok plan =
+                let r = match plan with
+                        | ElementPlan ({path = epath}, _, ConcPlan) -> path = epath
+                        | _                                         -> false
+                in
+                if !screenpositiondebug then 
+                  consolereport ["Boxdraw.targetbox.ok "; string_of_elementplan plan; " = "; string_of_bool r];
+                r
+              in
+              let rec search pos fstep =
+                let r = match fstep with
+                        | FitchLine {elementsplan = elementsplan; elementsbox = elementsbox} ->
+                            if List.exists (ok <.> info_of_plan) elementsplan then Some (tbOffset elementsbox pos)
+                                                                              else None
+                        | FitchBox {boxlines = lines} -> findfirst (search pos) lines 
+                                                         (* oddly, no offset: see _D if you don't believe me *)
+                in
+                if !screenpositiondebug then
+                  consolereport ["boxdraw targetbox.search "; string_of_pos pos; string_of_fitchstep fstep;
+                                 " = "; string_of_option string_of_textbox r
+                                ];
+                r
+              in
+              findfirst (search (rightby pos bodymargin)) lines
+  in
+  if !screenpositiondebug then
+    consolereport ["Boxdraw targetbox "; string_of_pos pos; string_of_option (bracketed_string_of_list string_of_int ";") target; 
+                                         string_of_layout layout;
+                   " = "; string_of_option string_of_textbox r
+                  ];
+  r
+  
 let rec samelayout =
   fun ({lines = lines}, {lines = lines'}) -> lines = lines'
 
