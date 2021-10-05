@@ -1471,12 +1471,13 @@ let _BoxLayout screenwidth aenv t =
 let rec elementsin ps =
   List.length ((iselementkind <.> info_of_plan) <| ps)
 
-let rec draw goalopt p aenv proof
+let rec draw goalopt drawpos _ proof
         {lines = lines; colonplan = colonplan; idmargin = idmargin;
          bodymargin = bodymargin; reasonmargin = reasonmargin;
-         bodybox = bodybox; linethickness = linethickness} =
-    let idx = posX p + idmargin in
-    let reasonx = posX p + reasonmargin in
+         bodybox = bodybox; linethickness = linethickness} 
+         (* : int list option -> pos -> (resnum, string) mapping -> tree -> layout -> unit *) =
+    let idx = posX drawpos + idmargin in
+    let reasonx = posX drawpos + reasonmargin in
     (* unused
        let samepath path =
          function
@@ -1542,7 +1543,7 @@ let rec draw goalopt p aenv proof
           List.iter (_D p) lines;
     in
     drawinproofpane (); 
-    List.iter (_D (rightby p bodymargin)) lines
+    List.iter (_D (rightby drawpos bodymargin)) lines
 
 let rec print str goalopt p proof 
   {lines = lines; colonplan = colonplan; idmargin = idmargin;
@@ -1923,7 +1924,7 @@ let rec postoinclude screen box
          ((sH (bSize screen) - sH (bSize box)) / 2)
        +<-+ bPos box)
 
-let rec layout viewport proof = _BoxLayout (sW (bSize viewport)) proof
+let layout viewport proof = _BoxLayout (sW (bSize viewport)) proof
 
 (* This function is used in displaystyle.sml to position a proof.
  * I think it's best if the _conclusion_ box doesn't move.  Otherwise you get into all 
