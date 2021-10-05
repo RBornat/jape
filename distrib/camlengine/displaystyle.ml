@@ -23,7 +23,7 @@
 
 *)
 
-(* this really is a functor: hence the embedded module type *)
+(* this is really a functor: hence the embedded module type *)
 
 module type Style = sig val style : Displaystate.displaystate end
 
@@ -83,11 +83,15 @@ module F
     
     let ministate =
       optf (fun staterec -> staterec.pos, abstracttree staterec.vproof, staterec.plan)
+    
     let rec vpath showall proof popt = popt &~~ vispath showall proof
+    
     let rec tranvpath state vpath =
          state &~~ (fun staterec -> fmtpath staterec.showall staterec.proof vpath)
+    
     let rec tranfpath state fpath =
          state &~~ (fun staterec -> vispath staterec.showall staterec.proof fpath)
+    
     let rec fmtpath_of_ints f state =
       let rec tr ns =
         match tranvpath state (VisPath ns) with
@@ -97,6 +101,7 @@ module F
                                string_of_path (VisPath ns)])
       in
       f tr
+    
     let rec ints_of_fmtpath f state =
       let rec tr fp =
         match tranfpath state fp with
