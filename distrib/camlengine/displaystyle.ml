@@ -131,6 +131,7 @@ module F
                showall=(!showallproofsteps); hideuseless=(!hideuselesscuts)})
     and refresh proof viewport vgoal aenv vproof plan =
       Draw.clearView (); saveanddraw proof (defaultpos viewport plan) vgoal aenv vproof plan
+    
     (* these functions - showProof and showFocussedProof - now get the raw proof and the 
      * raw target/goal.  This is because we may have to interpret them relative both to 
      * a new and an old proof, and this may cause horridness (specifically, the proof
@@ -190,6 +191,10 @@ module F
                    targetbox origin (optf deVis path) plan
                  with
                  | Some oldbox, Some box -> 
+                     if !screenpositiondebug then
+                       consolereport ["oldbox="; string_of_textbox oldbox; "; box="; string_of_textbox box; "; viewport="; string_of_box viewport;
+                                      "; intersects (box_of_textbox oldbox) viewport = "; string_of_bool (intersects (box_of_textbox oldbox) viewport)
+                                     ];
                      if intersects (box_of_textbox oldbox) viewport (* it was visible *)
                      then doit (tbP oldbox) (tbP box)
                      else handleinvis ()
@@ -212,16 +217,19 @@ module F
             let string_of_path = bracketed_string_of_list string_of_int ";" in
             let string_of_hit = string_of_fhit string_of_path in
             let oldts = allFormulaHits oldrec.pos oldrec.plan in
-            (* consolereport ["Boxdraw.showProof.handleinvis oldpos="; string_of_pos oldrec.pos; "; oldts=";
+            if !screenpositiondebug then 
+              consolereport ["Displaystyle.showProof.handleinvis oldpos="; string_of_pos oldrec.pos; "; oldts=";
                        bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" oldts;
-                       "; viewport="; string_of_box viewport]; *)
+                       "; viewport="; string_of_box viewport]; 
             let newts = allFormulaHits oldrec.pos plan in
             let acceptable f ts = (fun (tbox, _) -> f (box_of_textbox tbox) viewport) <| ts in
-            (* consolereport ["acceptable intersects oldts="; 
+            if !screenpositiondebug then
+              consolereport ["Displaystyle.showProof.acceptable intersects oldts="; 
                    bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" 
-                                           (acceptable intersects oldts)]; *)
-            let bad() =
-               consolereport ["We have a problem: Displaystyle.handleinvis can't find a visible path"];
+                                           (acceptable intersects oldts)]; 
+                                           
+            let bad s =
+               consolereport ["We have a problem: Displaystyle.showProof.handleinvis can't find a visible path ("; s; ")"];
                consolereport ["oldpos="; string_of_pos oldrec.pos; "; oldts=";
                        bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" oldts;
                        "; viewport="; string_of_box viewport]; 
@@ -229,10 +237,11 @@ module F
                default() (* would cause an infinite recursion, if it happened *) 
             in
             let process ts = (* bloody hell, N^2. Oh well. *)
-              (* consolereport ["Boxdraw.showProof.handleinvis.process ";
+              if !screenpositiondebug then 
+                consolereport ["Displaystyle.showProof.process ";
                        bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" ts;
                        "; newts = ";
-                       bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" newts]; *)
+                       bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" newts]; 
               findfirst 
                 (fun (oldbox, hit) -> 
                   findfirst (fun (box, hit') -> if hit=hit' then Some (oldbox, box) else None)
@@ -240,13 +249,13 @@ module F
                 ts
             in
             match acceptable intersects oldts with
-            | [] -> bad()
+            | [] -> bad "[]"
             | grazers -> 
                 match (match acceptable entirelywithin grazers with
                        | []     -> process grazers
                        | inners -> process inners |~~ (fun _ -> process grazers))
                 with
-                | None              -> bad()
+                | None              -> bad "None"
                 | Some(oldbox, box) -> doit (tbP oldbox) (tbP box)
           in
           findtarget target

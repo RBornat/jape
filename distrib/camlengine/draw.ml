@@ -70,9 +70,9 @@ let rec drawinproofpane () = Japeserver.drawinpane proofpane
 
 type 'a plan = Formulaplan of (textlayout * textbox * 'a)
 
-let debugstring_of_plan f = (* was string_of_plan  *)
+let debugstring_of_plan string_of_'a  = (* was string_of_plan  *)
   fun (Formulaplan plan) ->
-    "Formulaplan" ^ string_of_triple string_of_textlayout string_of_textbox f "," plan
+    Printf.sprintf "Formulaplan(%s)" (string_of_triple string_of_textlayout string_of_textbox string_of_'a "," plan)
 
 let string_of_plan = function
   | Formulaplan (Textlayout [_, _, s], _, _) -> s
