@@ -1926,7 +1926,7 @@ let rec postoinclude screen box
 
 let layout viewport proof = _BoxLayout (sW (bSize viewport)) proof
 
-(* This function is used in displaystyle.sml to position a proof.
+(* This function is used in displaystyle.ml to position a proof.
  * I think it's best if the _conclusion_ box doesn't move.  Otherwise you get into all 
  * kinds of jumpy behaviour.
  *)
