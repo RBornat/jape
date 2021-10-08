@@ -185,6 +185,15 @@ module F
                         vgoal aenv vproof plan
           in
           let rec findtarget target =
+          (* The objective is to find the target formula in both proof plans, and then to use its
+             positions in the two plans to make sure that it comes up in the same place on screen
+             when the new proof is drawn as it did when the old proof was drawn. The mechanism I
+             had (use vpath on the two plans with target) works fine when dealing with a box
+             proof with hidden CUTIN steps: it takes the element from the original tree and
+             the right side of the cut in the new tree. But this is not what we want when cuts
+             are not hidden, as they are not in trees, ever, and sometimes not in box proofs.
+             RB 10/2021
+           *)
             if !screenpositiondebug then
               consolereport ["tracking "; 
                 string_of_option Prooftree.Tree.Fmttree.string_of_path target];
