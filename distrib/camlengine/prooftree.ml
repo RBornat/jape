@@ -1429,46 +1429,44 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
     let invisible_subtrees showall =
       optf snd <.> joinopt (visibles showall)
 
-    let pathtoviewpath showall t =
-      fun (FmtPath ns) ->
-        let rec _P ns rns t =
-          let r = pathto t in
-          if r = ns then Some (VisPath (List.rev rns))
-          else if not (null r) && isprefix (fun (x, y) -> x = y) r ns then
-            _P (drop (List.length r) ns) rns t
-          else
-            visible_subtrees showall t &~~
-              (fun ts ->
-                 let rec find (i, (tns, t)) =
-                   if isprefix (fun (x, y) -> x = y) tns ns then
-                     Some (i, drop (List.length tns) ns, t)
-                   else None
-                 in
-                 (findfirst find (numbered ts) &~~
-                    (fun (i, ns', t) -> _P ns' (i :: rns) t)))
-        in
-        _P ns [] t
+    let pathtoviewpath showall t (FmtPath ns) =
+      let rec _P ns rns t =
+        let r = pathto t in
+        if r = ns then Some (VisPath (List.rev rns))
+        else if not (null r) && isprefix (fun (x, y) -> x = y) r ns then
+          _P (drop (List.length r) ns) rns t
+        else
+          visible_subtrees showall t &~~
+            (fun ts ->
+               let rec find (i, (tns, t)) =
+                 if isprefix (fun (x, y) -> x = y) tns ns then
+                   Some (i, drop (List.length tns) ns, t)
+                 else None
+               in
+               (findfirst find (numbered ts) &~~
+                  (fun (i, ns', t) -> _P ns' (i :: rns) t)))
+      in
+      _P ns [] t
     
     (* this didn't get the right answer for the root of cuts, so I added pathto to the final result. RB 22/ii/00 *) 
-    let viewpathtopath showall t =
-      fun (VisPath ns) ->
-        let rec rev1 a1 a2 =
-          match a1, a2 with
-          | [], ys -> ys
-          | x :: xs, ys -> rev1 xs (x :: ys)
-        in
-        let rec _P a1 a2 a3 =
-          match a1, a2, a3 with
-          | n :: ns, rns, t ->
-              (visible_subtrees showall t &~~
-                 (fun ts ->
-                    try
-                      let (ns', t) = Listfuns.guardednth ts n in _P ns (rev1 ns' rns) t
-                    with
-                    | Listfuns.Bad_nth -> None))
-          | [], rns, t -> Some (FmtPath (rev1 rns (pathto t)))
-        in
-        _P ns [] t
+    let viewpathtopath showall t (VisPath ns) =
+      let rec rev1 a1 a2 =
+        match a1, a2 with
+        | [], ys -> ys
+        | x :: xs, ys -> rev1 xs (x :: ys)
+      in
+      let rec _P a1 a2 a3 =
+        match a1, a2, a3 with
+        | n :: ns, rns, t ->
+            (visible_subtrees showall t &~~
+               (fun ts ->
+                  try
+                    let (ns', t) = Listfuns.guardednth ts n in _P ns (rev1 ns' rns) t
+                  with
+                  | Listfuns.Bad_nth -> None))
+        | [], rns, t -> Some (FmtPath (rev1 rns (pathto t)))
+      in
+      _P ns [] t
     
     (* **************************************** export **************************************** *)
     
