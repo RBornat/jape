@@ -47,7 +47,7 @@ public interface DebugConstants {
 				worldpaint_tracing	 = false;
 
     static final public boolean 
-                notice_Linux		 = true,
+                                notice_Linux		 = true,
 				notice_MacOSX		 = true,
 				notice_Windows		 = true;
     

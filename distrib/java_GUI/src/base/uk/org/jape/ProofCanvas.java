@@ -212,4 +212,5 @@ public class ProofCanvas extends JapeCanvas implements ProtocolConstants, Select
     public void wakeDragTargetIndicators(int dragNum) {
         wakeDragIndicators(dragNum);
     }
+    
 }
