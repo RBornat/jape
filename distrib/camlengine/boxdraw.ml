@@ -1868,20 +1868,22 @@ let defaultpos screen {bodybox = bodybox; bodymargin = bodymargin;
                        sidescreengap = sidescreengap; linethickness = linethickness} =
     let prooforigin = bPos bodybox in
     (* leftby bodymargin not needed ... *)
-    (*
-    consolereport ["defaultpos: screen is ", string_of_box screen, " proof is ", string_of_box bodybox, 
-                   "\nbodymargin ", string_of_int bodymargin, " sidescreengap ", string_of_int sidescreengap];
-    *)
     (* put the SW corner of the proof in the SW corner of the screen. Because of botleft this is
        1 pixel too high, but who cares?
      *)
     (* because there is now a single GUI implementation, and because selections are essentially
        outsets of 2*linethickness, I leave that much space below the proof
      *)
-    upby (rightby (botleft screen) sidescreengap) (sH (bSize bodybox)+2*linethickness)
-    +<-+ prooforigin,
-    screen, prooforigin
-
+    let r = upby (rightby (botleft screen) sidescreengap) (sH (bSize bodybox)+2*linethickness) +<-+ prooforigin,
+            screen, 
+            prooforigin
+    in
+    if !screenpositiondebug then
+      consolereport ["defaultpos: screen is "; string_of_box screen; " proof is "; string_of_box bodybox; 
+                     "\nbodymargin "; string_of_int bodymargin; " sidescreengap "; string_of_int sidescreengap;
+                     "\n= "; string_of_triple string_of_pos string_of_box string_of_pos "," r];
+    r
+    
 let rec rootpos viewport {lines = lines} =
     (* position of last line in proof, first in lines *)
     let rec p =
