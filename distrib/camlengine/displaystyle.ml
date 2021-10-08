@@ -192,6 +192,9 @@ module F
              proof with hidden CUTIN steps: it takes the element from the original tree and
              the right side of the cut in the new tree. But this is not what we want when cuts
              are not hidden, as they are not in trees, ever, and sometimes not in box proofs.
+             
+             But hard cases make bad code, and I'm not going to try any more to make this better. 
+             Show a tree, use a step that applies CUTIN, and be prepared to do some tree moving.
              RB 10/2021
            *)
             if !screenpositiondebug then
