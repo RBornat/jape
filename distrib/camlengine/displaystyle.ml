@@ -203,9 +203,7 @@ module F
                        consolereport ["oldbox="; string_of_textbox oldbox; "; box="; string_of_textbox box; "; viewport="; string_of_box viewport;
                                       "; intersects (box_of_textbox oldbox) viewport = "; string_of_bool (intersects (box_of_textbox oldbox) viewport)
                                      ];
-                     if intersects (box_of_textbox oldbox) viewport (* it was visible *)
-                     then doit (tbP oldbox) (tbP box)
-                     else handleinvis ()
+                     doit (tbP oldbox) (tbP box)
                  | _                     -> retry target)
             | _ ->  (* one of the boxes wasn't there *)
                retry target
@@ -221,51 +219,8 @@ module F
                 end
             | None -> default()
           and default () = findtarget (Some (rootPath proof))
-          and handleinvis () =
-            let string_of_path = bracketed_string_of_list string_of_int ";" in
-            let string_of_hit = string_of_fhit string_of_path in
-            let oldts = allFormulaHits oldrec.pos oldrec.plan in
-            if !screenpositiondebug then 
-              consolereport ["Displaystyle.showProof.handleinvis oldpos="; string_of_pos oldrec.pos; "; oldts=";
-                       bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" oldts;
-                       "; viewport="; string_of_box viewport]; 
-            let newts = allFormulaHits oldrec.pos plan in
-            let acceptable f ts = (fun (tbox, _) -> f (box_of_textbox tbox) viewport) <| ts in
-            if !screenpositiondebug then
-              consolereport ["Displaystyle.showProof.acceptable intersects oldts="; 
-                   bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" 
-                                           (acceptable intersects oldts)]; 
-                                           
-            let bad s =
-               consolereport ["We have a problem: Displaystyle.showProof.handleinvis can't find a visible path ("; s; ")"];
-               consolereport ["oldpos="; string_of_pos oldrec.pos; "; oldts=";
-                       bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" oldts;
-                       "; viewport="; string_of_box viewport]; 
-               Japeserver.dropdead(); (* doesn't return *)
-               default() (* would cause an infinite recursion, if it happened *) 
-            in
-            let process ts = (* bloody hell, N^2. Oh well. *)
-              if !screenpositiondebug then 
-                consolereport ["Displaystyle.showProof.process ";
-                       bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" ts;
-                       "; newts = ";
-                       bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" newts]; 
-              findfirst 
-                (fun (oldbox, hit) -> 
-                  findfirst (fun (box, hit') -> if hit=hit' then Some (oldbox, box) else None)
-                  newts)
-                ts
-            in
-            match acceptable intersects oldts with
-            | [] -> bad "[]"
-            | grazers -> 
-                match (match acceptable entirelywithin grazers with
-                       | []     -> process grazers
-                       | inners -> process inners |~~ (fun _ -> process grazers))
-                with
-                | None              -> bad "None"
-                | Some(oldbox, box) -> doit (tbP oldbox) (tbP box)
           in
+          (* body of showProof *)
           findtarget target
     
     and printProof str proof target goal =
