@@ -58,6 +58,10 @@ import java.awt.Rectangle;
     paint is involved too.
  */
 
+/* the super madness which I don't understand (this is 2021) is that the Container
+ * holds its own viewport. And this thing is what a JapeCanvas is. Hmm.
+ */
+
 @SuppressWarnings("serial")
 public class ContainerWithOrigin extends Container implements DebugConstants {
 
@@ -99,11 +103,35 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
         return viewport.getComponentCount()==1 && viewport.getComponent(0)==this || super.contains(x,y);
     }
 
-    // since we are in a viewport, we tell you what the viewport sees
+    /* since we are in a viewport, we tell you what the viewport sees
+     * 
+     * I think (10/2021) that this is how this works, conceptually.
+     * 
+     * Suppose you start by drawing a box proof BW by BH in a blank pane PW by PH; the engine will plan the 
+     * proof as a box 0,0,BW,BH, and you will shift it by 0, PH-BH so that its corner is in the pane's 
+     * southwest corner, so its origin is now 0,PH-BH. Now suppose the user changes the pane size to PW', PH': 
+     * the origin of your box is now 0,PH'-BH. But you remembered 0,PH-BH. This method reports a viewport
+     * position which allows you to find your original proof: it gives you as the 'position' of the viewport
+     * 0, PH-PH'. So if PH'>PH, the y coordinate is now negative. If PH'<PH, the y coordinate is positive. In
+     * a roundabout way, it's telling you the position of the viewport relative to the zero of the box's coordinate
+     * system. If you _subtract_ the position of the viewport from the position you remembered, you get the 
+     * position of the box now. 
+     * 
+     * I _hope_ something similar applies to tree proofs, but I know there is oddness going on because
+     * the tree doesn't quite stay in the middle of the pane when it's resized. 
+     * 
+     */
     public Rectangle getViewGeometry() {
         Rectangle v = viewport.getBounds();
         // computeBounds();
         v.x -= (getX()+child.getX()); v.y -= (getY()+child.getY()); // oh dear ...
+        if (DebugVars.containerlayout_tracing) 
+            if (DebugVars.containerlayout_tracing) 
+                Logger.log.println("ContainerWithOrigin.getViewGeometry"
+                        + " self="+this
+                        + ", child="+child
+                        + ", viewport.getBounds()="+viewport.getBounds()
+                        + " -> "+v);
         return v;
     }
 
@@ -245,10 +273,10 @@ public class ContainerWithOrigin extends Container implements DebugConstants {
 
         protected Rectangle visualBounds = new Rectangle(0,0,0,0);
 
-        public Rectangle getVisualBounds() {
+        /*public Rectangle getVisualBounds() {
             return new Rectangle(visualBounds.x, visualBounds.y,
                                  visualBounds.width, visualBounds.height);
-        }
+        }*/
 
         public boolean contains(int x, int y) {
             return visualBounds.contains(x,y);
