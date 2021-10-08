@@ -123,17 +123,20 @@ module F
       | Some s -> AAA.Screendraw.notifyselect selopt sels s
       | _ -> ()
     
-    let rec locateElement state el =
+    let locateElement state el =
       match ministate state with
       | Some s -> AAA.Screendraw.locateElement el s
       | _      -> []
     
     let rec saveanddraw proof pos vgoal aenv vproof plan =
+      if !screenpositiondebug then 
+        consolereport ["saveanddraw at "; string_of_pos pos];
       Draw.clearView ();
       draw (optf deVis vgoal) pos aenv (abstracttree vproof) plan;
       screendrawstate
         (Some {proof=proof; pos=pos; vgoal=vgoal; aenv=aenv; vproof=vproof; plan=plan; 
                showall=(!showallproofsteps); hideuseless=(!hideuselesscuts)})
+    
     and refresh proof viewport vgoal aenv vproof plan =
       Draw.clearView (); saveanddraw proof (defaultpos viewport plan) vgoal aenv vproof plan
     
@@ -175,7 +178,7 @@ module F
           let rec doit oldpoint newpoint =
             if !screenpositiondebug then
               consolereport
-                ["gotcha "; string_of_pos oldpoint; "; "; string_of_pos newpoint];
+                ["doit "; string_of_pos oldpoint; "; "; string_of_pos newpoint];
             saveanddraw proof (oldrec.pos +->+ oldpoint +<-+ newpoint) 
                         vgoal aenv vproof plan
           in
