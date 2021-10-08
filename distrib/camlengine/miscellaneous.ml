@@ -25,25 +25,25 @@
 
 open Sml
    
-let rec iter f (l, h) =
+let iter f (l, h) =
   for i = l to h do f i done
 
 exception AtoI_
 
 let atoi s = try Stdlib.int_of_string s with Failure _ -> raise AtoI_
-let rec sum ns = List.fold_left (+) 0 ns
+let sum ns = List.fold_left (+) 0 ns
 
-let rec curry2 f a b = f (a, b)
-let rec uncurry2 f (a, b) = f a b
+let curry2 f a b = f (a, b)
+let uncurry2 f (a, b) = f a b
 
-let rec curry3 f a b c = f (a, b, c)
-let rec uncurry3 f (a, b, c) = f a b c
+let curry3 f a b c = f (a, b, c)
+let uncurry3 f (a, b, c) = f a b c
 
 let swapargs f a b = f b a
 let (<?>) f a b = f b a (* so that I can write f <?> b *)
 
-let rec string_of_ref f {contents = a} = ("ref(" ^ f a) ^ ")"
-let rec earlierpair lta ltb (a, b) (a', b') =
+let string_of_ref f {contents = a} = ("ref(" ^ f a) ^ ")"
+let earlierpair lta ltb (a, b) (a', b') =
   lta a a' || not (lta a' a) && ltb b b' (* this is trying not to use equality ... *)
 
 exception Catastrophe_ of string list
@@ -56,22 +56,22 @@ let errstream : out_channel ref = ref stderr
 
 let reporteropen = ref false
 
-let rec create_reportfile s =
+let create_reportfile s =
   if !reporteropen then close_out !errstream;
   errstream := open_out s;
   output_string !errstream utf8BOM;
   reporteropen := true
   
-let rec close_reportfile () =
+let close_reportfile () =
   if !reporteropen then close_out !errstream;
   errstream := stderr;
   reporteropen := false
   
-let rec consolereport strings =
+let consolereport strings =
   let e = !errstream in
   List.iter (output_string e) strings; output_string e "\n"; flush e
 
-let rec consolequery (message, yes, no, def) =
+let consolequery (message, yes, no, def) =
   List.iter (output_string stdout) message;
   output_string stdout "  ";
   let rec q () =
@@ -91,7 +91,7 @@ let rec consolequery (message, yes, no, def) =
   q ()
   
 exception Error_
-let rec error strings = consolereport strings; raise Error_
+let error strings = consolereport strings; raise Error_
 
 (* ********************************* settings variables ********************************* *)
 
