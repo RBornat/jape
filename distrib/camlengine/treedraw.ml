@@ -48,6 +48,10 @@ let string_of_element = Termstring.string_of_element
 let string_of_list = Listfuns.string_of_list
 let turnstiles = Sequent.getsyntacticturnstiles
 let uncurry2 = Miscellaneous.uncurry2
+let bracketed_string_of_list = Listfuns.bracketed_string_of_list
+let string_of_pair = Stringfuns.string_of_pair
+let string_of_triple = Stringfuns.string_of_triple
+let string_of_option = Optionfuns.string_of_option
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
 
@@ -70,11 +74,27 @@ type treeplanrec =
         seqbox       : textbox; (* now there's a Lehmann-style assumption: single-line sequents! *)
         reasonplan   : planclass plan option; 
         linespec     : (bool * pos * pos) option;
-        subplans     : (pos * treeplan) list; linethickness : int }
+        subplans     : (pos * treeplan) list; 
+        linethickness : int }
 
 and treeplan = Treeplan of treeplanrec
 
+let rec string_of_treeplan = function
+  | Treeplan r ->
+      Printf.sprintf "Treeplan{proofbox=%s; proofoutline=%s; seqplan=%s; seqbox=%s; \
+                               reasonplan=%s; linespec=%s; linethickness=%d; \nsubplans=%s\n
+                              }"
+            (string_of_box r.proofbox)
+            (bracketed_string_of_list (string_of_pair string_of_int string_of_int ",") ";" r.proofoutline)
+            (bracketed_string_of_list (debugstring_of_plan string_of_planclass) "; " r.seqplan)
+            (string_of_textbox r.seqbox)
+            (string_of_option (debugstring_of_plan string_of_planclass) r.reasonplan)
+            (string_of_option (string_of_triple string_of_bool string_of_pos string_of_pos ",") r.linespec)
+            r.linethickness
+            (bracketed_string_of_list (string_of_pair string_of_pos string_of_treeplan ": ") ";\n" r.subplans)
+            
 type layout = treeplan
+let string_of_layout = string_of_treeplan
 
 (* let sequentsfolded  = ref false (* result variable, in case anybody cares *) *)
 

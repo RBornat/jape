@@ -35,6 +35,7 @@ module type T =
     type layout
     
     val layout     : box -> (resnum, string) mapping -> tree -> layout
+    val string_of_layout : layout -> string
     val defaultpos : box -> layout -> pos
     val rootpos    : box -> layout -> pos
     val postoinclude : box -> box -> layout -> pos (* viewport -> proof box -> layout -> pos *)
