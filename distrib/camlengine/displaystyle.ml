@@ -64,6 +64,7 @@ module F
     let visproof = Prooftree.Tree.visproof Proofstore.proved
     let showallproofsteps = Prooftree.Tree.showallproofsteps
     let hideuselesscuts = Prooftree.Tree.hideuselesscuts
+    let string_of_layout = AAA.Screendraw.string_of_layout
     
     exception Catastrophe_ = Miscellaneous.Catastrophe_
     
@@ -169,12 +170,13 @@ module F
           ["looking for "; string_of_option Prooftree.Tree.Fmttree.string_of_path goal;
            " (in visible proof that's "; string_of_option string_of_path vgoal;
            ")"; " target="; string_of_option Prooftree.Tree.Fmttree.string_of_path target];
-      match oldstate with
-      | None ->
+      match oldstate, target with
+      | None, _
+      | _   , None ->
           if !screenpositiondebug then
-            consolereport ["showProof calls refresh, no old state"];
+            consolereport ["showProof calls refresh, no old state / target"];
           refresh proof viewport vgoal aenv vproof plan
-      | Some oldrec ->
+      | Some oldrec, _ ->
           let rec doit oldpoint newpoint =
             if !screenpositiondebug then
               consolereport
