@@ -193,7 +193,7 @@ module F
             | (Some _ as oldpath), (Some _ as path) ->
                 if !screenpositiondebug then
                   consolereport ["found oldpath="; string_of_option Prooftree.Tree.Vistree.string_of_path oldpath;
-                    "; path="; string_of_option Prooftree.Tree.Vistree.string_of_path oldpath];
+                    "; path="; string_of_option Prooftree.Tree.Vistree.string_of_path path];
                 (match
                    targetbox origin (optf deVis oldpath) oldrec.plan,
                    targetbox origin (optf deVis path) plan
