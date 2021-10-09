@@ -184,8 +184,7 @@ module F
             saveanddraw proof (oldrec.pos +->+ oldpoint +<-+ newpoint) 
                         vgoal aenv vproof plan
           in
-          let rec findtarget target =
-          (* The objective is to find the target formula in both proof plans, and then to use its
+          (* The objective is to find the target conclusion in both proof plans, and then to use its
              positions in the two plans to make sure that it comes up in the same place on screen
              when the new proof is drawn as it did when the old proof was drawn. The mechanism I
              had (use vpath on the two plans with target) works fine when dealing with a box
@@ -193,46 +192,93 @@ module F
              the right side of the cut in the new tree. But this is not what we want when cuts
              are not hidden, as they are not in trees, ever, and sometimes not in box proofs.
              
-             But hard cases make bad code, and I'm not going to try any more to make this better. 
-             Show a tree, use a step that applies CUTIN, and be prepared to do some tree moving.
+             And then (I think) there could be a problem with multiple conclusion calculi.
+             
+             The solution I have adopted is as follows. 
+             1. Find, using allFormulaHits, the hits of old and new proofs. Filter for 
+                ConcHits and target path. Find if there's a hit which appears in both lists:
+                if so, job done.
+             2. Some trickery with cuts is going on. Find the path to target in both proofs
+                and if you can, job done.
+             3. If all that fails, try the target's parent.
+             
+             Eventually we'll reach the root. If that doesn't work, something is very wrong.
+             
              RB 10/2021
            *)
+          let rec findtarget ftarget =            
+            let retry () =
+              let badretry () = 
+                consolereport ["retry finds infinite loop. target="; string_of_option Prooftree.Tree.Fmttree.string_of_path target;
+                               " ftarget="; string_of_option Prooftree.Tree.Fmttree.string_of_path ftarget;
+                               " oldplan="; string_of_layout oldrec.plan;
+                               " newplan="; string_of_layout plan
+                    ];
+                Japeserver.dropdead ()
+              in
+              match ftarget with
+              | None            -> badretry (); findtarget None (* won't happen *)
+              | Some targetpath ->
+                  let newtarget = try Some (parentPath proof targetpath) with _ -> (badretry(); None (* won't happen *)) in
+                  findtarget newtarget
+            in
+            let string_of_hit = string_of_fhit (bracketed_string_of_list string_of_int ";") in
+            let string_of_hits = bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" in
+            
             if !screenpositiondebug then
-              consolereport ["tracking "; 
-                string_of_option Prooftree.Tree.Fmttree.string_of_path target];
-            match
-              vpath oldrec.showall oldrec.proof target,
-              vpath !showallproofsteps proof target
-            with
-            | (Some _ as oldpath), (Some _ as path) ->
+              consolereport ["findtarget tracking "; string_of_option Prooftree.Tree.Fmttree.string_of_path ftarget];
+            match vpath oldrec.showall oldrec.proof ftarget with (* I don't think this is vulnerable to CUTINery *)
+            | Some (VisPath oldns as oldpath) -> (* found ftarget in old proof *)
                 if !screenpositiondebug then
-                  consolereport ["found oldpath="; string_of_option Prooftree.Tree.Vistree.string_of_path oldpath;
-                    "; path="; string_of_option Prooftree.Tree.Vistree.string_of_path path];
-                (match
-                   targetbox origin (optf deVis oldpath) oldrec.plan,
-                   targetbox origin (optf deVis path) plan
+                  consolereport ["found oldpath="; Prooftree.Tree.Vistree.string_of_path oldpath];
+                let getHits pos plan =
+                  let ts = allFormulaHits pos plan in
+                  List.filter (function | (tbox, Hit.ConcHit(ns,_))       -> ns=oldns 
+                                        | (tbox, Hit.AmbigHit((ns,_), _)) -> ns=oldns 
+                                        | _ -> false
+                              ) 
+                              ts 
+                in
+                let oldts = getHits oldrec.pos oldrec.plan in
+                let newts = getHits oldrec.pos plan in
+                if !screenpositiondebug then
+                  consolereport ["oldts="; string_of_hits oldts; " newts="; string_of_hits newts];
+                
+                (match findfirst (fun (oldbox,oldhit) -> 
+                                    findfirst (fun (newbox, newhit) -> if oldhit=newhit then Some (oldbox, newbox) else None)
+                                              newts
+                                 )
+                                 oldts
                  with
-                 | Some oldbox, Some box -> 
+                 | Some (oldbox, newbox) -> 
                      if !screenpositiondebug then
-                       consolereport ["oldbox="; string_of_textbox oldbox; "; box="; string_of_textbox box; "; viewport="; string_of_box viewport;
-                                      "; intersects (box_of_textbox oldbox) viewport = "; string_of_bool (intersects (box_of_textbox oldbox) viewport)
-                                     ];
-                     doit (tbP oldbox) (tbP box)
-                 | _                     -> retry target)
-            | _ ->  (* one of the boxes wasn't there *)
-               retry target
-          and retry =
-            function
-            | Some targetpath ->
-                begin match
-                  try Some (parentPath proof targetpath) with
-                  | _ -> None
-                with
-                | None      -> doit (rootpos viewport oldrec.plan) (rootpos viewport plan)
-                | newtarget -> findtarget newtarget
-                end
-            | None -> default()
-          and default () = findtarget (Some (rootPath proof))
+                        consolereport [" oldbox="; string_of_textbox oldbox; " newbox="; string_of_textbox newbox];
+                     doit (tbP oldbox) (tbP newbox)
+                 | None                  ->
+                     (match vpath !showallproofsteps proof target with
+                      | Some (VisPath newns as newpath) ->
+                          if !screenpositiondebug then
+                            consolereport ["hits failed; found newpath="; Prooftree.Tree.Vistree.string_of_path newpath];
+                          (match targetbox origin (Some oldns) oldrec.plan, targetbox origin (Some newns) plan with
+                           | Some (oldbox), Some (newbox) ->
+                               if !screenpositiondebug then
+                                 consolereport [" oldbox="; string_of_textbox oldbox; " newbox="; string_of_textbox newbox];
+                               doit (tbP oldbox) (tbP newbox)
+                           | _ ->
+                               if !screenpositiondebug then
+                                 consolereport ["targetbox failed (a case for dropdead?)"];
+                               retry()
+                          )
+                      | _ ->
+                          if !screenpositiondebug then
+                            consolereport ["couldn't find newpath (a case for dropdead?)"];
+                          retry()
+                     )
+                )
+            | None -> 
+                if !screenpositiondebug then
+                  consolereport ["couldn't find oldpath"];
+                retry()
           in
           (* body of showProof *)
           findtarget target
