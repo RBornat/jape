@@ -1407,7 +1407,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
               )
           | _ -> hideroots None (isCutjoin j) (pts, [])
       in
-      if !prooftreedebug then
+      if !prooftreedebug || !screenpositiondebug then
         (let onelevel = bracketed_string_of_list (string_of_seq <.> sequent) "," in
          let string_of_pt =
            bracketed_string_of_list (string_of_pair string_of_ns (string_of_seq <.> sequent) ",") ", "
