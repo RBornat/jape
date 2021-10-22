@@ -169,7 +169,9 @@ module F
         consolereport
           ["looking for "; string_of_option Prooftree.Tree.Fmttree.string_of_path goal;
            " (in visible proof that's "; string_of_option string_of_path vgoal;
-           ")"; " target="; string_of_option Prooftree.Tree.Fmttree.string_of_path target];
+           "); target="; string_of_option Prooftree.Tree.Fmttree.string_of_path target;
+           "; plan="; string_of_layout plan; "; proof="; Prooftree.Tree.Fmttree.string_of_prooftree proof
+          ];
       match oldstate, target with
       | None, _
       | _   , None ->
@@ -177,6 +179,10 @@ module F
             consolereport ["showProof calls refresh, no old state / target"];
           refresh proof viewport vgoal aenv vproof plan
       | Some oldrec, _ ->
+          if !screenpositiondebug then
+            consolereport ["oldpos="; string_of_pos oldrec.pos; "; oldplan="; string_of_layout oldrec.plan;
+                          "; oldproof="; Prooftree.Tree.Fmttree.string_of_prooftree oldrec.proof
+                          ];
           let rec doit oldpoint newpoint =
             if !screenpositiondebug then
               consolereport
@@ -197,7 +203,7 @@ module F
              The solution I have adopted is as follows. 
              1. Find, using allFormulaHits, the hits of old and new proofs. Filter for 
                 ConcHits and target path. Find if there's a hit which appears in both lists:
-                if so, job done.
+                if so, job done. [I now think this is useless and will always fail. Hmm.]
              2. Some trickery with cuts is going on. Find the path to target in both proofs
                 and if you can, job done.
              3. If all that fails, try the target's parent.
@@ -206,28 +212,45 @@ module F
              
              RB 10/2021
            *)
+          (*
+             And now (still 10/21) I have stopped the crashing at the expense of sometimes jumping.
+             
+             The problem is that looking for the target in the old proof should always work, but 
+             it might (especially because of cuts and CUTINs) have vanished in the new proof. This won't
+             (I believe) be a problem in tree display, but it happens in box proofs. I try harder to find
+             the target (see boxdraw.ml targetbox) but I also have to allow for undos and layout stuff.
+             
+             So now, if it can't find the target, it searches for the parent. If there is no parent it
+             searches for [] (which, with CUTINery, isn't always the root but sometimes it gets you to
+             the place where the original root has been displaced to). If that fails it complains in the 
+             console log and draws the new proof in the same place as the old. This will cause nasty
+             jumping, but I don't know what else to do.
+             
+             I've left the hit stuff in because it does no harm, especially if it never works.
+           *)
           let rec findtarget ftarget =            
             let retry () =
               let badretry () = 
                 consolereport ["retry finds infinite loop. target="; string_of_option Prooftree.Tree.Fmttree.string_of_path target;
                                " ftarget="; string_of_option Prooftree.Tree.Fmttree.string_of_path ftarget;
                                " oldplan="; string_of_layout oldrec.plan;
-                               " newplan="; string_of_layout plan
+                               " newplan="; string_of_layout plan;
+                               " oldproof="; Prooftree.Tree.Fmttree.string_of_prooftree oldrec.proof;
+                               " newproof="; Prooftree.Tree.Fmttree.string_of_prooftree proof
                     ];
-                Japeserver.dropdead ()
               in
               match ftarget with
-              | None            -> badretry (); findtarget None (* won't happen *)
-              | Some targetpath ->
-                  let newtarget = try Some (parentPath proof targetpath) with _ -> (badretry(); None (* won't happen *)) in
-                  findtarget newtarget
+              | None              -> findtarget (Some (FmtPath []))
+              | Some (FmtPath []) -> badretry (); doit oldrec.pos oldrec.pos (* failed attempt to find the original root -- no other possibilities *)
+              | Some targetpath   -> let newtarget = try Some (parentPath oldrec.proof targetpath) with _ -> Some (FmtPath []) in
+                                     findtarget newtarget
             in
             let string_of_hit = string_of_fhit (bracketed_string_of_list string_of_int ";") in
             let string_of_hits = bracketed_string_of_list (string_of_pair string_of_textbox string_of_hit ",") ";" in
             
             if !screenpositiondebug then
               consolereport ["findtarget tracking "; string_of_option Prooftree.Tree.Fmttree.string_of_path ftarget];
-            match vpath oldrec.showall oldrec.proof ftarget with (* I don't think this is vulnerable to CUTINery *)
+            match vpath oldrec.showall oldrec.proof ftarget with 
             | Some (VisPath oldns as oldpath) -> (* found ftarget in old proof *)
                 if !screenpositiondebug then
                   consolereport ["found oldpath="; Prooftree.Tree.Vistree.string_of_path oldpath];
@@ -255,29 +278,32 @@ module F
                         consolereport [" oldbox="; string_of_textbox oldbox; " newbox="; string_of_textbox newbox];
                      doit (tbP oldbox) (tbP newbox)
                  | None                  ->
-                     (match vpath !showallproofsteps proof target with
+                     (match vpath !showallproofsteps proof ftarget with
                       | Some (VisPath newns as newpath) ->
                           if !screenpositiondebug then
                             consolereport ["hits failed; found newpath="; Prooftree.Tree.Vistree.string_of_path newpath];
                           (match targetbox origin (Some oldns) oldrec.plan, targetbox origin (Some newns) plan with
-                           | Some (oldbox), Some (newbox) ->
+                           | Some oldbox, Some newbox ->
                                if !screenpositiondebug then
                                  consolereport [" oldbox="; string_of_textbox oldbox; " newbox="; string_of_textbox newbox];
                                doit (tbP oldbox) (tbP newbox)
-                           | _ ->
+                           | ob, nb ->
                                if !screenpositiondebug then
-                                 consolereport ["targetbox failed (a case for dropdead?)"];
+                                 consolereport ["targetbox in oldplan failed (a case for dropdead?) -- ob="; 
+                                                string_of_option string_of_textbox ob;
+                                                "; nb="; string_of_option string_of_textbox nb
+                                               ];
                                retry()
                           )
                       | _ ->
                           if !screenpositiondebug then
-                            consolereport ["couldn't find newpath (a case for dropdead?)"];
+                            consolereport ["vpath in newproof failed (a case for dropdead?)"];
                           retry()
                      )
                 )
             | None -> 
                 if !screenpositiondebug then
-                  consolereport ["couldn't find oldpath"];
+                  consolereport ["couldn't find oldpath -- what?? dropdead??"];
                 retry()
           in
           (* body of showProof *)
