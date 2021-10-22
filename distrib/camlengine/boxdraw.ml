@@ -1931,22 +1931,38 @@ let layout viewport proof = _BoxLayout (sW (bSize viewport)) proof
 (* This function is used in displaystyle.ml to position a proof.
  * I think it's best if the _conclusion_ box doesn't move.  Otherwise you get into all 
  * kinds of jumpy behaviour.
+ *
+ * But sometimes, because of CUTINery, the target box vanishes. This function tries hard to
+ * find it.
  *)
   
 let targetbox pos target layout =
+  if !screenpositiondebug then
+    consolereport ["Boxdraw targetbox "; string_of_pos pos; " "; string_of_option (bracketed_string_of_list string_of_int ";") target; 
+                                         " "; string_of_layout layout
+                  ];
   let r = match target, layout with
           | None     , _                                        -> None
-          | Some path, {lines = lines; bodymargin = bodymargin} ->
+          | Some tpath, {lines = lines; bodymargin = bodymargin} ->
               let ok plan =
+                let isok {path = epath; prunepath = ppopt} = 
+                  tpath = epath || (match ppopt with
+                                    | Some ppath -> tpath = ppath
+                                    | None       -> false
+                                   ) 
+                in
                 let r = match plan with
-                        | ElementPlan ({path = epath}, _, ConcPlan) -> path = epath
-                        | _                                         -> false
+                        | ElementPlan      (pinf, _, ConcPlan)     -> isok pinf
+                        | AmbigElementPlan((pinf, _, ConcPlan), _) -> isok pinf 
+                        | _                                        -> false
                 in
                 if !screenpositiondebug then 
-                  consolereport ["Boxdraw.targetbox.ok "; string_of_elementplan plan; " = "; string_of_bool r];
+                  consolereport ["Boxdraw.targetbox.ok (tpath="; string_of_path tpath; ") "; string_of_elementplan plan; " = "; string_of_bool r];
                 r
               in
               let rec search pos fstep =
+                if !screenpositiondebug then
+                  consolereport ["boxdraw targetbox.search "; string_of_pos pos; " "; string_of_fitchstep fstep];
                 let r = match fstep with
                         | FitchLine {elementsplan = elementsplan; elementsbox = elementsbox} ->
                             if List.exists (ok <.> info_of_plan) elementsplan then Some (tbOffset elementsbox pos)
@@ -1955,18 +1971,14 @@ let targetbox pos target layout =
                                                          (* oddly, no offset: see _D if you don't believe me *)
                 in
                 if !screenpositiondebug then
-                  consolereport ["boxdraw targetbox.search "; string_of_pos pos; string_of_fitchstep fstep;
-                                 " = "; string_of_option string_of_textbox r
+                  consolereport ["boxdraw targetbox.search ... = "; string_of_option string_of_textbox r
                                 ];
                 r
               in
               findfirst (search (rightby pos bodymargin)) lines
   in
   if !screenpositiondebug then
-    consolereport ["Boxdraw targetbox "; string_of_pos pos; string_of_option (bracketed_string_of_list string_of_int ";") target; 
-                                         string_of_layout layout;
-                   " = "; string_of_option string_of_textbox r
-                  ];
+    consolereport ["Boxdraw.targetbox ... = "; string_of_option string_of_textbox r];
   r
   
 let rec samelayout =
