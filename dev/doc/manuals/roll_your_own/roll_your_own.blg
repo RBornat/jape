@@ -19,10 +19,11 @@ A level-1 auxiliary file: Aristotle.aux
 A level-1 auxiliary file: paraformlang.aux
 A level-1 auxiliary file: tacticlang.aux
 A level-1 auxiliary file: GUIlang.aux
+A level-1 auxiliary file: sortofprintf.aux
 Database file #1: roll_your_own.bib
 You've used 4 entries,
             2773 wiz_defined-function locations,
-            634 strings with 5700 characters,
+            635 strings with 5716 characters,
 and the built_in function-call counts, 1662 in all, are:
 = -- 146
 > -- 80
