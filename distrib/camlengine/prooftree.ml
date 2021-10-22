@@ -1443,8 +1443,9 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
                    Some (i, drop (List.length tns) ns, t)
                  else None
                in
-               (findfirst find (numbered ts) &~~
-                  (fun (i, ns', t) -> _P ns' (i :: rns) t)))
+               findfirst find (numbered ts) &~~
+                  (fun (i, ns', t) -> _P ns' (i :: rns) t)
+            )
       in
       _P ns [] t
     
@@ -1639,22 +1640,22 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
         type prooftree = temp_prooftree
         
         let fFmtPath v = FmtPath v
-        let rec dePath = fun (FmtPath ns) -> ns
-        let rec rePath (ns, x) = FmtPath ns, x
-        let rec followPath t = followPath_ns t <.> dePath
-        let rec onestep t =
+        let dePath = fun (FmtPath ns) -> ns
+        let rePath (ns, x) = FmtPath ns, x
+        let followPath t = followPath_ns t <.> dePath
+        let onestep t =
           optf rePath <.> onestep_ns t <.> dePath
-        let rec fakePath t = fakePath_ns [] t <.> dePath
-        let rec pathPrefix t p1 p2 =
+        let fakePath t = fakePath_ns [] t <.> dePath
+        let pathPrefix t p1 p2 =
           isprefix (fun (x, y) -> x = y) (fakePath t p1) (fakePath t p2)
-        let rec findTip t = findTip_ns t <.> dePath
-        let rec getTip t = getTip_ns t <.> dePath
-        let rec allTipPaths t = (fFmtPath <* allTipPaths_ns t)
-        let rec allTipConcs t = (rePath <* allTipConcs_ns t)
-        let rec validelement b t el = fun (FmtPath ns) -> validelement_ns b t el ns
+        let findTip t = findTip_ns t <.> dePath
+        let getTip t = getTip_ns t <.> dePath
+        let allTipPaths t = (fFmtPath <* allTipPaths_ns t)
+        let allTipConcs t = (rePath <* allTipConcs_ns t)
+        let validelement b t el = fun (FmtPath ns) -> validelement_ns b t el ns
         let validhyp = validelement true
         let validconc = validelement false
-        let rec stillopen t = stillopen_ns t <.> dePath
+        let stillopen t = stillopen_ns t <.> dePath
         let maxtreeresnum = maxtreeresnum
         let isTip = isTip
         let hasTip = hasTip
