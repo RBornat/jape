@@ -1945,16 +1945,11 @@ let targetbox pos target layout =
           | None     , _                                        -> None
           | Some tpath, {lines = lines; bodymargin = bodymargin} ->
               let ok plan =
-                let isok {path = epath; prunepath = ppopt} = 
-                  tpath = epath || (match ppopt with
-                                    | Some ppath -> tpath = ppath
-                                    | None       -> false
-                                   ) 
-                in
                 let r = match plan with
-                        | ElementPlan      (pinf, _, ConcPlan)     -> isok pinf
-                        | AmbigElementPlan((pinf, _, ConcPlan), _) -> isok pinf 
-                        | _                                        -> false
+                        | ElementPlan      ({path = epath},           _, ConcPlan)     -> tpath = epath
+                        | AmbigElementPlan(({path = epath},           _, ConcPlan), _) -> tpath = epath
+                        | ElementPlan      ({prunepath = Some ppath}, _, HypPlan)      -> tpath = ppath
+                        | _                                                            -> false
                 in
                 if !screenpositiondebug then 
                   consolereport ["Boxdraw.targetbox.ok (tpath="; string_of_path tpath; ") "; string_of_elementplan plan; " = "; string_of_bool r];
