@@ -134,11 +134,11 @@ public class TextDialog {
         OperatorButtonListener buttonPaneListener = new OperatorButtonListener();
         JPanel display = new JPanel();
         display.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-        GridLayout gridLayout = new GridLayout(operators==null?2:3, 1);
+        GridLayout gridLayout = new GridLayout(operators==null || operators.length==0?2:3, 1);
         display.setLayout(gridLayout);
         display.add(new JLabel(message));
         display.add(textField);
-        if (operators!=null) {
+        if (operators!=null && operators.length!=0) {
             ButtonPane buttonPane = new ButtonPane();
             for (String o: operators) {
                 JButton button = new JButton(o);
