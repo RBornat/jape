@@ -160,6 +160,9 @@ public class TextDialog {
                                            null, options, options[0]);
         // pane.set.Xxxx(...); // Configure
         final JDialog dialog = pane.createDialog(JapeWindow.getTopWindow(), title);
+        // for some reason the dialog doesn't entirely include the OK and Cancel buttons ...
+        if (!Jape.onMacOSX)
+            dialog.setSize(dialog.getWidth(), dialog.getHeight()+26);
         dialog.addWindowListener(new WindowAdapter() {
             public void windowActivated(WindowEvent e) {
                 for (Component c: pane.getComponents()){
