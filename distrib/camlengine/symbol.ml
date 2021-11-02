@@ -147,7 +147,9 @@ let rec get_oplist () =
       let ops =
         List.map (utf8_implode <.> (fun(r,_,_)->r)) (summarisetree !optree)
       in
-      sortunique (<) (ops @ List.map utf8_of_ucode !decIDheads @ List.map utf8_of_ucode !decIDtails)
+      let us = sortunique (<) (ops @ List.map utf8_of_ucode !decIDheads @ List.map utf8_of_ucode !decIDtails) in
+      (* only the things you don't find on a normal keyboard *)
+      List.filter (fun s -> String.length s > 1) us
 
 let rec set_oplist ss = oplist := Some ss
 
