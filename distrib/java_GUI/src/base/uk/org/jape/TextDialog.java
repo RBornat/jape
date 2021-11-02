@@ -156,7 +156,7 @@ public class TextDialog {
         // And then lots of pragmatic stuff to make it give the focus from the OK 
         // button (which gets it by default) and give it to the text field.
         String [] options = { "OK", "Cancel" };
-        final JOptionPane pane = new JOptionPane(display, JOptionPane.PLAIN_MESSAGE, 0,
+        final JOptionPane pane = new JOptionPane(display, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION,
                                            null, options, options[0]);
         // pane.set.Xxxx(...); // Configure
         final JDialog dialog = pane.createDialog(JapeWindow.getTopWindow(), title);
