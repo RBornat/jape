@@ -100,8 +100,8 @@ public class Dispatcher extends Thread implements DebugConstants {
 			                "The Jape proof engine has crashed.\n\n"+
 			                "The next window will ask where to store the contents of the"
 			                + " Jape console log, so you can report the crash.\n\n"+
-			                "Please report it (with the contents of the log) to "
-			                + "Richard Bornat (richard@bornat.me.uk)."
+			                "Please report it (with the contents of the log) at "
+			                + "https://github.com/RBornat/jape/issues."
 			            );
                             DateFormat df = new SimpleDateFormat("yyyy-MM-dd 'at' HH-mm-ss z");
                             Date dateobj = new Date();
