@@ -1,0 +1,24 @@
+app-id: uk.org.jape
+runtime: org.freedesktop.Platform
+runtime-version: '21.08'
+sdk: org.freedesktop.Sdk
+# sdk-extensions:
+#  - org.freedesktop.Sdk.Extension.openjdk11
+command: /app/Jape.app/launchstub
+modules:
+  - name: jape
+    buildsystem: simple
+    build-commands:
+      - bash installJape.sh
+    sources:
+      - type: dir
+        path: LinuxJape
+finish-args:
+  # X11 + XShm access
+  - --share=ipc
+  - --socket=x11
+  # Wayland access
+  - --socket=wayland
+  # Needs to save files locally
+  - --filesystem=home
+  - --filesystem=~/.java/.userPrefs:create
