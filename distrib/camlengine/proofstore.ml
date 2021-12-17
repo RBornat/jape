@@ -71,12 +71,12 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
 
   and proof_depends name =
     match (!proofs <@> name) with
-      Some (_, _, children, _, _) -> Some children
+    | Some (_, _, children, _, _) -> Some children
     | _ -> None
 
   and proof_children name =
     match proof_depends name with
-      Some ns -> ns
+    | Some ns -> ns
     | None -> []
   
   (* when we prove something, we may prove a different sequent from the one that was 
@@ -113,7 +113,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     in
     let rec doit () =
       match givens, thingnamed name with
-        [], Some (Theorem (params, _, _), place) ->
+      | [], Some (Theorem (params, _, _), place) ->
           putitin name (Theorem (params, storedprovisos provisos, seq)) []
             place
       | _ :: _, Some (Theorem (params, _, _), place) ->
@@ -135,7 +135,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     else
       (* if it's not proved we don't really care ... *)
       match toposort [name] children with
-        _, [] -> doit ()
+      | _, [] -> doit ()
       | _, cycles ->
           (* no cycles *)
           alert
@@ -157,17 +157,17 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
 
   and proved n =
     match proofnamed n with
-      Some (proved,_, _, _, _,_) -> proved
+    | Some (proved,_, _, _, _,_) -> proved
     | _                          -> false
 
   and disproved n =
     match proofnamed n with
-      Some (_, _, _, _,disproved,_) -> disproved
+    | Some (_, _, _, _,disproved,_) -> disproved
     | _                             -> false
 
   and provedordisproved n =
     match proofnamed n with
-      Some (proved, _, _, _,disproved,_) -> Some (proved,disproved)
+    | Some (proved, _, _, _,disproved,_) -> Some (proved,disproved)
     | _                                  -> None
   in
 
@@ -177,7 +177,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
 
   let word_of_panel p =
     match getpanelkind p with
-      Some TacticPanelkind     -> "TACTICPANEL"
+    | Some TacticPanelkind     -> "TACTICPANEL"
     | Some ConjecturePanelkind -> "CONJECTUREPANEL"
     | Some GivenPanelkind      -> 
         raise (Catastrophe_ ["proof in GIVENPANEL"])
@@ -185,30 +185,32 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
        raise (Catastrophe_ ["proof in unknown panel "; string_of_name p])
   in
 
-  let rec saveproof chan name stage tree provisos givens disproof =
+  (* this now takes provisos from the stored thing *)
+  let rec saveproof chan name stage tree givens disproof =
     let rec badthing () =
       raise (Catastrophe_ ["No stored conjecture/derived rule called ";
                            parseablestring_of_name name])
     in
     let place =
       match thingnamed name with
-        Some (th, place) ->
-          begin match th with
-            Theorem _       -> place
-          | Rule (_, false) -> place
-          | _               -> badthing ()
-          end
+      | Some (th, place) ->
+          (match th with
+           | Theorem _       -> place
+           | Rule (_, false) -> place
+           | _               -> badthing ()
+          )
       | _ -> badthing ()
     in
     let rec doit ss =
-      let params =
+      let provisos, params =
         match thingnamed name with
-          Some (Theorem (params, _, _), _) -> params
-        | _                                -> []
+        | Some (Theorem (params, provisos, _), _)       -> (snd <* provisos), params
+        | Some (Rule ((params, provisos, _, _), _), _)  -> (snd <* provisos), params
+        | _                                             -> [],[]
       in
       let body =
         catelim_prooftree2tactic tree provisos givens
-          						 (catelim_string_of_model disproof ss)
+                                 (catelim_string_of_model disproof ss)
       in
       word_of_proofstage stage :: " " :: parseablestring_of_name name ::
         (if null params then body
@@ -219,7 +221,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     in
     List.iter (output_string chan)
       (match place with
-         InMenu m ->
+       | InMenu m ->
            word_of_menu m :: " " :: parseablestring_of_name m :: "\n" ::
              doit ["END\n"]
        | InPanel p ->
@@ -230,8 +232,8 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
   and saveproofs chan =
     let show n =
       match proofnamed n with
-        Some (proved, tree, provisos, givens, disproved, disproof) ->
-          saveproof chan n Complete tree ((snd <* (fst <| provisos))) givens disproof
+      | Some (proved, tree, _, givens, disproved, disproof) ->
+          saveproof chan n Complete tree givens disproof
       | _ -> ()
     in
     let names = (bool_of_opt <.> proofnamed) <| thingnames () in
@@ -242,7 +244,8 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
        applyconjectures true when reloading a proof is the right thing.
        output_string chan "INITIALISE applyconjectures "; 
        output_string chan !applyconjectures;
-       output_string chan "\n\n"; *)
+       output_string chan "\n\n";
+     *)
     revapp show sortednames; allsaved := true
     
   in
@@ -266,7 +269,7 @@ let rec thingswithproofs triv =
 let rec namedthingswithproofs triv ts =
     (fun n ->
         match thingnamed n with
-          None -> false
+        | None -> false
         | Some (Tactic _, _) -> true
         | Some (Macro _, _) -> true
         | Some (Rule (_, ax), _) -> (ax || triv) || proved n
@@ -277,7 +280,7 @@ let thmLacksProof = not <.> proved
 
 let rec needsProof a1 a2 =
   match a1, a2 with
-    name, Rule (_, ax) -> not (ax || proved name)
+  | name, Rule (_, ax) -> not (ax || proved name)
   | name, Tactic _     -> false
   | name, Macro _      -> false
   | name, Theorem _    -> not (proved name)

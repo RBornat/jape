@@ -39,7 +39,7 @@ val freezesaved : unit -> unit
 val thawsaved   : unit -> unit
 
 val saveproof  : out_channel -> name -> proofstage -> prooftree 
-                             -> proviso list -> seq list -> (seq * model) option -> unit
+                             -> seq list -> (seq * model) option -> unit
 val saveproofs : out_channel -> unit
 
 val proved            : name -> bool

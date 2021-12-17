@@ -1103,8 +1103,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       let f =
         fun (Pinf {title = t, _; hist = hist}) ->
           let (Proofstate {cxt = cxt; tree = tree; givens = givens}) = winhist_proofnow hist in
-          saveproof sfile t Proofstage.InProgress tree (useful_provisos (provisos cxt)) givens
-            (model_of_disproofstate (winhist_disproofnow hist))
+          saveproof sfile t Proofstage.InProgress tree givens
+                    (model_of_disproofstate (winhist_disproofnow hist))
       in
       Proofstore.saveproofs sfile; List.map f pinfs
     in
