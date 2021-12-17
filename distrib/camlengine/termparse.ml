@@ -410,8 +410,8 @@ and parseSubststuff () =
           " is unbalanced"])
 
 and parseterm fsy =
-  if !termparsedebug then
-    consolereport ["parseterm "; debugstring_of_symbol fsy; " (currsymb="; debugstring_of_symbol (currsymb()); ")"];
+  if !termparsedebug then 
+    consolereport [Printf.sprintf "parseterm (%s) currsymb=%s" (debugstring_of_symbol fsy) (debugstring_of_symbol (currsymb()))];
   let r = if canstartCollectionidclass (currsymb ()) then
             let c = parseidclass "" in
             let (_, els) =
@@ -425,7 +425,7 @@ and parseterm fsy =
             | _        -> parseExpr 0 false
   in
   if !termparsedebug then
-    consolereport [Printf.sprintf "parseterm %s => %s\n" (debugstring_of_symbol fsy) (debugstring_of_term r)];
+    consolereport [Printf.sprintf "parseterm (%s) => %s\n" (debugstring_of_symbol fsy) (debugstring_of_term r)];
   r
   
 and parseElementList starter parser__ sep k =
