@@ -412,18 +412,22 @@ and parseSubststuff () =
 and parseterm fsy =
   if !termparsedebug then
     consolereport ["parseterm "; debugstring_of_symbol fsy; " (currsymb="; debugstring_of_symbol (currsymb()); ")"];
-  if canstartCollectionidclass (currsymb ()) then
-    let c = parseidclass "" in
-    let (_, els) =
-      parseElementList canstartTerm parseterm commasymbol (Some c)
-    in
-    registerCollection (c, els)
-  else
-    match fsy with
-      INFIX  _ -> parseExpr (prio fsy) true
-    | INFIXC _ -> parseExpr (prio fsy) true
-    | _        -> parseExpr 0 false
-
+  let r = if canstartCollectionidclass (currsymb ()) then
+            let c = parseidclass "" in
+            let (_, els) =
+              parseElementList canstartTerm parseterm commasymbol (Some c)
+            in
+            registerCollection (c, els)
+          else
+            match fsy with
+              INFIX  _ -> parseExpr (prio fsy) true
+            | INFIXC _ -> parseExpr (prio fsy) true
+            | _        -> parseExpr 0 false
+  in
+  if !termparsedebug then
+    consolereport [Printf.sprintf "parseterm %s => %s\n" (debugstring_of_symbol fsy) (debugstring_of_term r)];
+  r
+  
 and parseElementList starter parser__ sep k =
   let kind : idclass option ref = ref k in
   let iscoll c =
