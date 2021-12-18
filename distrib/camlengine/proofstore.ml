@@ -186,6 +186,10 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
   in
 
   (* this now takes provisos from the stored thing *)
+  (* I think it ought to take the statement of the theorem/rule from the same place,
+     but I've left it because it seems to work, provided there are no unknowns lurking
+     anywhere. And if there are ... oh dear.
+   *)
   let rec saveproof chan name stage tree givens disproof =
     let rec badthing () =
       raise (Catastrophe_ ["No stored conjecture/derived rule called ";
