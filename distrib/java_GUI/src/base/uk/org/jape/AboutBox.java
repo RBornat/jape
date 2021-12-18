@@ -55,14 +55,19 @@ public class AboutBox {
             
             (Jape.onMacOSX ? 
                     "\n\n"+
-                    "macOS Jape.app incorporates:\n"+
+                    "macOS Jape.app is assembled using code that derives from:\n"+
                     "    jarbundler 3.3.0\n"+
                     "        Copyright © 2015, UltraMixer Digital Audio Solutions <info@ultramixer.com>\n"+
                     "              and Seth J. Morabito <sethm@loomcom.com>,\n"+
-                    "        licensed under Apache License v2.0\n"+
-                    "    universalApplicationStub 3.0.4\n"+
-                    "        Copyright © 2014-2018 Tobias Fischer,\n"+
-                    "        licensed under MIT license."
+                    "        licensed under Apache License v2.0\n"
+             : ""
+            )+
+            
+            (Jape.inFlatpak ? 
+                    "\n\n"+
+                    "The Flatpak distribution of Jape is assembled using code initially developed\n"+
+                    "by Timo Triebensky <timo@binsky.org>, taken from his repo at \n"+
+                    "    https://github.com/binsky08/jape-flatpak-builder.git\n"
              : ""
             )
 

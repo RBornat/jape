@@ -70,7 +70,7 @@ public class Jape implements DebugConstants {
         Logger.crash(message,2);
     }
     
-    public static boolean onMacOSX, onLinux, onWindows, onUnix;
+    public static boolean onMacOSX, onLinux, inFlatpak, onWindows, onUnix;
     public static Rectangle screenBounds;
 
     public static File appDir, picsDir, engineDir, resourceDir;
@@ -105,7 +105,9 @@ public class Jape implements DebugConstants {
         onWindows = osName.startsWith("Windows");
         
         onUnix = onMacOSX || onLinux || onWindows;
- 
+        
+        inFlatpak = onLinux? System.getenv("FLATPAK_ID")!=null : false;
+
         appDir = new File (onMacOSX  ? System.getProperty("uk.org.jape.AppPackage") : ".");
         engineDir = onMacOSX ? new File (appDir, "Contents/Engine") : appDir;
         resourceDir = onMacOSX ? new File (appDir, "Contents/Resources") : appDir;
@@ -208,7 +210,7 @@ public class Jape implements DebugConstants {
                         e.printStackTrace();
                     }
                 }
-
+                
             }
         });
 
