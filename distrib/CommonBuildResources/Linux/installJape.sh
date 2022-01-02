@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # 
 # If you can see this text, you have opened the installation control file.
 #
