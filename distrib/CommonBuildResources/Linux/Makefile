@@ -5,9 +5,13 @@ include ../../CommonBuildResources/Makefile-common
 OS=Linux
 APPEXTRAS=launchstub
 
+%.html: %.md; \
+            pandoc $< -o $@
+            
 run:        ; Jape.app/launchstub&
 
-wrap:       ; chmod +x launchstub installJape.sh; \
+wrap: README_RUN.html README_INSTALL.html ; \
+              chmod +x launchstub installJape.sh; \
               cp launchstub Jape.app; \
               cp README_RUN.html Jape.app; \
               cp -pR ../../examples Jape.app; \
