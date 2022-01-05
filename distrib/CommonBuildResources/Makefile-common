@@ -5,6 +5,8 @@ ENGINEDIR=../../camlengine
 BUILDDIR=../../_buildengine$(OS)
 BUILDRESOURCES=../../CommonBuildResources
 
+%.html: %.md; pandoc $< -o $@
+
 ##################################################################
 #
 #       Default (Unix) targets; Windows build overrides these
@@ -38,7 +40,8 @@ GUI:            ; export JAPEVERSION=`$(BUILDRESOURCES)/version.sh`; \
 
 jre:            ; cd $(GUIDIR); ant -Dtarget="standard" -Dos="$(OS)" jre
 
-app:            ; rm -fr Jape.app; mkdir Jape.app; \
+app: engine GUI jre; \
+                  rm -fr Jape.app; mkdir Jape.app; \
                   cp -pR $(GUIDIR)/build/jre/$(OS)/jre Jape.app; \
                   cp -pR ../../iconset Jape.app; \
                   cp -pR $(GUIDIR)/Pics Jape.app; \
@@ -51,32 +54,9 @@ app:            ; rm -fr Jape.app; mkdir Jape.app; \
 #
 components::    engine GUI jre app
 
-install:        components; \
-                  rsync -v -t    $(BUILDRESOURCES)/installjape.sh . ;\
-                  sh installjape.sh
-
 clean::          engineclean GUIclean
 
-distribution::  ; make encoder; make components; \
-                  make jarfile
-
-AT="@"
-jarfile:        ; java -jar ../../CommonBuildResources/buildinstaller.jar Install$(OS)jape.jar                                  \
-                -app            "Jape"                                                          \
-                -java           "any java version later than 9"                                 \
-                -splash         $(SPLASH)                                                       \
-                -splashside     North                                                           \
-                -installdir     Jape                                                            \
-                -autoinstall    Jape                                                            \
-                -autojar $(GUIDIR)/build/jar/standard/Jape.jar                                  \
-                -unixrun        "exec java  -jar %JAR% -engine %INSTALL%/jape_engine \"$$$(AT)\""    \
-                -windowsrun     "javaw -jar %JAR% -engine %INSTALL%/jape.exe"                \
-                $(AFTERINSTALL)         \
-                $(ENCODERESOURCES)      \
-                $(INSTALLRESOURCES)     \
-                $(ENGINEDIR)/_build$(OS)/$(ENGINETARGET)       \
-                ../../examples
-
+distribution::  ; make components
 
 
 
