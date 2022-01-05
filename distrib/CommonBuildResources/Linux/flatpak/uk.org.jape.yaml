@@ -19,6 +19,6 @@ finish-args:
   - --socket=x11
   # Wayland access
   - --socket=wayland
-  # Needs to save files locally
+  # Needs to edit and save files locally
   - --filesystem=home
   - --filesystem=~/.java/.userPrefs:create
