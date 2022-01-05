@@ -15,13 +15,12 @@ wrap: app README_RUN.html README_INSTALL.html ; \
               cp README_RUN.html LinuxJape/Jape.app; \
               cp -pR ../../examples LinuxJape/Jape.app; \
               mv LinuxJape/Jape.app LinuxJape/.data; \
-              tar -zcf LinuxJape_`../version.sh`.tgz LinuxJape; \
-              rm -fr LinuxJape
+              tar -zcf LinuxJape_`../version.sh`.tgz LinuxJape
 
 # at present 21.08 is baked into this build -- here and in uk.org.jape.yaml. Hmm.
-flatpak: app README_INSTALL_FLATPAKJAPE.html; \
+flatpak: app flatpak/README_INSTALL_FLATPAKJAPE.html ; \
             flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; \
-            flatpak install flathub org.freedesktop.Platform//21.08 org.freedesktop.Sdk//21.08; \ 
+            flatpak install flathub org.freedesktop.Platform//21.08 org.freedesktop.Sdk//21.08; \
             mkdir tmp; rm -fr tmp/*; \
             cd tmp; mkdir LinuxJape; \
             cp -pR ../flatpak/installJape.sh ../Jape.app LinuxJape; \
@@ -30,5 +29,6 @@ flatpak: app README_INSTALL_FLATPAKJAPE.html; \
             flatpak build-bundle japerepo ../jape.flatpak uk.org.jape; \
             cd ..; rm -rf tmp; \
             mkdir -p FlatpakJape; rm -fr FlatpakJape/*; \
-            cp -pR README_INSTALL_FLATPAKJAPE.html prepare_flatpak.sh ../../examples jape.flatpak FlatpakJape; \
+            cp -pR flatpak/README_INSTALL_FLATPAKJAPE.html flatpak/prepare_flatpak.sh ../../examples jape.flatpak FlatpakJape; \
+            tar -zcf FlatpakJape_`../version.sh`.tgz FlatpakJape
 

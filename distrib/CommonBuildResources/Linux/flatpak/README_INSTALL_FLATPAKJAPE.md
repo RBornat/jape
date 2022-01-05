@@ -26,7 +26,7 @@ By unpacking `FlatpakJape`*version*`.tgz`, you have created a directory `Flatpak
 
 ## Run Jape
 
-        flatpak run uk.org.jape
+        flatpak run uk.org.jape&
         
 (When I installed FlatPak Jape it didn't run first time, but it did work after that. Good luck!)
 
