@@ -1,6 +1,6 @@
 # How to install Jape on Linux
 
-By unpacking LinuxJape.tgz, you have created a directory `LinuxJape` containing README_INSTALL.html (this file), `installJape.sh` and `.data`. To install Jape, you must run/launch/execute `installJape.sh`. 
+By unpacking `LinuxJape`*version*`.tgz`, you have created a directory `LinuxJape` containing README_INSTALL.html (this file), `installJape.sh` and `.data`. To install Jape, you must run/launch/execute `installJape.sh`. 
 
 `installJape.sh`, when it runs, will setup Jape and leave you with Jape's `examples` and a new control file `runJape.sh`. It will also start Jape.
 
@@ -37,6 +37,6 @@ and then to run Jape: `LinuxJape/runJape.sh&`
 please let me know.
 
 Richard Bornat  
-2021/07/28  
+2022/01/05  
 richard@bornat.me.uk  
    
