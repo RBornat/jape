@@ -1,0 +1,4 @@
+# note no shebang ...
+# this command a modified version of ../launchstub. If that changes, change this!
+cd /app/Jape.app
+./jre/bin/java -Duk.org.jape.AppPackage=/app -m uk.org.jape/uk.org.jape.Jape &

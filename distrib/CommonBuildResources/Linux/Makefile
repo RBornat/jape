@@ -23,7 +23,7 @@ flatpak: app flatpak/README_INSTALL_FLATPAKJAPE.html ; \
             flatpak install flathub org.freedesktop.Platform//21.08 org.freedesktop.Sdk//21.08; \
             mkdir tmp; rm -fr tmp/*; \
             cd tmp; mkdir LinuxJape; \
-            cp -pR ../flatpak/installJape.sh ../Jape.app LinuxJape; \
+            cp -pR ../flatpak/installJape.sh ../Jape.app LinuxJape; cp ../flatpak/launchstub LinuxJape/Jape.app; \
             cp ../flatpak/uk.org.jape.yaml .; \
             flatpak-builder --repo=japerepo build-dir uk.org.jape.yaml --force-clean; \
             flatpak build-bundle japerepo ../jape.flatpak uk.org.jape; \
