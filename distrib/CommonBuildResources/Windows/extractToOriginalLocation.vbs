@@ -1,5 +1,7 @@
 Option Explicit
 
+' adapted from https://stackoverflow.com/questions/13534699/iexpress-extraction-path
+
 Dim objShell, objWMI
 Dim objCmd, intMyPid, intMyParentPid, objMyParent, intmyGrandParentPid, objmyGrandParent, strGrandDir
 Dim strLocalAppData, strCopyCommand
@@ -17,10 +19,10 @@ Set objMyParent = objWMI.Get("Win32_Process.Handle='" & intMyParentPid & "'")
 intmyGrandParentPid = objWMI.Get("Win32_Process.Handle='" & intMyParentPid & "'").ParentProcessId
 Set objmyGrandParent = objWMI.Get("Win32_Process.Handle='" & intmyGrandParentPid & "'")
 
-WScript.Interactive = False
+WScript.Interactive = False ' whether Echo works or not
 Wscript.Echo "Parent is " & objMyParent.ExecutablePath & "; GrandParent is " & objmyGrandParent.ExecutablePath
 
-strGrandDir = """" & Left(objmyGrandParent.ExecutablePath, Len(objmyGrandParent.ExecutablePath)-Len("\JapeInstall.exe")) & """"
+strGrandDir = """" & Left(objmyGrandParent.ExecutablePath, InStrRev(objmyGrandParent.ExecutablePath, "JapeInstall", -1, vbTextCompare)-1) & """"
 WScript.Echo "GrandDir is " & strGrandDir
 
 strLocalAppData = """" & objShell.ExpandEnvironmentStrings("%LOCALAPPDATA%") & """"

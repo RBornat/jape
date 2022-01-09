@@ -16,5 +16,5 @@ echo oLink.WindowStyle = 7 >> CreateShortcut.vbs &REM minimised
 echo oLink.Save >> CreateShortcut.vbs
 wscript CreateShortcut.vbs
 dir
-wscript extractToOriginalLocation.vbs /x /e:VBScript
+wscript /e:VBScript extractToOriginalLocation.vbs /x
 rmdir "%LOCALAPPDATA%"\Jape\Jape.app\examples
