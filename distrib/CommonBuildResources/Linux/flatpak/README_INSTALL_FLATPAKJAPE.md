@@ -16,13 +16,13 @@ By unpacking `FlatpakJape`*version*`.tgz`, you have created a directory `Flatpak
 
 2. Connect to the flathub repo and install some interface files. The commands you need are packaged in `prepare_flatpak.sh`
 
-    `sudo prepare_flatpak.sh`
+        sudo prepare_flatpak.sh
    
    (Some distros don't require `sudo`, and `./prepare_flatpak.sh` will work. Let me know about your experience.)
         
 3. Install Jape
 
-    `flatpak --user install jape.flatpak`
+        flatpak --user install jape.flatpak
 
 4. Install the examples directory
 
@@ -30,7 +30,7 @@ By unpacking `FlatpakJape`*version*`.tgz`, you have created a directory `Flatpak
 
 ## Run Jape
 
-    `LC_ALL="en_US.UTF-8" flatpak run uk.org.jape`
+        LC_ALL="en_US.UTF-8" flatpak run uk.org.jape	
         
 (The `LC_ALL="en_US.UTF-8"` prefix may not be needed on all systems: without it you may get a complaint about `/bin/sh` and `setlocale`. When I installed FlatPak Jape it didn't run first time, but it did work after that. Let me know your experience)
 
@@ -38,7 +38,7 @@ By unpacking `FlatpakJape`*version*`.tgz`, you have created a directory `Flatpak
 
 (If you need to)
 
-    `flatpak --user uninstall uk.org.jape`
+        flatpak --user uninstall uk.org.jape
 
 ## Problems?
 
