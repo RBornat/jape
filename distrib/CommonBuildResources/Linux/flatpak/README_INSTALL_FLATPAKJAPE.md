@@ -46,7 +46,7 @@ Please notify problems, as usual, to [Jape's github issue page](https://github.c
 
 ## Acknowledgements
 
-I build Jape for Linux on Ubuntu. I hoped my installation file would work for other Linuxes, but it turns out that it doesn't. One enterprising user -- Timo Triebensky, <timo@binsky.org> -- figured out how to install Jape on NixOS using [Flatpak](https://flatpak.org/), a mechanism which promises to work on lots of different Linux distributions (at time of writing, they claim 33). My installation is based on Timo's work, and his patience in debugging my own attempts.
+I build Jape for Linux on Ubuntu. I hoped my installation file would work for other Linuxes, but it turns out that it doesn't. One enterprising user -- Timo Triebensky, see his github page [here](https://github.com/binsky08) -- figured out how to install Jape on NixOS using [Flatpak](https://flatpak.org/), a mechanism which promises to work on lots of different Linux distributions (at time of writing, they claim 33). My installation is based on Timo's work, and his patience in debugging my own attempts.
 
 Richard Bornat
 2022/01/09
