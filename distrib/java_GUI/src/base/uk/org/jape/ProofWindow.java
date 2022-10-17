@@ -488,20 +488,19 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	}
 	if (provisoPanePending) {
 	    provisoPanePending = false;
-	    Dimension paneSize = proofPane.getSize();
-	    subSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+	    Dimension proofPaneSize = proofPane.getSize();
+	    subSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, proofPane, provisoPane);
+            subSplitPane.setResizeWeight(1.0);
+            
 	    if (mainSplitPane==null) {
+	        Logger.log.println("pane size="+getContentPane().getSize());
 		getContentPane().remove(proofPane);
 		getContentPane().add(subSplitPane, BorderLayout.CENTER);
+	        Logger.log.println("new pane size="+getContentPane().getSize());
 	    }
 	    else {
-		mainSplitPane.setRightComponent(subSplitPane);
+		mainSplitPane.setBottomComponent(subSplitPane);
 	    }
-	    subSplitPane.setLeftComponent(proofPane);
-	    subSplitPane.setRightComponent(provisoPane);
-	    subSplitPane.setResizeWeight(1.0);
-	    subSplitPane.setPreferredSize(paneSize);
-	    subSplitPane.setSize(paneSize);
 	}
 
 	if (disproofPane!=null)
