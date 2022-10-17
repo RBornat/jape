@@ -22,9 +22,14 @@
 
 */
 
-/* Aristotle's deductive logic according to von Plato.
-   Encoded by RB, 07-10/2020
- */
+CLASS VARIABLE P S M X Y Z             /* TERM, really */
+CLASS FORMULA A B C
 
-USE "von Plato.j"
-USE "Syllogisms conjectures.j"
+PREFIX 100 every no some 
+INFIX  150 L is 
+PREFIX 200 non
+POSTFIX 300 *
+
+KEYBOARD IS every no some is non *
+
+SEQUENT IS BAG ⊢ FORMULA
