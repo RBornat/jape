@@ -1,5 +1,5 @@
 #
-#       Copyright (C) 2007-20 Richard Bornat and Bernard Sufrin
+#       Copyright (C) 2007-22 Richard Bornat and Bernard Sufrin
 #    
 #       richard@bornat.me.uk
 #
