@@ -861,6 +861,8 @@ let rec main a1 a2 =
              function
              | [] -> [], []
              | "-" :: args -> [], args
+             | "-os" :: osname :: args ->
+                 Miscellaneous.setosname osname; doargs args
              | "-tree" :: args ->
                  Interaction.setdisplaystyle "tree"; doargs args
              | "-box" :: args ->

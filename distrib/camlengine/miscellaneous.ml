@@ -128,3 +128,8 @@ let tryresolution = ref true
 
 let disproofdebug = ref false
 
+let osname = (ref None : string option ref)
+
+let setosname n = osname := Some n
+
+let onMacOS () = !osname = Some "MacOS"

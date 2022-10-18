@@ -75,3 +75,7 @@ exception Error_
 val error : string list -> 'a
 
 val utf8BOM : string
+
+val setosname : string -> unit
+
+val onMacOS : unit -> bool

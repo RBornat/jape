@@ -154,6 +154,12 @@ public class Jape implements DebugConstants {
 
         // all args (except for -engine <path>) sent to engine.
         
+        engineCmd.add("-os");
+        engineCmd.add(onMacOSX  ? "MacOS"   :
+                      onWindows ? "Windows" :
+                                  "Linux"
+                     );
+        
         for (int i=0; i<args.length; i++) {
            if (args[i].equals("-engine")) {
                i++;
