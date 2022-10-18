@@ -60,8 +60,46 @@ let pathStem path =
     | x :: xs     -> removestern xs
   in
     utf8_implode (List.rev (removestern (List.rev (utf8_explode path))))
- 
-let open_input_file  filename = open_in  (normalizePath filename)
+
+let list_of_Unixpath path =
+  let rec ds pres path =
+    match path with 
+    | ""  -> pres
+    | _   -> let dir = Filename.dirname path in
+             if dir = path then path :: pres 
+                           else ds (Filename.basename path :: pres) dir
+  in
+  ds [] path
+
+let warned = ref ""
+
+let open_input_file filename = (* Some channel; None for option *)
+  let default () = Some (open_in (normalizePath filename)) in
+  if Miscellaneous.onMacOS () then
+    (let ss = list_of_Unixpath filename in
+     (match ss with
+      | "/" :: "Users" :: name :: place :: path 
+           when List.mem place ["Desktop"; "Documents"; "Downloads"; "Library"] &&
+                List.mem "examples" path &&
+                !warned <> place
+           -> (let message = "It looks as if you have put your examples directory somewhere \
+                              in your " ^ place ^ " folder. This doesn't work: because Jape is \
+                              not notarised by Apple, it won't be able to read the examples files.\n \
+                              \n\
+                              The only thing to do is to move the examples folder somewhere outside \
+                              the protected folders Desktop, Documents, Downloads and Library.\n \
+                              \n\
+                              Please press Cancel, move the folder, and try the Open again. \
+                              If you press Proceed it really really really won't work."
+               in
+               match Alert.askCancel Alert.Warning message [("Proceed",0)] (-1) 1 with
+               | 0 -> warned := place; default ()
+               | _ -> None
+              )
+      | _  -> default ()
+     )
+    )
+  else default ()
 
 let open_output_file filename = open_out (normalizePath filename)
 
