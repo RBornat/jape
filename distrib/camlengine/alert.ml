@@ -139,8 +139,8 @@ let rec askDangerously m (dol, doa) (dontl, donta) cancela =
     Some 0  -> doa
   | Some 1  -> donta
   | None    -> cancela
-	| Some -1 -> cancela (* it can happen if alerts are closed *)
-  | Some i ->
+  | Some -1 -> cancela (* it can happen if alerts are closed *)
+  | Some i  ->
       raise (Catastrophe_ ["askDangerously_unpatched => "; string_of_int i])
 
 (* we allow the user to patch an alert *)
