@@ -39,6 +39,8 @@ let setReason              = Reason.setReason
 let string_of_term             = Termstring.string_of_term
 let string_of_termOrCollection = Termstring.string_of_termOrCollection
 
+let _The = Optionfuns._The
+
 (* probably this ought to use UTF.words *)
 (* bloody OCaml constant lextax.
    0x22 '\"'
@@ -88,7 +90,7 @@ let rec readmapping filename =
   let path = Usefile.normalizePath (oracledir^"/"^filename) in
   let _ = consolereport ["[OPENING "; path; "]\n"] in
   try
-    let in_mapping = Usefile.open_input_file ((oracledir ^ "/") ^ filename) in
+    let in_mapping = _The (Usefile.open_input_file ((oracledir ^ "/") ^ filename)) in
     let mapping = Hashtbl.create 31 in
     let table =
       Array.init 256 
@@ -187,7 +189,7 @@ let rec createoracle oraclename (store, table, mapped) =
         inpipe :: outpipe :: _ ->
           begin try
             let ooo = Usefile.open_output_file outpipe in
-            let iii = Usefile.open_input_file inpipe in
+            let iii = _The (Usefile.open_input_file inpipe) in
             (Some
                {translatehyps = transhyps; 
                 translateconcs = transconcs;

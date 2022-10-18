@@ -1243,7 +1243,9 @@ and parseStructure s =
 and paragraphs_of_file report query env s =
   let s = makerelative s in
   let ic = 
-    try Usefile.open_input_file s 
+    try match Usefile.open_input_file s with
+        | Some channel -> channel
+        | None         -> raise Use_
     with Sys_error e ->
            showInputError report
              ["Cannot read file: \""; Usefile.normalizePath s; "\""; " ("; e; ")"];
