@@ -35,14 +35,14 @@ let consolereport = Miscellaneous.consolereport
 *)
 
 let normalizePath filename = 
-if Sys.os_type="Win32" 
-then 
-   (* 0x2f = '/'
-      0x5c = '\\'
-    *)
-   let sloshify = function 0x2f->0x5c | c -> c in 
-   utf8_implode (List.map sloshify (utf8_explode filename))
-else filename
+  if Sys.os_type="Win32" 
+  then 
+     (* 0x2f = '/'
+        0x5c = '\\'
+      *)
+     let sloshify = function 0x2f->0x5c | c -> c in 
+     utf8_implode (List.map sloshify (utf8_explode filename))
+  else filename
 
 let pathStem path =
   (* Remove the stern of a path 
