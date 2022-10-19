@@ -34,9 +34,9 @@ val utf8_next  : char Stream.t -> ucode
 val utf16_next : bool (* bigendian *) -> char Stream.t -> ucode
 val utf32_next : bool (* bigendian *) -> char Stream.t -> ucode
 
-val of_utfchannel  : in_channel -> ucode Stream.t                (* respects BOMs; utf8 default *)
-val stream_of_utfNinchannel : int -> bool -> in_channel -> ucode Stream.t (* skips BOM *)
-val open_out_utf8  : string -> out_channel                       (* writes utf8 BOM *)
+val of_utfchannel  : in_channel -> ucode Stream.t                           (* respects BOMs; utf8 default *)
+val stream_of_utfNinchannel : int -> bool -> in_channel -> ucode Stream.t   (* skips BOM *)
+val open_out_utf8  : string -> out_channel                                  (* writes utf8 BOM *)
 
 val utf_stdin : ucode Stream.t
 
