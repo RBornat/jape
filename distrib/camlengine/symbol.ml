@@ -43,7 +43,6 @@ open Miscellaneous
 open Optionfuns
 open Stringfuns
 open Sml
-open UTF
 
 type idclass       = Idclass.idclass
  and associativity = Symboltype.associativity
@@ -60,7 +59,6 @@ type idclass       = Idclass.idclass
 (* and then I thought "how big's a string?" and I realised it ought to be dealing with
    unicode code points -- i.e. 21-bit integers. So now it does.
  *)
-open Stream
 
 let symboldebug = ref false
 let appfix_default = 10000
@@ -99,19 +97,19 @@ let (syntaxes : (string * synfixrec * syntabrec) list ref) = ref []
 
 (* previously, charpred applied to a string got the first character out of the string and
    tested it. Not any longer ... so we have to be careful about all the charpred functions 
-   -- isdigit, islcletter, isletter, isucletter, isIDhead, isIDtail, isreserved, reservedpunct
+   -- UTF.isdigit, islcletter, isletter, isucletter, isIDhead, isIDtail, isreserved, reservedpunct
    -- and the things that are derived from them (sigh) like ispunct
  *)
  
 let (isIDhead, updateIDhead) = 
-  charpred "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'"
+  UTF.charpred "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'"
 let (isIDtail, updateIDtail) = 
-  charpred "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'0123456789"
+  UTF.charpred "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'0123456789"
 
 let decIDheads : int list ref = ref []
 let decIDtails : int list ref = ref []
 
-let (isreserved, _) = charpred "\"_() \n\t" (* the chars we give special meaning to *)
+let (isreserved, _) = UTF.charpred "\"_() \n\t" (* the chars we give special meaning to *)
 (* we can't use a list of the chars we allow as PUNCT because that kills 8-bit fonts *)
 (* recently deleted from isreserved: "$,[]" *)
 
@@ -120,10 +118,10 @@ let metachar_as_string = "_"
 
 (* this could be quicker, could it not? *)
 let rec ispunct c =
-  not (c = -1 || c = metachar || isdigit c || isIDhead c || isreserved c)
+  not (c = -1 || c = metachar || UTF.isdigit c || isIDhead c || isreserved c)
 
 (* Why are square brackets reservedpunct? *)
-let (reservedpunct, _) = charpred "(),[]"
+let (reservedpunct, _) = UTF.charpred "(),[]"
 
 (* for fast-ish lookup of declared operators and identifiers, and for some error reporting *)
 let rec mkalt cts def =
@@ -145,9 +143,9 @@ let rec get_oplist () =
     Some ss -> ss
   | None ->
       let ops =
-        List.map (utf8_implode <.> (fun(r,_,_)->r)) (summarisetree !optree)
+        List.map (UTF.utf8_implode <.> (fun(r,_,_)->r)) (summarisetree !optree)
       in
-      let us = sortunique (<) (ops @ List.map utf8_of_ucode !decIDheads @ List.map utf8_of_ucode !decIDtails) in
+      let us = sortunique (<) (ops @ List.map UTF.utf8_of_ucode !decIDheads @ List.map UTF.utf8_of_ucode !decIDtails) in
       (* only the things you don't find on a normal keyboard *)
       List.filter (fun s -> String.length s > 1) us
 
@@ -161,7 +159,7 @@ let rec lookinIdtree rt cs =
   match searchfsm (rootfsm rt) cs with
     Found (res, _) ->
       if !symboldebug then
-        consolereport [utf8_implode cs; " class "; string_of_idclass res];
+        consolereport [UTF.utf8_implode cs; " class "; string_of_idclass res];
       res
   | NotFound _ ->
       if !symboldebug then
@@ -170,24 +168,24 @@ let rec lookinIdtree rt cs =
             (fun (cs', r, b) ->
                if b && isprefix (fun (x, y) -> x = y) cs' cs then
                  consolereport
-                   ["missed prefix "; utf8_implode cs'; " "; string_of_idclass r])
+                   ["missed prefix "; UTF.utf8_implode cs'; " "; string_of_idclass r])
             (summarisetree !rt);
-          consolereport [utf8_implode cs; " class "; string_of_idclass NoClass]
+          consolereport [UTF.utf8_implode cs; " class "; string_of_idclass NoClass]
         end;
       NoClass
 
 let rec decIDhead c =
   isIDhead c ||
-  not (isdigit c || isreserved c) &&
+  not (UTF.isdigit c || isreserved c) &&
   (if !symboldebug then
-     consolereport ["decIDhead "; enCharQuote (utf8_of_ucode c)];
+     consolereport ["decIDhead "; enCharQuote (UTF.utf8_of_ucode c)];
    updateIDhead (c, true); decIDheads := c :: !decIDheads; true)
 
 let rec decIDtail c =
   isIDtail c ||
   not (isreserved c) &&
   (if !symboldebug then
-     consolereport ["decIDtail "; enCharQuote (utf8_of_ucode c)];
+     consolereport ["decIDtail "; enCharQuote (UTF.utf8_of_ucode c)];
    updateIDtail (c, true); decIDtails := c :: !decIDtails; true)
 
 (* when we explode a string, we must make it a sequence of utf8 items *)
@@ -199,7 +197,7 @@ let insertinIdtree what isprefix class__ tree s =
          ["attempt to "; what; " "; string_of_idclass class__; " \""; s;
           "\""])
   in
-  match utf8_explode s with
+  match UTF.utf8_explode s with
     [] -> bang ()
   | c :: cs ->
       if decIDhead c then () else bang ();
@@ -283,7 +281,7 @@ let rec symclass s =
   | Some (INFIX _)              -> OperatorClass
   | Some (INFIXC _)             -> OperatorClass
   | Some _                      -> raise (Symclass_ s)
-  | None                        -> lookinIdtree idprefixtree (utf8_explode s)
+  | None                        -> lookinIdtree idprefixtree (UTF.utf8_explode s)
 
 let rec reverselookup symbol =
   match symbol with
@@ -313,9 +311,9 @@ let rec register_op s sym =
     raise (Catastrophe_ ["("; s; ") attempt to register_op \""; s; "\""])
   in
   if s = "" then bang "is_EOF";
-  let cs = utf8_explode s in
+  let cs = UTF.utf8_explode s in
   if List.exists (not <.> ispunct) cs then 
-    bang ("notallpunct "^bracketed_string_of_list (enQuote<.>utf8_of_ucode) ";" cs);
+    bang ("notallpunct "^bracketed_string_of_list (enQuote<.>UTF.utf8_of_ucode) ";" cs);
   if !symboldebug then
     consolereport
       ["register_op "; enQuote s; " "; debugstring_of_symbol sym];
@@ -324,9 +322,9 @@ let rec register_op s sym =
 let rec deregister_op s sym =
   if !symboldebug then
     consolereport ["deregister_op "; enQuote s; " "; debugstring_of_symbol sym];
-  optree := deletefromtree (fun (x, y) -> x = y) !optree (utf8_explode s, sym, false)
+  optree := deletefromtree (fun (x, y) -> x = y) !optree (UTF.utf8_explode s, sym, false)
 
-let isop s = ispunct (utf8_sub s 0)
+let isop s = ispunct (UTF.utf8_sub s 0)
 
 let hidden symbol =
   match symbol with
@@ -339,7 +337,7 @@ let delete symbol =
   let doit () = 
     let oldstring = reverselookup symbol in
     if isop oldstring && 
-       (match searchfsm (rootfsm optree) (utf8_explode oldstring) with Found _ -> true | NotFound _ -> false)
+       (match searchfsm (rootfsm optree) (UTF.utf8_explode oldstring) with Found _ -> true | NotFound _ -> false)
     then 
       (try deregister_op oldstring symbol 
        with DeleteFromTree_ -> 
@@ -350,7 +348,7 @@ let delete symbol =
          consolereport 
            ["DeleteFromTree_\n\t"; 
               string_of_pair (bracketed_string_of_list string_of_csrb "; ") string_of_csrb "\n\t" 
-                 (summarisetree !optree, (utf8_explode oldstring, symbol, false))]
+                 (summarisetree !optree, (UTF.utf8_explode oldstring, symbol, false))]
       );
     if hidden symbol then 
       Hashtbl.remove !reversemapping symbol;
@@ -559,8 +557,8 @@ let rec declareIdPrefix class__ s =
   end;
   insertinIdtree "declareIdPrefix" true class__ idprefixtree s;
   (* no warnings about clashes any more
-     case fsmpos (rootfsm idfixedtree) (utf8_explode s) of
-       Some t => List.map ((fn t => s^utf8_implode t) o #1) (summarisetree t)
+     case fsmpos (rootfsm idfixedtree) (UTF.utf8_explode s) of
+       Some t => List.map ((fn t => s^UTF.utf8_implode t) o #1) (summarisetree t)
      | None   => []
   *)
   []
@@ -570,7 +568,7 @@ let rec autoID class__ prefix =
     Some s -> s
   | None ->
       (* we just add underscores to prefix till it isn't in the IdPrefix tree *)
-      match fsmpos (rootfsm idprefixtree) (utf8_explode prefix) with
+      match fsmpos (rootfsm idprefixtree) (UTF.utf8_explode prefix) with
         None   -> (let _ = declareIdPrefix class__ prefix in prefix)
       | Some _ -> autoID class__ (prefix ^ "_")
 
@@ -581,10 +579,10 @@ let rec declareIdClass class__ s =
   None
 
 let rec isnumber s =
-  not (List.exists (not <.> isdigit) (utf8_explode s))
+  not (List.exists (not <.> UTF.isdigit) (UTF.utf8_explode s))
 
 let rec isextensibleID s =
-  lookup s = None && lookinIdtree idprefixtree (utf8_explode s) <> NoClass
+  lookup s = None && lookinIdtree idprefixtree (UTF.utf8_explode s) <> NoClass
 
 (* probably this can all be simply camlised *)
 let rec escapechar c =
@@ -603,7 +601,7 @@ let rec escapechar c =
 (* but then translation to ocaml delocalised them, and I didn't yet realise how to 
    undo that. RB 15/vii/2002
  *)
-let lexin = ref utf_stdin
+let lexin = ref UTF.utf_stdin
 let lexinfile = ref ""
 let linenum = ref 0
 let symb = ref EOF
@@ -622,35 +620,35 @@ let rec showInputError f msg =
    But I refuse to do the same with \n\r (sigh).
  *)
  
-let char () = match peek !lexin with 
+let char () = match Stream.peek !lexin with 
                 Some ret when ret = Char.code '\r' ->
-                  (match npeek 2 !lexin with
+                  (match Stream.npeek 2 !lexin with
                      [ret; nl] when ret = Char.code '\r' && nl = Char.code '\n' ->
-                        (junk !lexin; Char.code '\n')
+                        (Stream.junk !lexin; Char.code '\n')
                    | _ -> Char.code '\n')
               (* | Some nl when nl = Char.code '\n' ->
-                  (match npeek 2 !lexin with
+                  (match Stream.npeek 2 !lexin with
                      [nl; ret] when ret = Char.code '\r' && nl = Char.code '\n' ->
-                        (junk !lexin; Char.code '\n')
+                        (Stream.junk !lexin; Char.code '\n')
                    | _ -> Char.code '\n') *)
               | Some 0x85   -> Char.code '\n'
               | Some 0x2028 -> Char.code '\n'
               | Some 0x2029 -> Char.code '\n'
               | Some i      -> i
-              | None        -> uEOF
+              | None        -> UTF.uEOF
 
-let next () = junk !lexin
+let next () = Stream.junk !lexin
 
 let rec scanwhile pp rcs con =
     let c = char () in
-    if c <> uEOF && pp c then (next (); scanwhile pp (c :: rcs) con)
-    else con (utf8_implode (List.rev rcs))
+    if c <> UTF.uEOF && pp c then (next (); scanwhile pp (c :: rcs) con)
+    else con (UTF.utf8_implode (List.rev rcs))
 
 let rec scanwatch f =
   if !symboldebug then
     fun v ->
       let c = f v in 
-      if !symboldebug then consolereport ["scanfsm '"; (utf8_of_ucode c); "'"]; 
+      if !symboldebug then consolereport ["scanfsm '"; (UTF.utf8_of_ucode c); "'"]; 
       c
   else f
 
@@ -659,12 +657,12 @@ let rec scannext () = next (); char ()
 let rec scanop fsm rcs =
   if !symboldebug then 
     consolereport 
-      ["scanop "; bracketed_string_of_list (fun c -> enCharQuote (utf8_of_ucode c)) ";" rcs];
+      ["scanop "; bracketed_string_of_list (fun c -> enCharQuote (UTF.utf8_of_ucode c)) ";" rcs];
   match scanfsm (scanwatch scannext) fsm rcs (scanwatch char ()) with
     Found (sy, _) -> sy
   | NotFound rcs' ->
-      if rcs' = [] then let c = char () in next (); checkbadID (utf8_of_ucode c)
-      else checkbadID (utf8_implode (List.rev rcs')) (* at this point we need backtracking ... *)
+      if rcs' = [] then let c = char () in next (); checkbadID (UTF.utf8_of_ucode c)
+      else checkbadID (UTF.utf8_implode (List.rev rcs')) (* at this point we need backtracking ... *)
                   
 let rec scanid conf =
   let rec q rcs classopt =
@@ -673,7 +671,7 @@ let rec scanid conf =
       (conf classopt)
   in
   if !symboldebug then 
-    consolereport ["scanid "; enQuote (utf8_of_ucode (char()))];
+    consolereport ["scanid "; enQuote (UTF.utf8_of_ucode (char()))];
   match
     scanfsm (scanwatch scannext) (rootfsm idprefixtree) [] (scanwatch char ())
   with
@@ -692,7 +690,7 @@ let rec checkidclass con takeit class__ s =
 
 let rec scan () =
   match char () with
-    eof   when eof  =uEOF            -> scanreport EOF
+    eof   when eof  =UTF.uEOF            -> scanreport EOF
   | space when space=Char.code ' '   -> next (); scan ()
   | tab   when tab  =Char.code '\t'  -> next (); scan ()
   | nl    when nl   =Char.code '\n' -> incr linenum; next (); scan ()
@@ -712,7 +710,7 @@ let rec scan () =
           scanreport
             (match fsmpos (rootfsm optree) [slash] with
                Some t -> scanop t [slash]
-             | None -> checkbadID (utf8_of_ucode slash))
+             | None -> checkbadID (UTF.utf8_of_ucode slash))
       end
   | dquote when dquote=Char.code '"' -> next (); scanreport (scanString !linenum [])
   | c ->
@@ -722,20 +720,20 @@ let rec scan () =
              if isextensibleID s then 
                checkidclass (fun sc->UNKNOWN sc) false class__ s
              else 
-               raise (ParseError_ ["non-CLASS unknown "; utf8_of_ucode metachar; s])
+               raise (ParseError_ ["non-CLASS unknown "; UTF.utf8_of_ucode metachar; s])
            in *)
         ( next (); 
           if isIDhead (char ()) then
             scanreport (scanid (checkidclass (fun sc->UNKNOWN sc) false))
-          else raise (ParseError_ ["ID expected following "; utf8_of_ucode metachar]))
+          else raise (ParseError_ ["ID expected following "; UTF.utf8_of_ucode metachar]))
       else if isIDhead c then scanreport (scanid (checkidclass (fun sc->ID sc) true))
-      else if isdigit c then scanreport (scanwhile isdigit [] (fun s->NUM s))
+      else if UTF.isdigit c then scanreport (scanwhile UTF.isdigit [] (fun s->NUM s))
       else if ispunct c then scanreport (scanop (rootfsm optree) [])
-      else raise (Catastrophe_ ["scan can't see class of "; utf8_of_ucode c])
+      else raise (Catastrophe_ ["scan can't see class of "; UTF.utf8_of_ucode c])
 
 and scanComment (n, k) =
   match char () with
-    eof when eof=uEOF ->
+    eof when eof=UTF.uEOF ->
       raise
         (ParseError_
            ["End of file inside level "; string_of_int n;
@@ -769,12 +767,12 @@ and scanComment (n, k) =
 
 and scanString k rcs =
   match (let r = char () in next (); r) with
-    eof when eof=uEOF  ->
+    eof when eof=UTF.uEOF  ->
       raise
         (ParseError_
            ["end of file inside string starting on line "; string_of_int k])
   | nl when nl=Char.code '\n' -> raise (ParseError_ ["end of line inside string"])
-  | dquote when dquote=Char.code '"' -> STRING (utf8_implode (List.rev rcs))
+  | dquote when dquote=Char.code '"' -> STRING (UTF.utf8_implode (List.rev rcs))
   | backslash when backslash=Char.code '\\' ->
       if char () = Char.code '\n' then
         begin
@@ -824,14 +822,14 @@ let rec canstartnovelsymb sy =
   | STRING _  -> false
   | EOF       -> false
   | SHYID _   -> false
-  | _         -> not (isreserved (utf8_sub (reverselookup sy) 0))
+  | _         -> not (isreserved (UTF.utf8_sub (reverselookup sy) 0))
 
 let rec currnovelsymb () =
   if !symboldebug then
     consolereport ["currnovelsymb "; debugstring_of_symbol !symb];
   if canstartnovelsymb !symb then
     let symstr = reverselookup !symb in
-    let cs = utf8_explode symstr in
+    let cs = UTF.utf8_explode symstr in
     (* used to be ...
     if startspunct symstr then
        case !peekedsymb of
@@ -879,13 +877,13 @@ let ignore s =
   if currsymb () = s then scansymb () else ()
 
 let tryparse _R s =
-  let s = pushlex "" (stream_of_utf8string s) in
+  let s = pushlex "" (UTF.stream_of_utf8string s) in
   let r = 
     (try (let r = _R EOF in check EOF; r) with exn -> poplex s; raise exn)
   in poplex s; r
 
 let tryparse_dbug _R p s =
-  let lex_s = pushlex "" (stream_of_utf8string s) in
+  let lex_s = pushlex "" (UTF.stream_of_utf8string s) in
   let r =
     (try
        let _ = consolereport ["tryparse_dbug \""; s; "\""] in
@@ -916,10 +914,10 @@ let rec mustseparate =
     "", _  -> false
   | _ , "" -> false
   | a1, a2 ->
-      let c1 = utf8_presub a1 (String.length a1) in
-      let c2 = utf8_sub a2 0 in
+      let c1 = UTF.utf8_presub a1 (String.length a1) in
+      let c2 = UTF.utf8_sub a2 0 in
       let rec msp c =
-        bool_of_opt (fsmpos (rootfsm optree) (utf8_explode a1) &~~ (fun t -> fsmpos t [c]))
+        bool_of_opt (fsmpos (rootfsm optree) (UTF.utf8_explode a1) &~~ (fun t -> fsmpos t [c]))
       in
       let ms =
         function
@@ -971,12 +969,12 @@ let popSyntax () =
           (SUBSTBRA | SUBSTSEP | SUBSTKET) -> ()
         | _ -> 
             let newsym = 
-              try let s = pushlex "" (stream_of_utf8string str) in
+              try let s = pushlex "" (UTF.stream_of_utf8string str) in
                   let r = !symb in
                   next(); 
                   let c = char () in
                   poplex s;
-                  if c<>uEOF then raise (ParseError_ []);
+                  if c<>UTF.uEOF then raise (ParseError_ []);
                   r
               with ParseError_ _ ->
                      raise (ParseError_ ["After PUSHSYNTAX "; enQuote name; " the string "; enQuote str;
