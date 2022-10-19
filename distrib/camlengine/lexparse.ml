@@ -27,7 +27,7 @@
  *     brackets
  *     atoms
  *     strings (atoms with internal spaces, delimited by " ")
- *     comments (sml-style)
+ *     comments (ml-style, like this one)
  * and nothing else. They don't have to be S-exprs, but that's an example of such a language. 
  *
  * It uses character streams, so it can handle strings and stuff. 
