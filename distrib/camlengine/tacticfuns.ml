@@ -148,7 +148,11 @@ let tickmenuitem = Japeserver.tickmenuitem
 let uncurry2 = Miscellaneous.uncurry2
 let unknownprefix = Symbol.metachar_as_string
 let verifycxtprovisos = Provisofuns.verifycxtprovisos
-let _Oracle = Oracle._Oracle
+
+(* The DECIDE and DECIDEBAG stuff has been commented out until I remember what on 
+   earth it was all about. RB 2022/10/19
+ *)
+(* let _Oracle = Oracle._Oracle *)
 
 (*  --------------------------------------------------------------------- *)
 
@@ -1497,13 +1501,14 @@ let _ARITHMETIC _C cxt opn invopn (e1 : term) (e2 : term) (e3 : term) (neg : ter
 
 (**********************************************************************)
 
-let rec _DECIDE (turnstile : string) (cxt : Cxttype.cxt) =
+(* let rec _DECIDE (turnstile : string) (cxt : Cxttype.cxt) =
   fun (_HS : term) ->
     fun (_CS : term) (oracle : string) (args : string list) ->
       match _Oracle turnstile cxt _HS _CS oracle args with
       | Some cxt' -> Some ("ORACLE " ^ oracle, cxt')
       | None -> None
-      
+ *) 
+ 
 (**********************************************************************)
 
 exception MatchinEvaluate exception MatchinTtoV
@@ -1553,10 +1558,11 @@ let rec _Evaluate cxt seq =
            _ARITHMETIC _C cxt (fun (x, y) -> x + y) (fun (x, y) -> x - y) e1 e2 e3 e4
        | "MUL", [e1; e2; e3; e4] ->
            _ARITHMETIC _C cxt (fun (x, y) -> x * y) (fun (x, y) -> x / y) e1 e2 e3 e4
-       | "DECIDE", conclusion :: oracle :: args ->
-           _DECIDE
-              turnstile cxt _HS conclusion (string_of_term oracle)
-              (string_of_term <* args)
+       (* | "DECIDE", conclusion :: oracle :: args ->
+              _DECIDE
+                 turnstile cxt _HS conclusion (string_of_term oracle)
+                 (string_of_term <* args)
+        *)
        | _ ->
            setReason
              ["_Evaluate couldn't recognise judgement "; string_of_term _C];
@@ -1566,10 +1572,11 @@ let rec _Evaluate cxt seq =
       (turnstile, _HS,
        (Collection (_, idclass, Element (_, _, _C) :: _CS) as _CONCS)) ->
       (match explodeEval _C with
-       | "DECIDEBAG", oracle :: args ->
-           _DECIDE
-              turnstile cxt _HS (registerCollection (idclass, _CS))
-              (string_of_term oracle) (string_of_term <* args)
+       (* | "DECIDEBAG", oracle :: args ->
+              _DECIDE
+                 turnstile cxt _HS (registerCollection (idclass, _CS))
+                 (string_of_term oracle) (string_of_term <* args)
+        *)       
        | _ ->
            setReason
              ["_Evaluate couldn't recognise judgement "; string_of_term _CONCS];
