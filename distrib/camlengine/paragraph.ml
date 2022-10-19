@@ -1244,18 +1244,18 @@ and paragraphs_of_file report query env s =
   let s = makerelative s in
   let ic = 
     try match Usefile.open_input_file s with
-        | Some channel -> channel
-        | None         -> raise Use_
+        | Some stream -> stream
+        | None        -> raise Use_
     with Sys_error e ->
            showInputError report
              ["Cannot read file: \""; Usefile.normalizePath s; "\""; " ("; e; ")"];
            raise Use_
   in
-  let st = pushlex s (of_utfchannel ic) in
+  let st = pushlex s ic in
   let _ = startusing s in
   let rec cleanup () =
     poplex st; consolereport ["[CLOSING \""; Usefile.normalizePath s; "\"]"]; 
-    stopusing (); close_in ic
+    stopusing (); 
   in
   let error_cleanup () = 
     popAllSyntaxes(); cleanup()
