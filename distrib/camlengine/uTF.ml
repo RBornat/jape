@@ -40,27 +40,27 @@ exception MalformedUTF_ of string list
 
 let check_808f c =
   match c with
-    '\x80'..'\x8f' -> Char.code c land 0x3f
+  | '\x80'..'\x8f' -> Char.code c land 0x3f
   | _              -> raise (MalformedUTF_ [hexstring_of_char c])
 
 let check_809f c =
   match c with
-    '\x80'..'\x9f' -> Char.code c land 0x3f
+  | '\x80'..'\x9f' -> Char.code c land 0x3f
   | _              -> raise (MalformedUTF_ [hexstring_of_char c])
 
 let check_80bf c =
   match c with
-    '\x80'..'\xbf' -> Char.code c land 0x3f
+  | '\x80'..'\xbf' -> Char.code c land 0x3f
   | _              -> raise (MalformedUTF_ [hexstring_of_char c])
 
 let check_90bf c =
   match c with
-    '\x90'..'\xbf' -> Char.code c land 0x3f
+  | '\x90'..'\xbf' -> Char.code c land 0x3f
   | _              -> raise (MalformedUTF_ [hexstring_of_char c])
 
 let check_a0bf c =
   match c with
-    '\xa0'..'\xbf' -> Char.code c land 0x3f
+  | '\xa0'..'\xbf' -> Char.code c land 0x3f
   | _              -> raise (MalformedUTF_ [hexstring_of_char c])
   
 let utf8_next next =
@@ -124,14 +124,14 @@ let next16_le s =
 
 let utf16_next next16 s =
   try match next16 s with
-        m when 0x0000<=m && m<=0xd7ff -> 
+      | m when 0x0000<=m && m<=0xd7ff -> 
           m
       | m1 when 0xd800<=m1 && m1<=0xdbff ->
           (try
              match next16 s with 
                 m2 when 0xdc00<=m2 && m2<=0xdfff -> (
                   match (((m1 land 0x3ff) lsl 10) lor (m2 land 0x3ff)) + 0x10000 with
-                    m when (0x0000<=m && m<=0xd7ff) || (0xe000<=m && m<=0x10ffff) ->
+                  | m when (0x0000<=m && m<=0xd7ff) || (0xe000<=m && m<=0x10ffff) ->
                       m
                   | m ->
                       raise (MalformedUTF_ [hex4 m1; " "; hex4 m2; " => "; hex8 m; " -- no such code point"]))
@@ -159,7 +159,7 @@ let next32_le s =
 
 let utf32_next next32 s =
   try match next32 s with
-        m when (0x0000<=m && m<=0xd7ff) || (0xe000<=m && 0xe000<=0x10ffff) -> 
+      | m when (0x0000<=m && m<=0xd7ff) || (0xe000<=m && 0xe000<=0x10ffff) -> 
           m
       | m                                                                  -> 
           raise (MalformedUTF_ ["UTF32 "; hex8 m; " -- no such code point"])
@@ -188,31 +188,33 @@ let utf_stdin = of_utfstream utf8_next (Stream.of_channel stdin)
 
 let rec njunk n s =
   if n>0 then (Stream.junk s; njunk (n-1) s)
+
+(* look for BOM; without a BOM default is UTF8 *)
+let _BOMreader s =   
+  let reader, s = 
+  match Stream.npeek 4 s with 
+  | ['\x00'; '\x00'; '\xfe'; '\xff'] -> njunk 4 s; utf32_next true, s
+  | ['\xff'; '\xfe'; '\x00'; '\x00'] -> njunk 4 s; utf32_next false, s
+  | cs ->
+      match take 3 cs with 
+      | ['\xef'; '\xbb'; '\xbf'] -> njunk 3 s; utf8_next, s
+      | _ -> 
+          match take 2 cs with
+          | ['\xfe'; '\xff'] -> njunk 2 s; utf16_next true, s
+          | ['\xff'; '\xfe'] -> njunk 2 s; utf16_next false, s
+          | _                -> utf8_next, s
   
-let of_utfchannel ic =
-  let s = Stream.of_channel ic in
-  (* look for BOM; without a BOM default is UTF8 *)
-  let reader = 
-    match Stream.npeek 4 s with 
-      ['\x00'; '\x00'; '\xfe'; '\xff'] -> njunk 4 s; utf32_next true
-    | ['\xff'; '\xfe'; '\x00'; '\x00'] -> njunk 4 s; utf32_next false
-    | cs ->
-        match take 3 cs with 
-          ['\xef'; '\xbb'; '\xbf'] -> njunk 3 s; utf8_next
-        | _ -> 
-            match take 2 cs with
-              ['\xfe'; '\xff'] -> njunk 2 s; utf16_next true
-            | ['\xff'; '\xfe'] -> njunk 2 s; utf16_next false
-            | _                -> utf8_next
   in
   of_utfstream reader s
+  
+let of_utfchannel ic = _BOMreader (Stream.of_channel ic)
 
 let stream_of_utfNinchannel size bigendian ic =
   let s = Stream.of_channel ic in
     match size with
-      8 -> (
+    | 8 -> (
         (match Stream.npeek 3 s with
-           ['\xef'; '\xbb'; '\xbf'] -> njunk 3 s
+         | ['\xef'; '\xbb'; '\xbf'] -> njunk 3 s
          | _                        -> ());
         of_utfstream utf8_next s)
     | 16 -> (
@@ -231,6 +233,11 @@ let stream_of_utfNinchannel size bigendian ic =
 
 let stream_of_utf8string s = 
   of_utfstream utf8_next (Stream.of_string s)
+
+let stream_of_utf8bytes bs = 
+  of_utfstream utf8_next (Stream.of_bytes bs)
+
+let stream_of_bytes bs = _BOMreader (Stream.of_bytes bs)
   
 let open_out_utf8 s =
   let ic = open_out s in
@@ -327,10 +334,10 @@ let utf8RSQUOTE = utf8_of_ucode 0x2019
  *)
 let rec words =
   function
-    "" -> []
+  | "" -> []
   | s  -> let rec wds =
             function
-              [] -> [[]]
+            | [] -> [[]]
             | [0x20] -> [[]]
             | 0x20 :: 0x20 :: cs -> wds (0x20 :: cs)
             | 0x20 :: cs -> [] :: wds cs
@@ -338,7 +345,7 @@ let rec words =
             | c :: cs -> let ws = wds cs in (c :: List.hd ws) :: List.tl ws
           and qds =
             function
-              [] -> [[]]
+            | [] -> [[]]
             | [0x22] -> [[0x22]]
             | 0x22 :: 0x20 :: cs -> qds (0x22 :: cs)
             | 0x22 :: cs -> [0x22] :: wds cs

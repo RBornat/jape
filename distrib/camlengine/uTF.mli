@@ -41,6 +41,8 @@ val open_out_utf8  : string -> out_channel                                  (* w
 val utf_stdin : ucode Stream.t
 
 val stream_of_utf8string : string -> ucode Stream.t
+val stream_of_utf8bytes  : bytes -> ucode Stream.t
+val stream_of_bytes      : bytes -> ucode Stream.t                          (* respects BOMs; utf8 default *)
 
 val utf8width_from_header : char -> int
 val utf8width_from_ucode  : ucode -> int
