@@ -128,7 +128,7 @@ exception Matchinstopusing (* spurious *)
 
 let rec stopusing () =
   match !usestack with
-    [path] -> ()
+  | [path]        -> ()
   | path :: paths -> usestack := paths
-  | _ -> raise Matchinstopusing
+  | _             -> raise Matchinstopusing
 
