@@ -24,8 +24,10 @@ GUIDIR=../java_GUI
 ENGINEDIR=../camlengine
 JREBUNDLER=./JREBundler
 
+%.html: %.md; pandoc $< -o $@
+
 local:          ; $(MAKE) engine GUI bundler jre app
-release:        ; $(MAKE) clean engine GUI bundler jre app                          
+release:        ; $(MAKE) clean engine GUI bundler jre app README.html                          
 run:            ; open build/Jape.app
 JARrun:         ; open build/JarJape/Jape.app
 
