@@ -1,16 +1,16 @@
-# README for Jape 9.1.
+# README for Jape 9.1.*
 
-(The Jape version is shown in the Jape splash screen -- the window which comes up when you start Jape.)
+(The exact Jape version is shown in the Jape splash screen -- the window which comes up when you start Jape.)
 
 Go to [github](https://github.com/RBornat/jape/releases) and download the latest version: for Macos it's called jape_*N*.dmg, where *N* is the version number. 
 
-Double-click the .dmg file. Copy Jape and the examples folder wherever you like. (But **don't put the examples file on your Desktop**; Jape isn't notarized by Apple, and Apple doesn't like Jape reading stuff from the Desktop.)
+Double-click the .dmg file. Copy Jape wherever you like, and copy the examples folder wherever you like **_inside your own folders_ but _not_ in Desktop, or Documents, or Downloads, or Library**. Jape isn't notarised by Apple (I haven't paid the 100$ annual fee), and so Apple won't let it read stuff from those protected folders. The problem is not fixable: there's no point giving Jape Full Disk Access, for example, because it won't work.
 
 ## Running Jape
 
-The first time you run Jape, you will find that **double-clicking it doesn't work**. Instead, you must **Ctrl-click (or right-click) on Jape, choose Open from the menu which pops up**, and say you trust Jape. (Again, this is because Jape isn't notarized by Apple.)
+The first time you run Jape, you will find that **double-clicking it doesn't work**. Instead, you must **Ctrl-click (or right-click) on Jape, choose Open from the menu which pops up**, and say you trust Jape. (Again, this is because Jape isn't notarised by Apple.)
 
-After the first time you can double-click Jape to run it. 
+Once you've said you trust it, you _can_ double-click Jape to run it. 
 
 ## Choose a font
 
@@ -32,7 +32,7 @@ Oxford University Press let me put a [version online](https://homepages.phonecoo
 
 ## Complaints
 
-To richard@bornat.me.uk
+To [Jape's issues page on github](https://github.com/RBornat/jape/issues)
 
 Richard Bornat
 2021/08/26
