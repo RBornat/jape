@@ -27,7 +27,8 @@ val makerelative : string -> string
 val startusing : string -> unit
 val stopusing : unit -> unit
 
-val open_input_file : string -> in_channel option
+val open_input_file : string -> (UTF.ucode Stream.t) option
 val open_output_file : string -> out_channel
+
 val normalizePath : string -> string
 val pathStem: string -> string

@@ -72,34 +72,44 @@ let list_of_Unixpath path =
   ds [] path
 
 let warned = ref ""
-
-let open_input_file filename = (* Some channel; None for option *)
-  let default () = Some (open_in (normalizePath filename)) in
-  if Miscellaneous.onMacOS () then
-    (let ss = list_of_Unixpath filename in
-     (match ss with
-      | "/" :: "Users" :: name :: place :: path 
-           when List.mem place ["Desktop"; "Documents"; "Downloads"; "Library"] &&
-                List.mem "examples" path &&
-                !warned <> place
-           -> (let message = "It looks as if you have put your examples directory somewhere \
-                              in your " ^ place ^ " folder. This doesn't work: because Jape is \
-                              not notarised by Apple, it won't be able to read the examples files.\n \
-                              \n\
-                              The only thing to do is to move the examples folder somewhere outside \
-                              the protected folders Desktop, Documents, Downloads and Library.\n \
-                              \n\
-                              Please press Cancel, move the folder, and try the Open again. \
-                              If you press Proceed it really really really won't work."
-               in
-               match Alert.askCancel Alert.Warning message [("Proceed",0)] (-1) 1 with
-               | 0 -> warned := place; default ()
-               | _ -> None
-              )
-      | _  -> default ()
-     )
-    )
-  else default ()
+ 
+(* I changed this function to check if it is running on MacOS, and if so whether it is trying 
+   to read from one of the protected directories Desktop, Documents, Downloads and Library.
+   
+   Then I discovered that MacOS will let me read from one file at a time. So now it reads 
+   the entire input file into a buffer, closes the file, and gives you a UTF.ucode stream 
+   of its contents. Works in an a.out that I compiled ... but definitely doesn't work in Jape.
+   
+   So I left the check in place, but it now delivers a (UTF.ucode stream) option, because
+   that seems to make more sense elsewhere.
+ *)
+let open_input_file filename = 
+  let default () = Some (UTF.of_utfchannel (open_in (normalizePath filename))) in
+     if Miscellaneous.onMacOS () then
+       (let ss = list_of_Unixpath filename in
+        (match ss with
+         | "/" :: "Users" :: name :: place :: path 
+              when List.mem place ["Desktop"; "Documents"; "Downloads"; "Library"] &&
+                   List.mem "examples" path &&
+                   !warned <> place
+              -> (let message = "It looks as if you have put your examples directory somewhere \
+                                 in your " ^ place ^ " folder. This doesn't work: because Jape is \
+                                 not notarised by Apple, it won't be able to read the examples files.\n \
+                                 \n\
+                                 The only thing to do is to move the examples folder somewhere outside \
+                                 the protected folders Desktop, Documents, Downloads and Library.\n \
+                                 \n\
+                                 Please press Cancel, move the folder, and Open the moved folder. \
+                                 If you press Proceed it really really really won't work."
+                  in
+                  match Alert.askCancel Alert.Warning message [("Proceed",0)] (-1) 1 with
+                  | 0 -> warned := place; default ()
+                  | _ -> None
+                 )
+         | _  -> default ()
+        )
+       )
+     else default ()  
 
 let open_output_file filename = open_out (normalizePath filename)
 
