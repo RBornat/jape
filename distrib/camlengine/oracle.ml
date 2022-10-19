@@ -23,6 +23,10 @@
 
 *)
 
+(* this stuff is currently unused. I think I must have written it, but I can't remember.
+   It needs to be adapted to the fact that open_input_file now gets a UTF.ucode Stream.t.
+ *)
+ 
 open Cxtfuns
 open Env
 open Mappingfuns
