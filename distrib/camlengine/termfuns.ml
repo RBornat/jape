@@ -51,14 +51,14 @@ let consolereport = Miscellaneous.consolereport
 
 let termkind t =
   match t with
-    Id _ -> 0
-  | Unknown _ -> 1
-  | App _ -> 2
-  | Tup _ -> 3
-  | Literal _ -> 4
-  | Fixapp _ -> 5
-  | Subst _ -> 6
-  | Binding _ -> 7
+  | Id _         -> 0
+  | Unknown _    -> 1
+  | App _        -> 2
+  | Tup _        -> 3
+  | Literal _    -> 4
+  | Fixapp _     -> 5
+  | Subst _      -> 6
+  | Binding _    -> 7
   | Collection _ -> 8
 
 let termkindmax = 8
@@ -67,10 +67,10 @@ let termkindmax = 8
 
 let elementnumbers =
   function
-    Collection (_, _, es) ->
+  | Collection (_, _, es) ->
       let f =
         function
-          Element (_, r, _) -> Some r
+        | Element (_, r, _) -> Some r
         | _ -> None
       in
       optionfilter f es
@@ -78,22 +78,22 @@ let elementnumbers =
 
 let elementnumbered a1 a2 =
   match a1, a2 with
-    Collection (_, _, es), r ->
+  | Collection (_, _, es), r ->
       findfirst
         (function
-           Element (_, r', t) -> if r = r' then Some t else None
+         | Element (_, r', t) -> if r = r' then Some t else None
          | _ -> None)
         es
   | _, _ -> None
 
 let isProperResnum =
   function
-    Resnum _ -> true
+  | Resnum _ -> true
   | _ -> false
 
 let collectionkind =
   function
-    Collection (_, c, _) -> Some c
+  | Collection (_, c, _) -> Some c
   | _ -> None
 (* ------------------------------ generic functions on terms and elements ------------------------------ *)
 
@@ -108,7 +108,7 @@ let rec option_mapterm f t =
       let mtff = option_mapterm f in
       let mtfl = option_rewritelist mtff in
       match t with
-        Id _          -> None
+      | Id _          -> None
       | Unknown _     -> None
       | App (_, f, a) ->
             (option_rewrite2 mtff mtff (f, a) &~~
@@ -133,7 +133,7 @@ let rec option_mapterm f t =
 
 and option_mapelement a1 a2 =
   match a1, a2 with
-    f, Segvar (_, ps, v) ->
+  | f, Segvar (_, ps, v) ->
       (option_mapterm f v &~~ (fun v' -> Some (registerSegvar (ps, v'))))
   | f, Element (_, r, t) ->
       (option_mapterm f t &~~ (fun t' -> Some (registerElement (r, t'))))
@@ -147,11 +147,11 @@ let mapelements f = anyway (option_mapelements f)
 
 let rec foldterm f z t =
   match f (t, z) with
-    Some v -> v
+  | Some v -> v
   | None ->
       let ff z ts = nj_fold (nj_foldterm f) ts z in
       match t with
-        App (_, f, a) -> ff z [f; a]
+      | App (_, f, a) -> ff z [f; a]
       | Tup (_, _, ts) -> ff z ts
       | Fixapp (_, _, ts) -> ff z ts
       | Subst (_, _, p_, vts) ->
@@ -166,7 +166,7 @@ and nj_foldterm f (t, z) = foldterm f z t
 and foldelements f z es =
   let fe z e =
     match e with
-      Element (_, _, t) -> foldterm f z t
+    | Element (_, _, t) -> foldterm f z t
     | Segvar (_, ms, v) -> nj_fold (nj_foldterm f) (v :: ms) z
   in
   (* not sure that's right ... *)
@@ -211,7 +211,7 @@ let findhole g t =
     let fhs sel build h xs =
       let rec fhx h =
         function
-          []      -> None
+        | []      -> None
         | x :: xs ->
              fh (h <.> (fun t -> build x t :: xs)) (sel x) |~~
              (fun _ -> fhx (h <.> (fun xs -> x :: xs)) xs)
@@ -221,9 +221,9 @@ let findhole g t =
     let selt t = t in
     let buildt _ t = t in
     match g h t with
-      None ->
+    | None ->
         begin match t with
-          App (_, f, a) ->
+        | App (_, f, a) ->
             fh (h <.> (fun f -> registerApp (f, a))) f |~~
             (fun _ -> fh (h <.> (fun a -> registerApp (f, a))) a)
         | Tup (_, s, ts) ->
@@ -246,13 +246,13 @@ let findhole g t =
         | Collection (_, k, es) ->
             let sele =
               function
-                Element (_, _, t) -> t
+              | Element (_, _, t) -> t
               | Segvar (_, ms, v) -> v
             in
             (* not really satisfactory *)
             let builde a1 a2 =
               match a1, a2 with
-                Element (_, r, _), t -> registerElement (r, t)
+              | Element (_, r, _), t -> registerElement (r, t)
               | Segvar (_, ps, _), v -> registerSegvar (ps, v)
             in
             fhs sele builde
@@ -266,7 +266,7 @@ let findhole g t =
 
 let searchterm g z t =
   match findterm g t with
-    Some v -> v
+  | Some v -> v
   | None -> z
 
 let existsterm g t =
@@ -281,7 +281,7 @@ let existsterm g t =
 let rec specialisesto (c1, c2) =
   c1 = c2 ||
   (match c1, c2 with
-     FormulaClass, VariableClass -> true
+   | FormulaClass, VariableClass -> true
    | FormulaClass, ConstantClass -> true
    | FormulaClass, NumberClass -> true
    | ConstantClass, NumberClass -> true
@@ -310,13 +310,13 @@ let rec canoccurfreein (c1, c2) =
   specialisesto (c2, c1) ||
   (* this is wrong, actually: all they need is a common ancestor *)
   (match c2 with
-     BagClass c -> canoccurfreein (c1, c)
+   | BagClass c -> canoccurfreein (c1, c)
    | ListClass c -> canoccurfreein (c1, c)
    | _ -> false)
 
 let rec idclass t =
   match debracket t with
-    Id (_, _, c) -> c
+  | Id (_, _, c) -> c
   | Unknown (_, _, c) -> c
   | App _ -> FormulaClass
   | Tup _ -> FormulaClass
@@ -325,7 +325,7 @@ let rec idclass t =
   | Fixapp _ -> FormulaClass
   | Subst (_, _, t, vts) ->
       begin match idclass t with
-        VariableClass ->
+      | VariableClass ->
           (* ohmygod *) 
           if all
                (fun t -> idclass t = VariableClass)
@@ -335,7 +335,7 @@ let rec idclass t =
           else SubstClass
       | c ->
           match debracket t with
-            Unknown _ ->
+          | Unknown _ ->
               if specialisesto (c, VariableClass) then SubstClass else c
           | _ -> c
       end
@@ -347,11 +347,11 @@ let isSubstClass t = idclass t = SubstClass
 
 let replaceelement a1 a2 a3 =
   match a1, a2, a3 with
-    Collection (_, c, es), (Element (_, r, _) as el), t ->
+  | Collection (_, c, es), (Element (_, r, _) as el), t ->
       let newel = registerElement (r, t) in
       let rec rep =
         function
-          (Element (_, r', _) as el) :: es ->
+        | (Element (_, r', _) as el) :: es ->
             if r = r' then newel :: es else el :: rep es
         | el :: es -> el :: rep es
         | [] ->
@@ -389,7 +389,7 @@ let uniqueVID class__ sortedVIDs extraVIDs vid =
     else vid
   and u_ vid n =
     function
-      []           -> e_ vid n
+    | []           -> e_ vid n
     | vid1 :: vids ->
         if vid < vid1 then e_ vid n
         else if vid = vid1 then
@@ -414,12 +414,12 @@ let mergeVIDs = sortedmerge (<)
 let earliervar t1 t2 =
   let ordinal =
     function
-      Id _ -> 0
+    | Id _ -> 0
     | Unknown _ -> 1
     | _ -> 2
   in
   match debracket t1, debracket t2 with
-    Id (_, v1, _), Id (_, v2, _) -> v1 < v2
+  | Id (_, v1, _), Id (_, v2, _) -> v1 < v2
   | Unknown (_, v1, _), Unknown (_, v2, _) -> v1 < v2
   | t1, t2 -> ordinal t1 < ordinal t2
 
@@ -435,7 +435,7 @@ let canonicalsubstmap vts =
 
 let isconstantID (_, _, c) =
   match c with
-    ConstantClass -> true
+  | ConstantClass -> true
   | NumberClass -> true
   | StringClass -> true
   | OperatorClass -> true
@@ -444,7 +444,7 @@ let isconstantID (_, _, c) =
 
 let isconstant t =
   match debracket t with
-    Id s -> isconstantID s
+  | Id s -> isconstantID s
   | Unknown s -> isconstantID s
   | _ -> false
 (* This is a replacement for uses of isconstant, isoperator and the like which
@@ -477,80 +477,80 @@ let isconstant t =
 
 let ismetav t =
   match debracket t with
-    Id (_, v, c) -> isextensibleID (string_of_vid v)
+  | Id (_, v, c) -> isextensibleID (string_of_vid v)
   | Unknown _    -> true
   | _            -> false
 
 let isextensibleId t =
   match debracket t with
-    Id (_, v, c) -> isextensibleID (string_of_vid v)
+  | Id (_, v, c) -> isextensibleID (string_of_vid v)
   | _            -> false
 
 let isId t =
   match debracket t with
-    Id _ -> true
+  | Id _ -> true
   | _ -> false
 
 let isUnknown t =
   match debracket t with
-    Unknown _ -> true
+  | Unknown _ -> true
   | _ -> false
 
 let isVariable t =
   match debracket t with
-    Id (_, _, VariableClass)      -> true
+  | Id (_, _, VariableClass)      -> true
   | Unknown (_, _, VariableClass) -> true
   | _                             -> false
 
 let isleaf t =
   match t with
-    Id _ -> true
+  | Id _ -> true
   | Unknown _ -> true
   | Literal _ -> true
   | _ -> false
 
 let isleafelement e =
   match e with
-    Segvar (_, [], v) -> isleaf v
+  | Segvar (_, [], v) -> isleaf v
   | Element (_, _, t) -> isleaf t
   | _ -> false
 
 let isidentifier t =
   match t with
-    Id _ -> true
+  | Id _ -> true
   | Unknown _ -> true
   | _ -> false
 
 let issegvar e =
   match e with
-    Segvar _ -> true
+  | Segvar _ -> true
   | _ -> false
 
 let isCollection =
   function
-    Collection _ -> true
+  | Collection _ -> true
   | _ -> false
 
 let isemptycollection =
   function
-    Collection (_, _, []) -> true
+  | Collection (_, _, []) -> true
   | _ -> false
 
 let isselectionSubst e =
   match e with
-    Element (_, _, Subst (_, false, _, _)) -> true
+  | Element (_, _, Subst (_, false, _, _)) -> true
   | _ -> false
 
 let emptycollection k = registerCollection (k, [])
 
 let term_of_element =
   function
-    Element (_, _, t) -> Some t
+  | Element (_, _, t) -> Some t
   | _ -> None
 
 let term_of_collection =
   function
-    Collection (_, _, [el]) -> term_of_element el
+  | Collection (_, _, [el]) -> term_of_element el
   | _ -> None
   
 (* This function would be simple equality, were it not for the debracketing.
@@ -562,12 +562,12 @@ let term_of_collection =
 let rec eqterms (t1, t2) =
   let rec fEQs =
     function
-      t1 :: t1s, t2 :: t2s -> eqterms (t1, t2) && fEQs (t1s, t2s)
+    | t1 :: t1s, t2 :: t2s -> eqterms (t1, t2) && fEQs (t1s, t2s)
     | []       , []        -> true
     | _                    -> false
   in
   match debracket t1, debracket t2 with
-    Id (_, s1, c1), Id (_, s2, c2) ->(* first the ones which alter the interpretation *)
+  | Id (_, s1, c1), Id (_, s2, c2) ->(* first the ones which alter the interpretation *)
      s1 = s2 && c1 = c2
   | Unknown (_, s1, c1), Unknown (_, s2, c2) -> s1 = s2 && c1 = c2
   | App (_, f1, a1), App (_, f2, a2) ->
@@ -581,7 +581,7 @@ let rec eqterms (t1, t2) =
       let vts2 = canonicalsubstmap vts2 in
       let rec fEQvts =
         function
-          (v1, t1) :: vts1, (v2, t2) :: vts2 ->
+        | (v1, t1) :: vts1, (v2, t2) :: vts2 ->
             (eqterms (v1, v2) && eqterms (t1, t2)) && fEQvts (vts1, vts2)
         | [], [] -> true
         | _ -> false
@@ -601,7 +601,7 @@ let rec eqterms (t1, t2) =
 
 and eqelements eq (e1, e2) =
   match e1, e2 with
-    Segvar (_, p1s, v1), Segvar (_, s_of_p, v2) ->
+  | Segvar (_, p1s, v1), Segvar (_, s_of_p, v2) ->
       eqlists eqterms (p1s, s_of_p) && eq (v1, v2)
   | Element (_, r1, t1), Element (_, r2, t2) -> eq (t1, t2)
   | _ ->(* ignore resource numbers *)
@@ -609,15 +609,15 @@ and eqelements eq (e1, e2) =
 
 let sameresource (e1, e2) =
   match e1, e2 with
-    Element (_, r1, _), Element (_, r2, _) -> r1 = r2
+  | Element (_, r1, _), Element (_, r2, _) -> r1 = r2
   | _ -> e1 = e2
 (* we don't analyse Segvars *)
   
 let earlierresource e1 e2 =
   match e1, e2 with
-    Element (_, r1, _), Element (_, r2, _) ->
+  | Element (_, r1, _), Element (_, r2, _) ->
       begin match r1, r2 with
-        Resnum     i1, Resnum     i2 -> i1 < i2
+      | Resnum     i1, Resnum     i2 -> i1 < i2
       | ResUnknown i1, ResUnknown i2 -> i1 < i2
       | Resnum      _, Nonum         -> true
       | Resnum      _, ResUnknown  _ -> true
@@ -645,25 +645,25 @@ let eqalphaterms (t1, t2) =
   (* infix at confuses OCaml *)
   let rec (<@>) tb v =
     match tb with
-      (v', n) :: tb -> if v = v' then Some n else (tb <@> v)
+    | (v', n) :: tb -> if v = v' then Some n else (tb <@> v)
     | [] -> None
   in
   let rec eq t1bs bs_of_t (t1, t2) =
     let fEQ = eq t1bs bs_of_t in
     let rec fEQs =
       function
-        t1 :: t1s, t2 :: s_of_t -> fEQ (t1, t2) && fEQs (t1s, s_of_t)
+      | t1 :: t1s, t2 :: s_of_t -> fEQ (t1, t2) && fEQs (t1s, s_of_t)
       | [], [] -> true
       | _ -> false
     in
     let doublev () =
       match (t1bs <@> t1), (bs_of_t <@> t2) with
-        Some n1, Some n2 -> n1 = n2
+      | Some n1, Some n2 -> n1 = n2
       | None, None -> t1 = t2
       | _ -> false
     in
     match debracket t1, debracket t2 with
-      Id _, _ ->(* first the ones which alter the interpretation *)
+    | Id _, _ ->(* first the ones which alter the interpretation *)
        doublev ()
     | _, Id _ -> doublev ()
     | Unknown _, _ -> doublev ()
@@ -678,7 +678,7 @@ let eqalphaterms (t1, t2) =
         let vts2 = canonicalsubstmap vts2 in
         let rec fEQvts =
           function
-            (v1, t1) :: vts1, (v2, t2) :: vts2 ->
+          | (v1, t1) :: vts1, (v2, t2) :: vts2 ->
               (fEQ (v1, v2) && fEQ (t1, t2)) && fEQvts (vts1, vts2)
           | [], [] -> true
           | _ -> false
@@ -693,7 +693,7 @@ let eqalphaterms (t1, t2) =
             (eq ((bs  ||| ns) @ t1bs) ((bs' ||| ns) @ bs_of_t))
             (ss ||| ss')
         with
-          Zip_ -> false
+        | Zip_ -> false
         end
     | Collection (_, BagClass k1, es1),
       Collection (_, BagClass k2, es2) ->
@@ -730,7 +730,7 @@ let termvars t =
   sortunique earliervar
     (foldterm
        (function
-          (Id _      as v), vs -> Some (v :: vs)
+        | (Id _      as v), vs -> Some (v :: vs)
         | (Unknown _ as v), vs -> Some (v :: vs)
         | _ -> None)
        [] t)
@@ -778,7 +778,7 @@ let varbindings t =
     let doit2 bs = doit binders (sort earliervar bs) in
     let r =
       match t with
-        Id _ -> v ()
+      | Id _ -> v ()
       | Unknown _ -> v ()
       | Subst (_, _, p_, vts) ->
           Some
@@ -794,7 +794,7 @@ let varbindings t =
     in
     if !varbindingsdebug then
       begin match r with
-        Some _ ->
+      | Some _ ->
           consolereport
             ["(varbindings) f "; string_of_termlist inners; " ";
              bracketed_string_of_list string_of_termlist "," outers; " ";
@@ -980,7 +980,7 @@ let orderVIDs = sortunique (<)
 (* should be vid_of_identifier *)
 let vid_of_var =
   function
-    Id (_, v, _) -> v
+  | Id (_, v, _) -> v
   | Unknown (_, v, _) -> v
   | t -> raise (Catastrophe_ ["vid_of_var "; string_of_termarg t])
 
@@ -989,7 +989,7 @@ let termVIDs t = orderVIDs ((vid_of_var <* termvars t))
 let conVIDs ts =
   nj_fold
     (function
-       Id (_, v, c), vs -> v :: vs
+     | Id (_, v, c), vs -> v :: vs
      | _, vs -> vs)
     ts []
 
@@ -1004,7 +1004,7 @@ let simterms (t1, t2) =
     let sim t1 t2 = similar t1subst t1 subst_of_t t2 in
     let sims t1s s_of_t =
       try all (uncurry2 sim) (t1s ||| s_of_t) with
-        Zip_ -> false
+      | Zip_ -> false
     in
     let reverse () = similar subst_of_t t2 t1subst t1 in
     let lsub () = t1subst && idclass t1 = VariableClass in
@@ -1020,7 +1020,7 @@ let simterms (t1, t2) =
     if t1 = t2 then true
     else
       match t1, t2 with
-        Id _, Id _ -> lsub () || rsub ()
+      | Id _, Id _ -> lsub () || rsub ()
       | Id _, Unknown _ -> lsub () || runi ()
       | Id _, Subst (_, _, p2, _) -> lsub () || similar t1subst t1 true p2
       | Id _, _ -> lsub ()
@@ -1063,11 +1063,11 @@ let simterms (t1, t2) =
 let explodeApp curry t =
   let rec unApp t rs =
     match t with
-      App (_, l, r) -> unApp (debracket l) (debracket r :: rs)
+    | App (_, l, r) -> unApp (debracket l) (debracket r :: rs)
     | _             -> t, rs
   in
   match curry, unApp (debracket t) [] with
-    true, (f, [Tup (_, ",", rs)]) -> f, (debracket <* rs)
+  | true, (f, [Tup (_, ",", rs)]) -> f, (debracket <* rs)
   | _   , res                     -> res
 
 let implodeApp curry (t, args) =
@@ -1077,7 +1077,7 @@ let implodeApp curry (t, args) =
 
 let explodebinapp t =
   match debracket t with
-    App (_, Id (_, v, OperatorClass), Tup (_, ",", [e; f])) ->
+  | App (_, Id (_, v, OperatorClass), Tup (_, ",", [e; f])) ->
       Some (e, string_of_vid v, f)
   | App (_, App (_, Id (_, v, OperatorClass), e), f) -> Some (e, string_of_vid v, f)
   | Tup (_, ",", _) -> None
@@ -1092,7 +1092,7 @@ let term_of_int (i : int) = registerLiteral (Number i)
 let rec int_of_term t =
   try
     match debracket t with
-      Literal (_, Number n)     -> n
+    | Literal (_, Number n)     -> n
     | App (_, Id (_, v, _), t') -> 
         (match string_of_vid v with "-" -> -int_of_term t'
          |                          _   -> raise (Catastrophe_ []))
@@ -1100,34 +1100,34 @@ let rec int_of_term t =
        (* can happen, and NoClass is important ... *)
        raise (Catastrophe_ ["int_of_term"])
   with
-    _ -> raise (Catastrophe_ ["int_of_term "; debugstring_of_term t])
+  | _ -> raise (Catastrophe_ ["int_of_term "; debugstring_of_term t])
 
 let enbracket t = registerFixapp (["("; ")"], [t])
 
 let comma_enbracket t = 
   match t with
-    Tup(_, ",", (_::_::_)) -> enbracket t 
+  | Tup(_, ",", (_::_::_)) -> enbracket t 
   | _                      -> t
 
 let explodeCollection =
   function
-    Collection (_, _, es) -> es
+  | Collection (_, _, es) -> es
   | t -> [registerElement (Nonum, t)]
 
 let augmentCollection a1 a2 =
   match a1, a2 with
-    Collection (_, kind, es), els ->
+  | Collection (_, kind, es), els ->
       Some (registerCollection (kind, es @ els))
   | _, _ -> None
 
 let decodeSubst =
   function
-    Subst (_, r, p_, vts) -> Some (r, p_, vts)
+  | Subst (_, r, p_, vts) -> Some (r, p_, vts)
   | _                     -> None
 
 let decodeBinding =
   function
-    Binding (_, info, _, _) -> Some info
+  | Binding (_, info, _, _) -> Some info
   | _                       -> None
 
 let decodeBracketed =
