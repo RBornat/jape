@@ -67,7 +67,7 @@ public class Logger {
     }
 
     private static Writer screenWriter = new ScreenWriter();
-    public static PrintWriter log = new PrintWriter(screenWriter);
+    public static PrintWriter log = new PrintWriter(screenWriter,true); /* auto flush logging messages */
 
     public static interface LineReader {
 	public String readLine();
