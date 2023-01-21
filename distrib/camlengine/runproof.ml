@@ -75,9 +75,12 @@ let ( <| ) = Listfuns.( <| )
 
 let proofsdone = ref false
 
+let runprooftracing = ref false
+let consolereport = Miscellaneous.consolereport
+
 let rec doBEGINPROOF env state =
   match applyLiteralTactic env "IF BEGINPROOF" state with
-    Some state' -> state'
+  | Some state' -> state'
   | None -> state
 
 let rec mkstate provisos givens tree =
@@ -108,6 +111,7 @@ let rec addproof report query name proved =
   fun (Proofstate {cxt = cxt; tree = tree; givens = givens})
     disproofopt ->
     realaddproof report query name proved tree givens cxt disproofopt
+
 (* at present a proof is recorded in the proof store as a proof tree, and in a 
  * file as a SEQ tactic wich will rebuild that tree.  This works for the time
  * being but is deficient, for a number of reasons:
@@ -121,7 +125,7 @@ let rec addproof report query name proved =
  *
  * RB April 1995
  *)
-(* this function gives back Some(name,state,disproof option) just when a proof is in 
+(* doProof gives back Some(name,state,disproof option) just when a proof is in 
    progress.  
    It stores the proof if the proofstage is Complete.
  *)
@@ -167,24 +171,28 @@ let doProof report query env name stage seq (params, givens, pros, tac) disproof
       (* apply the new theorem / rule to the version we already have, to see if it matches.
          Because we don't care _how_ it matches, use ANY
        *)
+      if !runprooftracing then 
+        consolereport ["runproof.checkproof trying applyLiteralTactic "; parseablestring_of_name name];
       match
         applyLiteralTactic env ("ANY " ^ parseablestring_of_name name) initialstate
       with
-        None ->
+      | None ->
           raise
             (NoProof_
                ("doesn't seem to be the same theorem (the base sequent "
                   :: string_of_seq seq :: " doesn't match) -- " :: getReason ()))
       | Some st ->
+          if !runprooftracing then 
+            consolereport ["applyLiteralTactic "; parseablestring_of_name name; " found statement of theorem (?rule?)"];
           (* it seems to be a statement of the theorem *)
           match applyTactic env tac initialstate with
-            Some (Proofstate {cxt = cxt} as st) ->
+          | Some (Proofstate {cxt = cxt} as st) ->
               let st = rewriteproofstate st in
               cleanup ();
               Some (st, isproven st && checkfinalprovisos cxt)
           | None -> raise (NoProof_ ("proof fails -- " :: explain ""))
     with
-      NoProof_ ss -> cleanup (); complain ss; None
+    | NoProof_ ss -> cleanup (); complain ss; None
     | Tacastrophe_ ss ->
         cleanup ();
         report ("Error in tactic during " :: label () :: " " :: string_of_name name :: " -- " :: ss);
@@ -196,7 +204,7 @@ let doProof report query env name stage seq (params, givens, pros, tac) disproof
         let disproved = checkdisproof (proofstate_cxt state) (proofstate_tree state) disproofopt in
         let stage =
           match stage, proved, disproved with
-            Complete, false, false -> 
+          | Complete, false, false -> 
               complain ["is recorded as complete but is neither proved nor disproved"];
               InProgress
           | _, _, _ -> stage
