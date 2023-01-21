@@ -54,6 +54,7 @@
  *
  * RB May 95
  *)
+ 
 open Answer
 open Cxtfuns
 open Cxtstring
@@ -79,13 +80,16 @@ open Termstring
 let consolereport = Miscellaneous.consolereport
 
 let unifydebug = ref false
+
 let rec freshUnknown cxt c v =
   let (cxt, v) = freshVID cxt c v in cxt, registerUnknown (v, c)
+
 let rec freshalphavar cxt c v =
   try freshproofvar cxt c v with
   | Catastrophe_ ss ->
       try freshproofvar cxt c (vid_of_string (autoID c "alpha")) with
       | Catastrophe_ _ -> raise (Catastrophe_ ss)
+
 let rec occurs cxt v t =
   match t with
   | Id _ -> false
@@ -625,12 +629,14 @@ and lastditch tts dds cxt =
       | _ -> no cxt
       end
   | [] -> None
+
 and zipsubstmaps pdb (vts1, vts2) = zipvts pdb (vts1, vts2)
 (* we can unify term->term mappings if their domains are the same,
    or if their differences are
    one element, or if the differences are two elements only
    one of which has a domain which is a metavariable.
  *)
+
 and zipvts pdb (vts1, vts2) =
   let diff1 = vtminus pdb vts1 vts2 in
   let diff2 = vtminus pdb vts2 vts1 in
@@ -655,9 +661,11 @@ and zipvts pdb (vts1, vts2) =
       ok (diff1, List.rev diff2)
   | true, true, _, _ -> ok (diff1, diff2)
   | _ -> None
+
 and ziptermlists pdb (t1s, s_of_t) =
   try Some ((t1s ||| s_of_t)) with
   | Zip_ -> None
+
 and alignsubsts =
   fun (r1, _P1, m1) ->
     fun (r2, _P2, m2) cxt ->
@@ -1185,6 +1193,7 @@ and unifycollections kind (e1s, s_of_e) cxt =
            ["unifycollections ("; string_of_idclass kind; ") (";
             diag_string_of_term (registerCollection (kind, e1s)); ",";
             diag_string_of_term (registerCollection (kind, s_of_e)); ")"])
+
 and simplifydeferred pros cxt =
   (* cxt, provisos already rewritten *)
   let _ =
@@ -1257,6 +1266,7 @@ and simplifydeferred pros cxt =
      nj_fold do1 defers [withprovisos cxt others]
   in
   res r
+
 and checkdeferred (t1, t2) cxt =
   if null (provisos cxt) then [cxt]
   else
