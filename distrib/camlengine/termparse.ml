@@ -72,7 +72,7 @@ let pushSyntax name =
   
 let popSyntax () =
   match !syntaxes with
-    (s, orT, lmT, ors, lms) :: sys ->
+  | (s, orT, lmT, ors, lms) :: sys ->
       outrightfixtree := orT; leftmidfixtree := lmT;
       outrightfixes := ors; leftmidfixes := lms;
       syntaxes := sys
@@ -84,7 +84,7 @@ let popAllSyntaxes () =
   
 let declareOutRightfix braseps ket =
   (match !syntaxes with 
-     (name, _, _, ors, _) :: _ ->
+   | (name, _, _, ors, _) :: _ ->
        if not (mem (braseps, ket) ors) then
          raise (ParseError_ ["After PUSHSYNTAX "; Stringfuns.enQuote name; 
                              " attempt to define novel OUTFIX/RIGHTFIX ";
@@ -132,7 +132,7 @@ let parseList start f sep =
 
 let canstartTerm sy =
   match sy with
-    ID _ -> true
+  | ID _ -> true
   | UNKNOWN _ -> true
   | NUM _ -> true
   | STRING _ -> true
@@ -144,7 +144,7 @@ let canstartTerm sy =
 
 let canstartAtom s =
   match s with
-    ID _ -> true
+  | ID _ -> true
   | UNKNOWN _ -> true
   | NUM _ -> true
   | STRING _ -> true
@@ -155,7 +155,7 @@ let canstartAtom s =
 
 let canstartidentifier s =
   match s with
-    ID _ -> true
+  | ID _ -> true
   | UNKNOWN _ -> true
   | BRA "(" -> true
   | _ ->(* because it can be (op) ?? *)
@@ -188,13 +188,13 @@ let rec parseAtom () =
   let sy = currsymb () in
   scansymb ();
   match sy with
-    ID      (s, Some c) -> checkclass ("identifier", registerId (vid_of_string s, c))
+  | ID      (s, Some c) -> checkclass ("identifier", registerId (vid_of_string s, c))
   | ID      (s, None  ) -> !undecl "identifier" (registerId (vid_of_string s, NoClass))
   | UNKNOWN (s, Some c) -> checkclass ("unknown", registerUnknown (vid_of_string s, c))
   | UNKNOWN (s, None  ) -> !undecl "unknown" (registerUnknown (vid_of_string s, NoClass))
   | NUM s ->
       begin try registerLiteral (Number (atoi s)) with
-        _ -> raise (Catastrophe_ ["parseAtom can't convert "; s; " to an integer"])
+      | _ -> raise (Catastrophe_ ["parseAtom can't convert "; s; " to an integer"])
       end
   | STRING  s -> registerLiteral (String s)
   | BRA   "(" -> parseBRA ()
@@ -242,7 +242,7 @@ and parseOutfix bra =
     (fsmpos (rootfsm outrightfixtree) [bra] &~~
        (fun t ->
           match currsymb () with
-            KET _ as ket ->
+          | KET _ as ket ->
               (match scanfsm (fun _ -> ket) t [] ket with
                | Found (ket', []) ->
                    check ket';
@@ -251,7 +251,7 @@ and parseOutfix bra =
              )
           | _ -> None))
   with
-    Some t -> t
+  | Some t -> t
   | None -> putbacksymb bra (* can this be right? *); snd (parseOutRightfixTail 0 [])
 
 and parseRightfix m t = (* m is irrelevant *)
@@ -296,7 +296,7 @@ and treenext m a (sys, ts) =
 and parseVariable () =
   let okv =
     function
-      Id (_, _, VariableClass) as t -> t
+    | Id (_, _, VariableClass) as t -> t
     | Unknown (_, _, VariableClass) as t -> t
     | Id _ as t -> !unvar t
     | Unknown _ as t -> !unvar t
@@ -419,7 +419,7 @@ and parseterm fsy =
             registerCollection (c, els)
           else
             match fsy with
-              INFIX  _ -> parseExpr (prio fsy) true
+            | INFIX  _ -> parseExpr (prio fsy) true
             | INFIXC _ -> parseExpr (prio fsy) true
             | _        -> parseExpr 0 false
   in
@@ -431,7 +431,7 @@ and parseElementList starter parser__ sep k =
   let kind : idclass option ref = ref k in
   let iscoll c =
     match c with
-      BagClass _ -> true
+    | BagClass _ -> true
     | ListClass _ -> true
     | _ -> false
   in
@@ -440,7 +440,7 @@ and parseElementList starter parser__ sep k =
       let id con s k' =
         let def k = scansymb (); Some ([], con (s, k)) in
         match !kind with
-          Some k ->
+        | Some k ->
             if k = k' then def k
             else if iscoll k' then
               raise
@@ -452,10 +452,10 @@ and parseElementList starter parser__ sep k =
             if iscoll k' then begin kind := Some k'; def k' end else None
       in
       match currsymb () with
-        PREFIX sp as sy ->
+      | PREFIX sp as sy ->
           (scansymb ();
            match getSegvar () with
-             Some (ps, v) -> Some (registerId (vid_of_string sp, OperatorClass) :: ps, v)
+           | Some (ps, v) -> Some (registerId (vid_of_string sp, OperatorClass) :: ps, v)
            | None -> putbacksymb sy; None
           )
       | ID (s, Some k') -> id registerId (vid_of_string s) k'
@@ -463,7 +463,7 @@ and parseElementList starter parser__ sep k =
       | _ -> None
     in
     match getSegvar () with
-      Some r -> registerSegvar r
+    | Some r -> registerSegvar r
     | None -> registerElement (Nonum, parser__ sep)
   in
   let elements = parseList starter parseElement sep in !kind, elements
@@ -473,7 +473,7 @@ and parseTerm sy =
   let rec doit t = mapterm findbinding t
   and findbinding t =
     match bindingstructure t with
-      Some ((bs, us, ss), env, pat) ->
+    | Some ((bs, us, ss), env, pat) ->
         Some
           (registerBinding
              ((bs, (doit <* us), (doit <* ss)), env, pat))
@@ -491,7 +491,7 @@ let parseBindingpattern () = parseterm EOF
 let parseidentifier _ =
   let okv =
     function
-      Id _ as t -> t
+    | Id _ as t -> t
     | Unknown _ as t -> t
     | t -> raise (ParseError_ [string_of_term t; " is not an identifier"])
   in
@@ -514,7 +514,7 @@ let parsecurriedarglist _ =
   if canstartTerm (currsymb ()) then
     let rec flatten a1 a2 =
       match a1, a2 with
-        App (_, f, a), rs -> flatten f (a :: rs)
+      | App (_, f, a), rs -> flatten f (a :: rs)
       | t, rs -> t :: rs
     in
     flatten (parseTerm (KET ")")) []
@@ -537,7 +537,7 @@ let tryparse_dbug _R p s =
        consolereport ["tryparse_dbug EOF ok"];
        r
      with
-       exn -> poplex lex_s; raise exn)
+     | exn -> poplex lex_s; raise exn)
    in poplex lex_s; r
 
 (* hack to allow negative numerals in tactic strings *)
@@ -568,7 +568,7 @@ let checkTacticTerm t =
   in
   let badvar =
     function
-      Id (_, _, class__) as t ->
+    | Id (_, _, class__) as t ->
         if class__ <> VariableClass then
           bang "non-variable in substitution" t
         else None
@@ -580,7 +580,7 @@ let checkTacticTerm t =
   in
   let badterm =
     function
-      Id (_, _, class__) as t ->
+    | Id (_, _, class__) as t ->
         if class__ = NoClass then bang "undeclared variable" t else None
     | Unknown (_, _, class__) as t ->
         if class__ = NoClass then bang "undeclared variable" t else None
