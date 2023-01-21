@@ -33,6 +33,12 @@ type vid = string (* but nobody else knows *)
 
 (* terms now contain hash information. RB 26/i/00 *)
 (* It's become an option so we don't cache terms which contain unknowns. RB 27/i/00 *)
+
+(* the bool in Subst is 'reducible'. Somehow a substitution generated from a selection 
+   has false in that position: don't try to reduce it. Can't see how that happens, but 
+   that's how it is. RB 2023/01/21
+ *)
+ 
 type term =
     Id of (int option * vid * idclass)
   | Unknown of (int option * vid * idclass)

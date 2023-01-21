@@ -32,7 +32,11 @@ type vid
 (* I spent a lot of time trying to split Id and Unknown from this datatype. I retired 
    hurt. Ditto Collection. So don't think about it. RB 08-09/20
  *)
-
+(* the bool in Subst is 'reducible'. Somehow a substitution generated from a selection 
+   has false in that position: don't try to reduce it. Can't see how that happens, but 
+   that's how it is. RB 2023/01/21
+ *)
+ 
 type term =
   | Id of (int option * vid * idclass)
   | Unknown of (int option * vid * idclass)
