@@ -59,9 +59,9 @@ and varboundbyq facts v vars = existsq (substeqvarsq facts v) vars
 let rec varmappedto facts v vts =
   let rec check a1 a2 =
     match a1, a2 with
-      def, (v', t') :: vts ->
+    | def, (v', t') :: vts ->
         begin match substeqvarsq facts v v' with
-          Yes -> Some t'
+        | Yes -> Some t'
         | Maybe -> check None vts
         | No -> check def vts
         end
@@ -94,7 +94,7 @@ exception Whoops_ (* moved outside for OCaml *)
 let rec plussubstmap facts vtout vtin =
   let vsin = substmapdom vtin in
   match vtsplit facts vtout vsin with
-    ys, ns, [] ->
+  | ys, ns, [] ->
       Some (
            ((fun (v, t) -> v, simplifySubstAnyway facts vtout t) <* vtin) @
            ns)
@@ -154,7 +154,7 @@ and varoccursinq facts v =
     in
     let rec insidebinding bs ss =
       match _BFv bs with
-        Yes -> No
+      | Yes -> No
       | No -> existsq (varoccursinq facts v) ss
       | Maybe ->
           let newfacts =
@@ -168,7 +168,7 @@ and varoccursinq facts v =
         if knownNOTIN facts (v, _P) then Some (res No _P)
         else
           match _P with
-            Id _ -> Some (res (_EFv _P) _P)
+          | Id _ -> Some (res (_EFv _P) _P)
           | Unknown _ -> Some (res (_EFv _P) _P)
           | Literal _ -> Some (res No _P)
           | Subst (_, _, _P, vts) ->
@@ -192,11 +192,11 @@ and varoccursinq facts v =
     let rec foldsearch =
       fun (_P, sofar) ->
         match sofar with
-          Yes -> Some Yes
+        | Yes -> Some Yes
         | No -> search _P
         | Maybe ->
             match search _P with
-              None -> None
+            | None -> None
             | Some v -> Some (orq (sofar, v))
     in
     foldterm foldsearch No _P
@@ -204,7 +204,7 @@ and varoccursinq facts v =
 and simplifySubstAnyway facts vts =
   fun _P ->
     match simplifySubst facts vts _P with
-      Some t -> t
+    | Some t -> t
     | None -> registerSubst (true, _P, vts)
 (*
    simplifySubst and simplifysubstmap are partial functions.
@@ -219,7 +219,7 @@ and simpres vts =
 
 and simplifySubst a1 a2 a3 =
   match a1, a2, a3 with
-    facts, [], (Subst (_, _, _P', vts') as _P) ->
+  | facts, [], (Subst (_, _, _P', vts') as _P) ->
       let r = Some (simplifySubstAnyway facts vts' _P') in
       if !substdebug then simpres [] _P r; r
   | facts, [], _P ->
@@ -230,17 +230,17 @@ and simplifySubst a1 a2 a3 =
       let rec more vts' = fun _P' -> Some (_S vts' _P') in
       let rec _Svar v =
         match varmappedto facts v vts with
-          Some (Subst (_, _, _P', vts')) -> res (more vts' _P')
+        | Some (Subst (_, _, _P', vts')) -> res (more vts' _P')
         | Some t -> res (Some t)
         | None -> fail v
       and fail =
         fun _P ->
           match simplifysubstmap facts _P vts with
-            Some vts' -> res (more vts' _P)
+          | Some vts' -> res (more vts' _P)
           | None -> res None
       in
       match _P with
-        Id _ -> _Svar _P
+      | Id _ -> _Svar _P
       | Unknown _ -> _Svar _P
       | App (_, f, a) -> res (Some (registerApp (_S vts f, _S vts a)))
       | Tup (_, sep, ts) ->
@@ -250,12 +250,12 @@ and simplifySubst a1 a2 a3 =
           res (Some (registerFixapp (ss, (_S vts <* ts))))
       | Subst (_, _, _P', vts') ->
           begin match plussubstmap facts vts vts' with
-            Some vts'' -> res (more vts'' _P')
+          | Some vts'' -> res (more vts'' _P')
           | None -> fail _P
           end
       | Binding (_, (bs, ss, us), env, pat) ->
           begin match restrictsubstmap facts vts bs ss with
-            Some vts' ->
+          | Some vts' ->
               res
                 (Some
                    (registerBinding
@@ -266,12 +266,12 @@ and simplifySubst a1 a2 a3 =
       | Collection (_, k, es) ->
           let rec se =
             function
-              Element (_, _, t) -> registerElement (Nonum, _S vts t)
+            | Element (_, _, t) -> registerElement (Nonum, _S vts t)
             | _ -> raise Whoops_
           in
           res
             (try Some (registerCollection (k, (se <* es))) with
-               Whoops_ -> None)
+             | Whoops_ -> None)
 
 and simplifysubstmap facts =
   fun _P vts ->
@@ -280,9 +280,9 @@ and simplifysubstmap facts =
     (* _U takes out those elements in a very silly way *)
     let rec _W =
       function
-        v, Subst (_, r, _P, m) ->
+      | v, Subst (_, r, _P, m) ->
           begin match simplifySubst facts m _P with
-            Some t -> Some (v, t)
+          | Some t -> Some (v, t)
           | None -> None
           end
       | _ -> None
@@ -292,15 +292,15 @@ and simplifysubstmap facts =
     in
     let rec _U =
       function
-        [] -> None
+      | [] -> None
       | vt :: vts ->
           if _V vt then Some (anyway _U vts)
           else
             match _W vt with
-              Some vt -> Some (anyway _U (vt :: vts))
+            | Some vt -> Some (anyway _U (vt :: vts))
             | None ->
                 match _U vts with
-                  Some vts -> Some (vt :: vts)
+                | Some vts -> Some (vt :: vts)
                 | None -> None
     in
     let r = _U vts in
