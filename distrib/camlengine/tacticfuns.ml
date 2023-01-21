@@ -650,15 +650,18 @@ let rec expandstuff name (env, principals, thing) =
     kind, hiddencontexts givens, how, env, principals, antes, conseq, provisos
 
 let rec apply_of_preparestuff stuff =
+  if !tactictracing then consolereport ["apply_of_preparestuff"];
   let (kind, hiddens, how, env, principals, antes, conseq, provisos) = stuff in
   let (argmap, provisos', antes', conseq') =
     instantiateRule env provisos antes conseq
   in
+  if !tactictracing then consolereport ["(exit instantiateRule, back to apply_of_preparestuff)"];
   kind, hiddens, how, (snd <* argmap), principals, antes',
   conseq', (mkvisproviso <* provisos')
 
 let (apply, resolve, applyorresolve) =
   let rec makestep stuff state resopt =
+    if !tactictracing then consolereport ["makestep"];
     let (kind, hiddens, how, argmap, principals, antes, conseq, provisos) = stuff in
     if !(Applyrule.applydebug) > 0 then
       consolereport
@@ -677,6 +680,7 @@ let (apply, resolve, applyorresolve) =
     r
   in
   let rec apply checker filter taker selhyps selconcs stuff reason cxt state =
+  if !tactictracing then consolereport ["apply"];
     let stuff' = apply_of_preparestuff stuff in
     makestep stuff' state
              (Applyrule.applyrule checker filter taker selhyps selconcs stuff' reason
@@ -1072,6 +1076,7 @@ let doCUTIN f (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) =
 
 
 let rec _CanApply triv name state =
+ if !tactictracing then consolereport ["_CanApply"];
   if triv then []
   else
     try
@@ -2957,7 +2962,7 @@ let rec runTactic display env try__ tac =
     rootenv := env;
     (* filth, by Richard *)
     match goal with
-    | None -> None
+    | None      -> None
     | Some goal -> dispatchTactic display try__ env nullcontn tac state
 
 let rec applyTactic display env tac state =
@@ -2966,6 +2971,8 @@ let rec applyTactic display env tac state =
     (firstextend env tac) state
 
 let rec applyLiteralTac display env try__ text state =
+  if !tactictracing then
+    consolereport ["applyLiteralTac "; text];
   runTactic display env try__
     (firstextend env (transTactic (tactic_of_string text))) state
 
