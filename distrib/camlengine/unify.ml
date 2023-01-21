@@ -180,10 +180,10 @@ let abstract orig map term ps cxt =
           let (cxt', vid') = freshVID cxt FormulaClass prefix in
           let var' = registerUnknown (vid', FormulaClass) in
           let subst = registerSubst (true, var', map) in
-          begin match _P with
+          (match _P with
           | Unknown _ -> addunification (_P, subst)
           | _         -> addproviso (UnifiesProviso (_P, subst))
-          end;
+          );
           _Ares (Some (cxt', var'))
         and _Afold m (t, (cxt, ts)) =
           match _Abstract cxt m t with
@@ -220,7 +220,7 @@ let abstract orig map term ps cxt =
                        Some (cxt, registerFixapp (bras, ts)))) |~~
                  (fun _ -> _Ares None)
           | Binding (_, (bs, ss, us), env, pat) ->
-              begin match
+              (match
                 restrictsubstmap (facts (ourprovisos ()) cxt) m bs ss
               with
               | Some m' ->
@@ -237,12 +237,12 @@ let abstract orig map term ps cxt =
                               (fun _ -> _Ares None)))) |~~
                      (fun _ -> _Ares None))
               | None -> defermatch ()
-              end
+              )
           | Subst (_, r, _P', m') ->
               let vs' = substmapdom m' in
               let ts' = substmapran m' in
               let fs = facts (ourprovisos ()) cxt in
-              begin match vtsplit fs m vs' with
+              (match vtsplit fs m vs' with
               | ys, ns, [] ->
                   (option_njfold (_Afold m) ts' (cxt, []) 
                    &~~
@@ -257,7 +257,7 @@ let abstract orig map term ps cxt =
                    ) 
                   ) |~~ (fun _ -> _Ares None)
               | _ -> defermatch ()
-              end
+              )
           | Collection _ -> _Ares None
       in
       match__ (fun () -> analyse m _P) m
@@ -320,10 +320,10 @@ and subststep cxt =
       match debracket _P with
       | Id _ -> _Svar ()
       | Unknown _ ->
-          begin match class__ cxt _P with
+          (match class__ cxt _P with
           | None -> _Svar ()
           | Some (cxt, _P') -> whatever class__ cxt (_S _P')
-          end
+          )
       | App (_, f, a) -> Some (cxt, registerApp (_S f, _S a))
       | Tup (_, sep, ts) -> Some (cxt, registerTup (sep, (_S <* ts)))
       | Literal k -> Some (cxt, debracket _P)
@@ -361,14 +361,14 @@ and subststep cxt =
                 env, pat))
       | Subst (_, r', _P', m') ->
           let cxt = rewritecxt cxt in
-          begin match plussubstmap (facts (provisos cxt) cxt) m m' with
+          (match plussubstmap (facts (provisos cxt) cxt) m m' with
           | Some m'' -> whatever class__ cxt (registerSubst (r, _P', m''))
           | None ->
               match subststep cxt (r', _P', m') with
               | Some (cxt, _P'') ->
                   whatever class__ cxt (registerSubst (r, _P'', m))
               | None -> None
-          end
+          )
       | Collection _ -> None
     in
     if !unifydebug then
@@ -432,13 +432,13 @@ let rec unify a1 a2 a3 a4 =
                     (fun _ -> assign (v2, c2) (reb orig_of_t t1orig t1) cxt)) &~~
                  success)
         | Unknown (_, v1, c1), _ ->
-            begin match assign (v1, c1) (reb t1orig orig_of_t t2) cxt with
+            (match assign (v1, c1) (reb t1orig orig_of_t t2) cxt with
             | Some cxt -> success cxt
             | None ->
                 match t2 with
                 | Subst _ -> defer DeferAssignment cxt
                 | _ -> None
-            end
+            )
         | _, Unknown v2 -> doit t2 t1 cxt
         | Id (_, v1v, v1c), Id (_, v_of_v, c_of_v) ->
             if v1v = v_of_v && v1c = c_of_v then success cxt else None
@@ -468,22 +468,22 @@ let rec unify a1 a2 a3 a4 =
         | Subst (_, r1, _P1, m1), Subst (_, r2, _P2, m2) ->
             if not (r1 && r2) then defer DeferAlignment cxt
             else
-              begin match subststep cxt (r1, _P1, m1) with
+              (match subststep cxt (r1, _P1, m1) with
               | Some (cxt, t1) ->
-                  begin match subststep cxt (r2, _P2, m2) with
+                  (match subststep cxt (r2, _P2, m2) with
                   | Some (cxt, t2) -> doit t1 t2 cxt
                   | None -> doit t2 t1 cxt
-                  end
+                  )
               | None ->
                   match subststep cxt (r2, _P2, m2) with
                   | Some (cxt, t2) -> doit t1 t2 cxt
                   | None -> defer DeferAlignment cxt
-              end
+              )
         | Subst (_, false, _P1, m1), t2 ->
-            begin match subststep cxt (false, _P1, m1) with
+            (match subststep cxt (false, _P1, m1) with
             | Some (cxt, t1) -> doit t1 t2 cxt
             | None -> defer DeferSimplification cxt
-            end
+            )
         | Subst (_, true, _P1, m1), _ ->
             (match subststep cxt (true, _P1, m1) with
              | Some (cxt, t1) -> doit t1 t2 cxt
@@ -569,13 +569,13 @@ and unifycleverly tts dds cxt =
       in
       let (cxt, t1') = simp cxt t1 in
       let (cxt, t2') = simp cxt t2 in
-      begin match reason, (t1', t2') with
+      (match reason, (t1', t2') with
       | DeferAlignment,
         (Subst (_, r1, t1, vts1), Subst (_, r2, t2, vts2)) ->
-          begin match alignsubsts (r1, t1, vts1) (r2, t2, vts2) cxt with
+          (match alignsubsts (r1, t1, vts1) (r2, t2, vts2) cxt with
           | Some (cxt', tts') -> yes tts' cxt'
           | None -> no cxt
-          end
+          )
       | DeferAssignment, (Unknown _, Subst _) ->
           (* it is possible to determine the minimum amount of rewriting 
            * required to make t1 and t2 unify, and this function is 
@@ -590,17 +590,17 @@ and unifycleverly tts dds cxt =
       | DeferAssignment, _ -> yes [t1, t2] cxt
       | DeferSimplification, (Subst (_, false, _P1, m1), t2) ->
           (* something happened! *)  
-          begin match subststep cxt (false, _P1, m1) with
+          (match subststep cxt (false, _P1, m1) with
           | Some (cxt', t1') -> yes [t1', t2] cxt'
           | _ -> no cxt
-          end
+          )
       | DeferSimplification, (_, Subst (_, false, _, _)) ->
           reversecleverly ()
       | _ ->
           raise
             (Catastrophe_
                ["unifycleverly "; ppc (tt :: tts); " "; ppc dds])
-      end
+      )
   | [] -> lastditch dds [] cxt
 
 and lastditch tts dds cxt =
@@ -612,11 +612,11 @@ and lastditch tts dds cxt =
       let rec no cxt = lastditch tts (tt :: dds) cxt in
       let (cxt, t1') = simp cxt t1 in
       let (cxt, t2') = simp cxt t2 in
-      begin match reason, (t1', t2') with
+      (match reason, (t1', t2') with
       | DeferAlignment, (Subst (_, _, _P1, m1), Subst (_, _, _P2, m2)) ->
           (* we've tried everything - now try it component-wise. *)
           let cxt = rewritecxt cxt in
-          begin match
+          (match
             zipsubstmaps (facts (provisos cxt) cxt)
               (canonicalsubstmap m1, canonicalsubstmap m2)
           with
@@ -625,9 +625,9 @@ and lastditch tts dds cxt =
                 true cxt
           | None ->(* used to allow failure ... *)
              no cxt
-          end
+          )
       | _ -> no cxt
-      end
+      )
   | [] -> None
 
 and zipsubstmaps pdb (vts1, vts2) = zipvts pdb (vts1, vts2)
@@ -679,7 +679,7 @@ and alignsubsts =
             | ys, (_ :: _ as ns), [] ->
                 let _P1 = rewrite cxt _P1 in
                 let _P2 = rewrite cxt _P2 in
-                begin match
+                (match
                   abstract (debracket _P1)
                            (substmapdom m2 @ substmapdom ns |||
                             substmapdom m2 @ substmapran ns
@@ -693,7 +693,7 @@ and alignsubsts =
                          [registerSubst (r1, _P1, ys),
                           registerSubst (r2, _P2', m2)])
                 | _ -> None
-                end
+                )
             | _ -> None
       in
         (tryalign (r1, _P1, m2) (r2, _P2, m2) |~~
@@ -706,10 +706,10 @@ and unifycollections kind (e1s, s_of_e) cxt =
     let rec rval =
       function
       | (ResUnknown i as r), t ->
-          begin match (resmap cxt <@> i) with
+          (match (resmap cxt <@> i) with
           | Some (r, t) -> rval (r, t)
           | None        -> r, t
-          end
+          )
       | p -> p
     in
     let (r1, t1) = rval (r1, t1) in
@@ -732,17 +732,17 @@ and unifycollections kind (e1s, s_of_e) cxt =
     let rec expand (e, (cxt, es)) =
       match e with
       | Segvar (_, [], Unknown (_, v, _)) ->
-          begin match (varmap cxt <@> v) with
+          (match (varmap cxt <@> v) with
           | Some (Collection (_, _, es')) -> nj_fold expand es' (cxt, es)
           | _ -> cxt, e :: es
-          end
+          )
       | Segvar (_, ps, Unknown (_, v, _)) ->
-          begin match (varmap cxt <@> v) with
+          (match (varmap cxt <@> v) with
           | Some (Collection (_, _, es')) ->
               (* nj_fold expand (modeifyelement ps <* es') (cxt,es) *)
               raise (Catastrophe_ ["unify collclass expand"])
           | _ -> cxt, e :: es
-          end
+          )
       | Element (_, r, t) ->
           let (cxt, t') = simp cxt t in cxt, registerElement (r, t') :: es
       | _ -> cxt, e :: es
@@ -922,23 +922,23 @@ and unifycollections kind (e1s, s_of_e) cxt =
       | defers, cxt, (r, t), el :: es ->
           let rec push (cxt, es) = cxt, el :: es in
           let recv = (push <* uel defers cxt (r, t) es) in
-          begin match el with
+          (match el with
           | Element (_, r', t') ->
-              begin match
+              (match
                   (ures ((r, t), (r', t')) cxt &~~ unify [t, t'] [] false)
               with
               | Some cxt' ->
                   (cxt', ((fun(el,_,_,_)->el) <* defers) @ es) :: recv
               | None -> recv
-              end
+              )
           | Segvar (_, ps, Unknown (_, v, c)) ->
-              begin match demodeify ps cxt (registerElement (r, t)) with
+              (match demodeify ps cxt (registerElement (r, t)) with
               | Some (cxt, el') ->
                   uel ((el, el', ps, v) :: defers) cxt (r, t) es
               | None -> recv
-              end
+              )
           | _ -> recv
-          end
+          )
       | defers, cxt, (r, t), [] ->
           match defers with
           | [] -> []
@@ -1000,12 +1000,12 @@ and unifycollections kind (e1s, s_of_e) cxt =
           | _, [] -> res (uf cxt e1s)
           | [], _ -> res (uf cxt s_of_e)
           | [Segvar (_, ps, Unknown (_, v, c))], _ ->
-              begin match option_njfold (demodeifyall ps) s_of_e (cxt, []) with
+              (match option_njfold (demodeifyall ps) s_of_e (cxt, []) with
               | Some (cxt, s_of_e) ->
                   res
                     [plusvarmap cxt ((v |-> registerCollection (c, s_of_e)))]
               | _ -> res []
-              end
+              )
           | _, [Segvar (_, ps, Unknown (_, v, c))] -> urev ()
           | _ ->
               match extract isel s_of_e with
@@ -1023,11 +1023,11 @@ and unifycollections kind (e1s, s_of_e) cxt =
                   with
                   | 0, 0 -> res []
                   | 1, _ ->
-                      begin match extract isuseg e1s with
+                      (match extract isuseg e1s with
                       | Some (Segvar (_, ps, Unknown (_, v, c)), e1s') ->
                           let (cxt, u') = freshUnknown cxt c v in
                           let (us_of_e, ks_of_e) = split isuseg s_of_e in
-                          begin match
+                          (match
                             option_njfold (demodeifyall ps) ks_of_e (cxt, [])
                           with
                           | Some (cxt, ks_of_e') ->
@@ -1039,9 +1039,9 @@ and unifycollections kind (e1s, s_of_e) cxt =
                                           registerCollection
                                             (kind, ks_of_e')))))
                           | None -> res []
-                          end
+                          )
                       | _ -> res []
-                      end
+                      )
                   | _, 1 ->(* can't happen, but shut up compiler *)
                      urev ()
                   | _, 0 ->
@@ -1113,7 +1113,7 @@ and unifycollections kind (e1s, s_of_e) cxt =
       in
       match es with
       | el :: es ->
-          begin match demodeify ps cxt el with
+          (match demodeify ps cxt el with
           | Some (cxt, (Segvar (_, ps', Unknown (_, v, c)) as el)) ->
               (let (cxt, u') = freshUnknown cxt c v in
                let (cxt, u'') = freshUnknown cxt c v in
@@ -1130,7 +1130,7 @@ and unifycollections kind (e1s, s_of_e) cxt =
                 asp el cxt es
           | Some (cxt, el) -> (cxt, [], el :: es) :: asp el cxt es
           | None -> [cxt, [], el :: es]
-          end
+          )
       | [] -> [cxt, [], []]
     in
     (* it turns out that our main customer (applyrule) doesn't like 
@@ -1157,7 +1157,7 @@ and unifycollections kind (e1s, s_of_e) cxt =
     (match List.length svh1s, List.length s_of_svh with
     | 0, 0 ->
         (* the easy case *)
-        begin match e1s, s_of_e with
+        (match e1s, s_of_e with
         | [], [] -> res [cxt]
         | Element (_, r1, t1) :: e1s, Element (_, r2, t2) :: s_of_e ->
             res
@@ -1170,7 +1170,7 @@ and unifycollections kind (e1s, s_of_e) cxt =
         | el1 :: e1s, el2 :: s_of_e ->
             res (if el1 = el2 then unifylists (e1s, s_of_e) cxt else [])
         | _ -> res []
-        end
+        )
     | l1, l2 ->
         if l1 <> 1 && l2 = 1 || l1 = 0 then def s_of_p s_of_svh s_of_tl e1s
         else (* prefer s_of_e *)
@@ -1227,12 +1227,12 @@ and simplifydeferred pros cxt =
     let rec rematch a1 a2 a3 =
       match a1, a2, a3 with
       | (t1, t2), (_, t) :: vts, go ->
-          begin match unifyeqtermsq (facts pros cxt) t1 t with
+          (match unifyeqtermsq (facts pros cxt) t1 t with
           | Maybe -> rematch (t1, t2) vts false
           | Yes ->
               res "trying unification in rematch 1" (unifyv (t1, t2) cxt)
           | No -> rematch (t1, t2) vts go
-          end
+          )
       | (t1, t2), [], go ->
           if go then
             res "trying unification in rematch 2" (unifyv (t1, t2) cxt)
@@ -1325,11 +1325,11 @@ let rec unifyterms (t1, t2) cxt =
           | _ :: _ -> Some cxt))
   in
   if !unifydebug then
-    begin match r, r' with
+    (match r, r' with
     | _, Some _ -> consolereport ["and checkdeferred succeeds"]
     | Some _, None -> consolereport ["but checkdeferred fails"]
     | _ -> ()
-    end;
+    );
   r'
 
 let unifytermsandcheckprovisos pair = (doUnify pair &~ checkcxtprovisos)
@@ -1373,7 +1373,7 @@ let rec dropunify (target, sources) cxt =
   in
   match target with
   | Segvar (_, ops, (Unknown (_, u, tc) (* as v *))) ->
-      begin match tc, sources with
+      (match tc, sources with
       | _, [] -> Some cxt
       | ListClass fc, [source] ->
           (* nothing to do *)
@@ -1391,7 +1391,7 @@ let rec dropunify (target, sources) cxt =
           checkout fc tc;
           res tc ([target], registerSegvar (ops, u') :: sources) cxt
       | _ -> bad "can't happen -- target is neither list nor bag"
-      end
+      )
   | _ -> bad "target not a Segvar"
 
 let sd = simplifydeferred
