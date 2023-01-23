@@ -501,7 +501,7 @@ SEQUENT IS BAG ⊢ FORMULA
 We set two variables (really they are parameters, because they can only be altered when the rule and theorem store is empty):
 \begin{quote}\tt\small
 INITIALISE autoAdditiveLeft true \\
-INITIALISE interpretpredicatesbtrue
+INITIALISE interpretpredicates true
 \end{quote}
 
 The first of these allows us to define rules without mentioning a left context, automatically inserting a context variable \ensuremath{\Gamma} into every sequent in a rule definition (that is, allowing rule definition in the style of natural deduction and earlier versions of Jape). The second directs Jape to interpret every juxtaposition --- everything that looks like a predicate application --- as a predicate application, to translate where necessary into substitution notation and to include additional rule parameters and invisible provisos to support the translation.
