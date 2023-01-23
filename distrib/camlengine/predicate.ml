@@ -128,8 +128,8 @@ let rec compilepredicate isabstraction env t =
  *)
 (* this ought to use a PredicateClass notion -- or maybe that should be in the 
    isabstraction argument. At present any application is taken as a predicate
-   application -- at any rate if it uses round brackets (which covers a numbe
-   of sins ...)
+   application -- at any rate if it uses round brackets (which covers a number, if not
+   a multitude, of sins ...)
  *)
 let rec findpredicates isabstraction bs (t, pbs) =
   let rec addbinding newbs bs =
