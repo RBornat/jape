@@ -204,10 +204,10 @@ let abstract orig map term ps cxt =
                | Yes   -> _Ares None
               )
           | App (_, f, a) ->
-                (option_njfold (_Afold m) [f; a] (cxt, []) &~~
-                 (function
-                  | cxt, [f; a] -> _Ares (Some (cxt, registerApp (f, a)))
-                  | _           -> raise MatchinAbstract_))
+              (option_njfold (_Afold m) [f; a] (cxt, []) &~~
+               (function
+                | cxt, [f; a] -> _Ares (Some (cxt, registerApp (f, a)))
+                | _           -> raise MatchinAbstract_))
           | Tup (_, sep, ts) ->
               (option_njfold (_Afold m) ts (cxt, []) &~~
                (fun (cxt, ts') ->
@@ -262,11 +262,12 @@ let abstract orig map term ps cxt =
       in
       match__ (fun () -> analyse m _P) m
   in
-  let rec doit () =
+  let rec doit () = 
     match _Abstract cxt map term with
     | Some (cxt, term) -> Some (cxt, term, !newprovisos, !newunifications)
     | _                -> None
   in
+  (* body of abstract *)
   match orig with
   | Unknown (_, v, _) ->
       if occurs cxt v term then
@@ -613,20 +614,20 @@ and lastditch tts dds cxt =
       let (cxt, t1') = simp cxt t1 in
       let (cxt, t2') = simp cxt t2 in
       (match reason, (t1', t2') with
-      | DeferAlignment, (Subst (_, _, _P1, m1), Subst (_, _, _P2, m2)) ->
-          (* we've tried everything - now try it component-wise. *)
-          let cxt = rewritecxt cxt in
-          (match
-            zipsubstmaps (facts (provisos cxt) cxt)
-              (canonicalsubstmap m1, canonicalsubstmap m2)
-          with
-          | Some mms ->
-              unify ((_P1, _P2) :: mms @ (snd <* (tts @ dds))) []
-                true cxt
-          | None ->(* used to allow failure ... *)
-             no cxt
-          )
-      | _ -> no cxt
+       | DeferAlignment, (Subst (_, _, _P1, m1), Subst (_, _, _P2, m2)) ->
+           (* we've tried everything - now try it component-wise. *)
+           let cxt = rewritecxt cxt in
+           (match
+              zipsubstmaps (facts (provisos cxt) cxt)
+                (canonicalsubstmap m1, canonicalsubstmap m2)
+            with
+            | Some mms ->
+                unify ((_P1, _P2) :: mms @ (snd <* (tts @ dds))) []
+                  true cxt
+            | None ->(* used to allow failure ... *)
+               no cxt
+           )
+       | _ -> no cxt
       )
   | [] -> None
 
