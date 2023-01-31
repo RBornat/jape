@@ -435,8 +435,7 @@ let rec findpredicatebindings isabstraction =
     let g = foldterm (findpredicates isabstraction []) in
     g (g pbs lhs) rhs
 
-let rec compilepredicates isabstraction env =
-  fun (Seq (st, lhs, rhs)) ->
+let rec compilepredicates isabstraction env (Seq (st, lhs, rhs)) = 
     let f =
       compilepredicate isabstraction
         (fun t -> optf (fun (_, vs) -> vs) ((env <@> t)))
@@ -666,14 +665,13 @@ let rec compileR el er (params, provisos, antes, conseq) =
    * translate predicates into substitutions, but first make a
    * judicious choice of substitution variables.
    *)
-  let rec findsubstvars def =
-    fun ((_P, abss), (vars, env)) ->
+  let rec findsubstvars def ((_P, abss), (vars, env)) =
       match (env <@> _P) with
       | Some _ -> vars, env
       | None   ->
           match findpredicatevars abss with
           | Some bs -> vars, (env ++ (_P |-> (false, bs)))
-          | None ->
+          | None    ->
               if def then
                 (* make up names *)
                 let (ts, _) = List.hd abss in
@@ -736,12 +734,12 @@ let rec compileR el er (params, provisos, antes, conseq) =
     ((fun xy -> false, Provisotype.NotinProviso xy) <* ps) @ provisos
   in
   let
-    (proofbodyvars, proofantes, proofconseq, proofprovisos, applybodyvars,
-     applyantes, applyconseq, applyprovisos, applyparams)
+    (proofbodyvars, proofantes, proofconseq, proofprovisos, 
+     applybodyvars, applyantes, applyconseq, applyprovisos, applyparams)
     =
-    bodyvars, antes, conseq, makeprovisos proofps, applybodyvars,
-    (compilepredicates isabstraction env <* antes),
-    compilepredicates isabstraction env conseq, makeprovisos applyps,
+    bodyvars, antes, conseq, makeprovisos proofps, 
+    applybodyvars, (compilepredicates isabstraction env <* antes),
+    compilepredicates isabstraction env conseq, makeprovisos applyps @ freshps,
     params @
       nj_fold
         (function
