@@ -27,7 +27,7 @@ JREBUNDLER=./JREBundler
 %.html: %.md; pandoc $< -o $@
 
 local:          ; $(MAKE) engine GUI bundler jre app
-release:        ; $(MAKE) clean engine GUI bundler jre app README.html                          
+release:        ; $(MAKE) clean engine GUI bundler jre app README.html README_BUILD_MACOSX_JAPE.html
 run:            ; open build/Jape.app
 JARrun:         ; open build/JarJape/Jape.app
 
