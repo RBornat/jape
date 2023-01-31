@@ -880,29 +880,29 @@ and unifycollections kind (e1s, s_of_e) cxt =
      * But for now (four years after I introduced the bug :-)
      * it has to go.
      * RB 31/x/2000
-    fun stripeqs (arg as (cxt,e1s,s_of_e)) =
-      case (e1s,s_of_e) of
-        ([],_) => arg
-      | (_,[]) => arg
-      | (el1::e1s,s_of_e) =>
-          let fun def () = 
-                let val (cxt,e1s,s_of_e) = stripeqs (cxt,e1s,s_of_e) in 
-                        (cxt,el1::e1s,s_of_e) 
-                end
-          in
-              case extract (fn el2 => eqelements eqterms (el1,el2)) s_of_e of
-                Some (el2,s_of_e) =>
-                   (case (el1,el2) of
-                      (Element (_,r1,t1),Element (_,r2,t2)) => 
-                         (case ures ((r1,t1),(r2,t2)) cxt of
-                            Some cxt => stripeqs (cxt,e1s,s_of_e)
-                          | None     => def()
-                         )
-                    | _ => stripeqs (cxt,e1s,s_of_e)
-                   )
-              | _ => def()
-          end
-    val (cxt,e1s,s_of_e) = stripeqs (cxt,e1s,s_of_e)
+       fun stripeqs (arg as (cxt,e1s,s_of_e)) =
+         case (e1s,s_of_e) of
+           ([],_) => arg
+         | (_,[]) => arg
+         | (el1::e1s,s_of_e) =>
+             let fun def () = 
+                   let val (cxt,e1s,s_of_e) = stripeqs (cxt,e1s,s_of_e) in 
+                           (cxt,el1::e1s,s_of_e) 
+                   end
+             in
+                 case extract (fn el2 => eqelements eqterms (el1,el2)) s_of_e of
+                   Some (el2,s_of_e) =>
+                      (case (el1,el2) of
+                         (Element (_,r1,t1),Element (_,r2,t2)) => 
+                            (case ures ((r1,t1),(r2,t2)) cxt of
+                               Some cxt => stripeqs (cxt,e1s,s_of_e)
+                             | None     => def()
+                            )
+                       | _ => stripeqs (cxt,e1s,s_of_e)
+                      )
+                 | _ => def()
+             end
+       val (cxt,e1s,s_of_e) = stripeqs (cxt,e1s,s_of_e)
      *)
     
     let (e1s, s_of_e) =
@@ -1186,7 +1186,7 @@ and unifycollections kind (e1s, s_of_e) cxt =
     cs
   in
   match kind with
-  | BagClass _ -> res (unifybags (e1s, s_of_e) cxt)
+  | BagClass  _ -> res (unifybags (e1s, s_of_e) cxt)
   | ListClass _ -> res (unifylists (e1s, s_of_e) cxt)
   | _ ->
       raise
