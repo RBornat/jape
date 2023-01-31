@@ -492,13 +492,26 @@ let rec unify a1 a2 a3 a4 =
                  let cxt = rewritecxt cxt in
                  let _P1 = rewrite cxt _P1 in
                  let m1 = rewritesubstmap cxt m1 in
-                 match abstract (debracket _P1) m1 (rewrite cxt t2)
-                                (provisos cxt) cxt
-                 with
-                 | Some (cxt, _P2, ps, ms) ->
-                     unify (ms @ (_P1, _P2) :: tts) dds true
-                       (plusvisibleprovisos cxt ps)
-                 | _ -> None
+                 let t2 = rewrite cxt t2 in
+                 match t2 with
+                 | App(_,f,_) when Predicate.lookslikepredicate t2 ->
+                   (* we have a substitution matched to a predicate -- unify 
+                      _P1 with f vs (vs from m1), and go round again
+                    *)
+                   (if !unifydebug then 
+                      consolereport ["Subst and predicate App t1="; string_of_term t1; "; t2="; string_of_term t2];
+                    unify ((_P1, Predicate.makepredicate f (List.map fst m1))::
+                           (t1,t2)::tts
+                          ) dds true cxt
+                   )
+                 | _ -> 
+                     match abstract (debracket _P1) m1 t2
+                                    (provisos cxt) cxt
+                     with
+                     | Some (cxt, _P2, ps, ms) ->
+                         unify (ms @ (_P1, _P2) :: tts) dds true
+                           (plusvisibleprovisos cxt ps)
+                     | _ -> None
             )
         | _, Subst _ -> doit t2 t1 cxt
         | Collection (_, k1, es1), Collection (_, k2, es2) ->
