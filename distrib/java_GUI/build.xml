@@ -104,7 +104,7 @@
     <target name="uk.org.jape.jar" depends="version,jdepsclean"
         description="Build a jre standalone-application">
         <antcall target="${target}.jar" />
-        <exec executable="${environment.JAVA_HOME}/bin/jdeps" failifexecutionfails="true">
+        <exec executable="jdeps" failifexecutionfails="true">
             <arg value="--generate-module-info" />
             <arg value="src/module" />
             <arg value="build/jar/${target}/uk.org.jape.jar" />
