@@ -93,7 +93,8 @@ let rec option_foldl f z = function
 let rec option_foldr f z = function
   | []      -> Some z
   | x :: xs -> option_foldr f z xs &~~ f x
-  
+
+(* a fold right with uncurried f ... defined as a function of (unstated) z *)  
 let rec option_njfold f = function
   | []      -> _Some
   | x :: xs -> option_njfold f xs &~ (Miscellaneous.curry2 f) x
