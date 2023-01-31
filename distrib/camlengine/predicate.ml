@@ -75,6 +75,25 @@ let matchpredicate all isabstraction t =
       else None
   | _ -> None
 
+(* if this really appears to be a predicate, a FormulaClass Id with argument(s), say so ... *)
+let lookslikepredicate t =
+  match matchpredicate false (fun _ -> false) t with
+  | Some _ -> true
+  | _      -> false
+
+(* make a predicate from id and args. Used in unify.ml *)
+let makepredicate f args =
+  let argt = match args with 
+             | [arg] -> debracket arg
+             | _     -> registerTup (",", args)
+  in
+  let pred = registerApp (f, Termfuns.enbracket argt) 
+  in 
+  if lookslikepredicate pred then pred
+  else raise (Miscellaneous.Catastrophe_ ["makepredicate "; Termstring.string_of_term f; " "; 
+                                          Listfuns.bracketed_string_of_list Termstring.string_of_term ";" args]
+             )
+  
 (* given a mapping from names to lists of variables, translate predicates into substitutions *)
 let rec compilepredicate isabstraction env t =
   matchpredicate false isabstraction t &~~

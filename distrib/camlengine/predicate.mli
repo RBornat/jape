@@ -39,6 +39,8 @@ val findpredicatevars :
 val interpretpredicates : bool ref
 val matchpredicate :
   bool -> (term -> bool) -> term -> (term * term list) option
+val lookslikepredicate : term -> bool
+val makepredicate: term -> term list -> term
 val predicatedebug : bool ref
 val string_of_predicatebinding :
   (term * (term list * term list list) list) list -> string
