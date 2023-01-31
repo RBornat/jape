@@ -87,7 +87,7 @@ public class Logger {
 		    log.println(line);
 	    }
 	    catch (Exception exn) {
-		log.println("StreamLog "+JapeUtils.enQuote(id)+" got exception "+exn);
+		log.println("StreamLog "+JapeUtils.enQuote(id)+" got exception "+exn+" -- "+line);
 	    }
 	}
     }

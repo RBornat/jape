@@ -208,7 +208,7 @@ public class MinWaste {
     }
 
 	public static String[] minwaste(Component c, String s, int width) {
-	    Fold f = new Fold (c.getFontMetrics(c.getFont()), s, width);
+	    Fold f = new Fold (JapeFont.safeFontMetrics(c), s, width);
 	    while (f.width>width) {
 		int oldwidth = f.width;
 		f.split();

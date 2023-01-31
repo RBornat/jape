@@ -257,15 +257,22 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 	}
     }
 
+    private static Font safegetFont(Component c) {
+        if (c==null)
+            return getFont(TermFontNum);
+        else
+            return c.getFont();
+    }
+    
     private static void mimicFont(Component c) {
 	// use size info from component itself
-	mimicFont(c, c.getFont().getSize());
+	mimicFont(c, safegetFont(c).getSize());
     }
 
     private static Font mimics[] = new Font[0];
 	
     private static void mimicFont(Component c, int size) {
-	Font f = c.getFont();
+	Font f = safegetFont(c);
 	if (!BaseFont.getFontFamily().equals(f.getName()) || f.getSize()!=size) {
 	    if (size>mimics.length) {
 		Font mimics1[] = new Font[size+1];
@@ -355,7 +362,8 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
     }
 
     public static TextDimension measure(Component c, String s) {
-	FontMetrics m = c.getFontMetrics(c.getFont());
+	FontMetrics m = c==null ? getFontMetrics (TermFontNum)
+	                        : c.getFontMetrics(c.getFont());
 	return new TextDimension(m.stringWidth(s), m.getMaxAscent(), m.getMaxDescent());
     }
 
@@ -401,7 +409,8 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
     }
 
     public static int stringWidth(Component c, String s) {
-	FontMetrics m = c.getFontMetrics(c.getFont());
+        FontMetrics m = c==null ? getFontMetrics(TermFontNum)
+                                : c.getFontMetrics(c.getFont());
 	return m.stringWidth(s);
     }
 
@@ -410,6 +419,10 @@ public class JapeFont implements DebugConstants, ProtocolConstants {
 	return interfaceMetrics[fontnum];
     }
 
+    public static FontMetrics safeFontMetrics(Component c) {
+        return c==null ? getFontMetrics(TermFontNum)
+                       : c.getFontMetrics(c.getFont());
+    }
     public static Font getFont(byte fontnum) {
 	initInterfaceFonts();
 	return interfaceFonts[fontnum];
