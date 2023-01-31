@@ -701,6 +701,16 @@ let rec compileR el er (params, provisos, antes, conseq) =
           | None             -> raise (Catastrophe_ ["bad env in filter predicateps"])
        ) <| proofps
   in
+  (* not exactly sure what that last bit did, but it has its own para in 
+     roll your own and it hasn't bitten me, so leave it alone. But the substvars
+     chosen for the predicates are FRESH, that's for sure. Hoping that I get the args to 
+     FRESH right ...
+   *)
+  let freshps = 
+    let txs = fst <| Mappingfuns.ran env in 
+    let xs =  List.concat (snd <* txs) in
+    (fun x -> false, Provisotype.FreshProviso(true,true,false,x)) <* xs
+  in
   (* desperation ... *)
   let _ =
     if !thingdebug then
@@ -714,7 +724,10 @@ let rec compileR el er (params, provisos, antes, conseq) =
            env;
          " and applyps is ";
          bracketed_string_of_list (string_of_pair string_of_term string_of_term ",") ", "
-           applyps]
+           applyps;
+         " and freshps is ";
+         bracketed_string_of_list (string_of_pair string_of_bool string_of_proviso ",") "; " freshps
+        ]
   in
   (* ... end desperation *)
   let objparams =
