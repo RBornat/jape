@@ -47,13 +47,14 @@ jre:            ; cd $(GUIDIR); ant -Dtarget="OSX" -Dos="OSX" jre
 GUI:            ; export JAPEVERSION=`../CommonBuildResources/version.sh`; \
                   cd $(GUIDIR); ant -Dguiversion='"'$$JAPEVERSION'"' -Dtarget="OSX" uk.org.jape.jar
 
-clean:          ; $(MAKE) engineclean GUIclean bundlerclean appclean
+clean:          ; $(MAKE) engineclean GUIclean bundlerclean appclean htmlclean
 
 engineclean:    ; cd $(ENGINEDIR); $(MAKE) clean OS=OSX
 GUIclean:       ; cd $(GUIDIR); ant -Dtarget="OSX" -Dos="OSX" clean
 guiclean:       ; ant clean; cd $(GUIDIR); ant clean
 bundlerclean:   ; cd $(JREBUNDLER); ant clean
 appclean:       ; ant clean
+htmlclean:      ; rm *.html
 
 bundler:        ; cd $(JREBUNDLER); ant jar
 
