@@ -77,6 +77,7 @@ let rec debracket =
   function
   | Fixapp (_, ["("; ")"], [t]) -> debracket t
   | t -> t
+
 let rec bracketed =
   function
   | Fixapp (_, ["("; ")"], [t]) -> true
