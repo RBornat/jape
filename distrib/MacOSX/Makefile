@@ -54,7 +54,7 @@ GUIclean:       ; cd $(GUIDIR); ant -Dtarget="OSX" -Dos="OSX" clean
 guiclean:       ; ant clean; cd $(GUIDIR); ant clean
 bundlerclean:   ; cd $(JREBUNDLER); ant clean
 appclean:       ; ant clean
-htmlclean:      ; rm *.html
+htmlclean:      ; rm -f *.html
 
 bundler:        ; cd $(JREBUNDLER); ant jar
 
