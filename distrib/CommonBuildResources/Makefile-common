@@ -54,7 +54,9 @@ app: engine GUI jre; \
 #
 components::    engine GUI jre app
 
-clean::          engineclean GUIclean
+htmlclean::     ; rm -fr *.html
+
+clean::          engineclean GUIclean htmlclean
 
 distribution::  ; make components
 
