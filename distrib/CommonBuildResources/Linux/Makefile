@@ -10,7 +10,7 @@ run:        ; Jape.app/launchstub&
 
 wrap: app README_RUN.html README_INSTALL.html README_BUILD_LINUX.html ; \
               chmod +x launchstub installJape.sh; \
-              mkdir -p LinuxJape; rm -fr LinuxJape/*; \
+              rm -fr LinuxJape; mkdir -p LinuxJape; \
               cp -pR installJape.sh README_INSTALL.html Jape.app LinuxJape; \
               cp README_RUN.html LinuxJape/Jape.app; \
               cp -pR ../../examples LinuxJape/Jape.app; \
