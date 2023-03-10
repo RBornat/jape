@@ -90,6 +90,7 @@ val listsub : ('a * 'b -> bool) -> 'a list -> 'b list -> 'a list
 val eqlists : ('a * 'a -> bool) -> 'a list * 'a list -> bool
 val eqbags : ('a * 'a -> bool) -> 'a list * 'a list -> bool
 val numbered : 'a list -> (int * 'a) list
+
 val toposort : 'a list -> ('a -> 'a list) -> 'a list * 'a list list
 (* roots -> dependencies
  * -> (topological sort (roots first), list of cycles) 
