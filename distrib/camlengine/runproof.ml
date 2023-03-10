@@ -163,34 +163,69 @@ let doProof report query env name stage seq (params, givens, pros, tac) disproof
   let rec complain ss =
     report (label () :: " " :: string_of_name name :: " -- " :: ss)
   in
+  (* When we get a proof of a conjecture (or a conjectured rule) then there a number of things we must do.
+     
+     1. If there are any proofs, stored or otherwise (ooh er!) which depend on a conjecture with the same
+        name, then the stored conjecture must be textually the same as the new conjecture. Otherwise those
+        proofs have to be deleted.
+        
+     2. If that test is passed -- this is a new conjecture, or an unused conjecture, or the same as the
+        conjecture stored under its name -- then we check the proof.
+        
+     The check previously carried out -- that the new conjecture was proved by the stored conjecture --
+     was wrong because it was backwards, and even then wouldn't be enough, because dependent proofs 
+     would have to be remade.
+     
+     Unstored proofs mess this up, and I can see no way in which they can be communicated to doProof, so
+     for the time being, only proofs of currently stored conjectures or novel conjectures will be allowed.
+   *)
   let rec checkproof () =
     try
       Japeenv.stringset env (name_of_string "applyconjectures") "all";
       proving := name_of_string "";
       proofsdone := true;
-      (* apply the new theorem / rule to the version we already have, to see if it matches.
-         Because we don't care _how_ it matches, use ANY
-       *)
-      if !runprooftracing then 
-        consolereport ["runproof.checkproof trying applyLiteralTactic "; parseablestring_of_name name];
-      match
-        applyLiteralTactic env ("ANY " ^ parseablestring_of_name name) initialstate
-      with
-      | None ->
-          raise
-            (NoProof_
-               ("doesn't seem to be the same theorem (the base sequent "
-                  :: string_of_seq seq :: " doesn't match) -- " :: getReason ()))
-      | Some st ->
-          if !runprooftracing then 
-            consolereport ["applyLiteralTactic "; parseablestring_of_name name; " found statement of theorem (?rule?)"];
-          (* it seems to be a statement of the theorem *)
-          match applyTactic env tac initialstate with
-          | Some (Proofstate {cxt = cxt} as st) ->
-              let st = rewriteproofstate st in
-              cleanup ();
-              Some (st, isproven st && checkfinalprovisos cxt)
-          | None -> raise (NoProof_ ("proof fails -- " :: explain ""))
+      (* Do we have a version of this rule already? We must have -- see paragraphfuns.ml *)
+      let thingkind givens = if givens=[] then "rule" else "theorem" in
+      let samething (t_params, t_bpros, t_givens, t_seq) =
+        let pk () = ["loaded proof of "; thingkind givens; " "; string_of_name name] in
+        let pkdiff s = pk () @ [" has different "; s; " to stored version"] in
+        if not (eqbags Sequent.eqseqs (givens, t_givens)) then 
+          (if givens=[] || t_givens=[] then 
+             report ["loaded proof of "; string_of_name name; " defines a "; thingkind givens; 
+                     "; stored version is a "; thingkind t_givens]
+           else
+             report (pkdiff "premises/GIVENs")
+          );
+        if not (params=t_params) then
+          report (pkdiff "parameters");
+        if not (eqbags (uncurry2 (=)) (List.map snd t_bpros, pros)) then
+          report (pkdiff "provisos");
+        if not (Sequent.eqseqs (t_seq,seq)) then
+          report (pkdiff "conclusion");
+        true
+      in
+      let identity_ok =
+        match Thing.freshThingtoprove name with
+       | Some (Rule ((t_params, t_bpros, t_givens, t_seq as stuff), t_ax)) -> 
+           if !runprooftracing then consolereport ["it's a Rule"];
+           samething stuff
+       | Some (Theorem (t_params, t_bpros, t_seq))   -> 
+           if !runprooftracing then consolereport ["it's a Theorem"];
+           samething (t_params, t_bpros, [], t_seq)
+       | Some (Tactic _)    
+       | Some (Macro _)     
+       | None               -> true (* if it happens *)
+      in
+      if identity_ok then
+        if !runprooftracing then 
+          consolereport ["runproof.checkproof identity ok -- trying proof"];
+        (* it seems to be a statement of the theorem *)
+        match applyTactic env tac initialstate with
+        | Some (Proofstate {cxt = cxt} as st) ->
+            let st = rewriteproofstate st in
+            cleanup ();
+            Some (st, isproven st && checkfinalprovisos cxt)
+        | None -> raise (NoProof_ ("proof fails -- " :: explain ""))
     with
     | NoProof_ ss -> cleanup (); complain ss; None
     | Tacastrophe_ ss ->
