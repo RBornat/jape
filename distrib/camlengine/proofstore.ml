@@ -46,7 +46,7 @@ type seq = Sequent.seq
 let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     proof_children, addproof, saved, proofnames, provedthings, saveable,
     proved, disproved, provedordisproved, inproofstore, saveproof,
-    saveproofs =
+    saveproofs, proofs_which_depend_on =
 
   let proofs : (name, (bool * prooftree * name list * bool * (seq * model) option)) mapping ref =
     ref empty
@@ -79,6 +79,10 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     | Some ns -> ns
     | None -> []
   
+  and proofs_which_depend_on name =
+     fst <* ((fun (pname, (_, _, children, _, _)) -> List.mem name children) 
+          <| Mappingfuns.aslist !proofs)
+    
   (* when we prove something, we may prove a different sequent from the one that was 
    * proposed, and a different set of provisos.  We shall check, and update the 
    * statement of the theorem.  This has implications for conjectures that have 
@@ -256,7 +260,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
   freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
   proof_children, addproof, saved, proofnames, provedthings, saveable,
   proved, disproved, provedordisproved, inproofstore, saveproof,
-  saveproofs
+  saveproofs, proofs_which_depend_on
 
 let rec thingswithproofs triv =
      (fun n ->
