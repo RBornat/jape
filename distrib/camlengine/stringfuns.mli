@@ -112,3 +112,5 @@ val quotedstring_of_char : char -> string
 (* the hexstring functions don't put the 0x on the front *)
 val hexstring_of_int : int -> string
 val fixedwidth_hexstring_of_int: int (*width*) -> int -> string
+
+val wordstring_of_int : int -> string
