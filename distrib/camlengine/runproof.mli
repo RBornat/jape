@@ -44,9 +44,9 @@ val addproof   : (string list -> unit) ->
                  bool
 val doProof :
   (string list -> unit) ->
-    (string list * string * string * int -> bool) -> japeenv -> name ->
-    proofstage -> seq -> paraparam list * seq list * proviso list * tactic ->
-    (seq * model) option ->
+  (string list * string * string * int -> bool) -> japeenv -> name ->
+  proofstage -> seq -> paraparam list * seq list * proviso list * tactic ->
+  (seq * model) option ->
     (name * proofstate * (seq * model) option) option
 
 val runprooftracing : bool ref
