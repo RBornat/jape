@@ -24,7 +24,7 @@
 *)
 
 type alertspec =
-    Alert of (string * (string * alertspec option) list * int)
+  | Alert of (string * (string * alertspec option) list * int)
   | HowToFormulaSelect
   | HowToTextSelect
   | HowToDragFormulae
