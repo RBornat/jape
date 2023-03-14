@@ -64,6 +64,7 @@ module type Access =
     val stepprovisos : prooftree -> (bool * Proviso.proviso) list option
     val thinned : prooftree -> element list * element list
     val format : prooftree -> fmt
+    val raw_depends : name list -> prooftree -> name list
     val depends : prooftree -> name list
     val findAnyGoal : prooftree -> path option
     val findRightwardsGoal : bool -> prooftree -> path -> path option
@@ -352,16 +353,15 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
       | Tip  _ -> None
       | Join j -> Optionfuns.findfirst (find p) (join_subtrees j)
       
-    (* and something using fold_left *)
-    let depends tree =
-      let d ds = function
-        | Tip  _ -> ds
-        | Join j -> match j.how with
-                    | UnRule (_, ss)  -> ss @ ds
-                    | Apply (n, _, _) -> n :: ds
-                    | Given _         -> ds
-      in
-      sortunique nameorder (fold_left d [] tree)
+    (* and something designed for fold_left *)
+    let raw_depends ds = function
+      | Tip  _ -> ds
+      | Join j -> match j.how with
+                  | UnRule (_, ss)  -> ss @ ds
+                  | Apply (n, _, _) -> n :: ds
+                  | Given _         -> ds
+    
+    let depends tree = sortunique nameorder (fold_left raw_depends [] tree)
     
     (* -------------------------- navigation with int lists -------------------------- *)
         
@@ -1674,6 +1674,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
         let stepprovisos = stepprovisos
         let thinned = thinned
         let format = format
+        let raw_depends = raw_depends
         let depends = depends
         let findAnyGoal = optioncompose (fFmtPath, findAnyGoal_ns)
         let rec findRightwardsGoal skip t =
@@ -1735,6 +1736,7 @@ module Tree : Tree with type treeformat = Treeformat.Fmt.treeformat
         let stepprovisos = rule &~ (_Some <.> ruleprovisos)
         let thinned = thinned
         let format = format
+        let raw_depends = raw_depends
         let depends = depends
         let findAnyGoal = optioncompose (fVisPath, findAnyGoal_ns)
         let rec findRightwardsGoal skip t =
