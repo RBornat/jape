@@ -46,7 +46,7 @@ type seq = Sequent.seq
 let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     proof_children, addproof, saved, proofnames, provedthings, saveable,
     proved, disproved, provedordisproved, inproofstore, saveproof,
-    saveproofs, proofs_which_depend_on =
+    saveproofs, proofs_which_use, is_proofnamed, close_proofs =
 
   let proofs : (name, (bool * prooftree * name list * bool * (seq * model) option)) mapping ref =
     ref empty
@@ -79,10 +79,17 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     | Some ns -> ns
     | None -> []
   
-  and proofs_which_depend_on name =
+  and proofs_which_use name =
      fst <* ((fun (pname, (_, _, children, _, _)) -> List.mem name children) 
           <| Mappingfuns.aslist !proofs)
-    
+  
+  and is_proofnamed name =
+    match !proofs <@> name with
+    | Some (v,tree,_,_,disproof) -> subtrees tree <> [], bool_of_opt disproof
+    | None                       -> false, false
+  
+  and close_proofs names = proofs := !proofs -- names
+  
   (* when we prove something, we may prove a different sequent from the one that was 
    * proposed, and a different set of provisos.  We shall check, and update the 
    * statement of the theorem.  This has implications for conjectures that have 
@@ -260,7 +267,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
   freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
   proof_children, addproof, saved, proofnames, provedthings, saveable,
   proved, disproved, provedordisproved, inproofstore, saveproof,
-  saveproofs, proofs_which_depend_on
+  saveproofs, proofs_which_use, is_proofnamed, close_proofs
 
 let rec thingswithproofs triv =
      (fun n ->
@@ -293,5 +300,10 @@ let rec needsProof a1 a2 =
   | name, Macro _      -> false
   | name, Theorem _    -> not (proved name)
 
-let rec lacksProof name =
+let lacksProof name =
   needsProof name (fst (_The (thingnamed name)))
+
+(* special export *)
+let _ = Thing.proofs_which_use := proofs_which_use
+let _ = Thing.is_proofnamed := is_proofnamed
+let _ = Thing.close_proofs := close_proofs
