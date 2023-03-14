@@ -75,3 +75,14 @@ val thingdebugheavy : bool ref
 
 exception Fresh_ of string list 
 exception CompileThing_ of string list
+exception AddThing_
+
+(* nasty bit of de-modularising *)
+(* filled in by Proofstore *)
+val is_proofnamed     : (name -> bool * bool) ref                   
+val proofs_which_use  : (name -> name list) ref                     
+val close_proofs      : (name list -> unit) ref 
+(* filled in by Dialogue *)
+val windowsnamed      : (name -> ((name * int) * int) list) ref     
+val windows_which_use : (name -> ((name * int) * int) list) ref
+val close_windows     : (((name * int) * int) list -> unit) ref

@@ -1506,6 +1506,135 @@ let rec freshGiven weaken (Seq (st, lhs, rhs) (* as seq *)) cxt proved =
     renumberforuse [] [] (Seq (st, unknownres lhs, unknownres rhs)) [] cxt
   in
   cxt, interesting_resources, conseq
+  
+(* There is a horridness lurking here which has only just been noticed. If adding a thing
+   obliterates an existing rule or theorem, then all the stored proofs which use that rule
+   or theorem, and all the proofs in progress ditto, have to be invalidated, unless the 
+   new rule or theorem is evidently the same. This was first noticed in Runproof.doProof,
+   but it applies to addthing entirely. RB 2023/03/11
+ *)
+
+exception AddThing_
+
+(* and here's a modularity-breaking use of references, a horridness to fight that horridness *)
+(* filled in by Proofstore *)
+let is_proofnamed     : (name -> bool * bool) ref               = ref (fun _ -> false, false)   
+let proofs_which_use  : (name -> name list)                 ref = ref (fun _ -> [])
+let close_proofs      : (name list -> unit)                 ref = ref (fun _ -> ())
+(* filled in by Dialogue *)
+let windowsnamed      : (name -> ((name * int) * int) list) ref = ref (fun _ -> [])
+let windows_which_use : (name -> ((name * int) * int) list) ref = ref (fun _ -> [])
+let close_windows     : (((name * int) * int) list -> unit) ref = ref (fun _ -> ())
+
+let check_addthing name new_thing = 
+  let obliterate old_thing old_params old_bpros old_givens old_seq old_ax =
+    (* we are about to obliterate a Rule or a Theorem. Let's see if that matters *)
+    let namestring = string_of_name name in
+    let oproof  = !is_proofnamed name in
+    let ostored = !proofs_which_use name in
+    let wproofs = !windowsnamed name in
+    let wused   = !windows_which_use name in
+    let thingkind givens = if givens=[] then "rule" else "theorem" in
+    let thingdiff kind = 
+      String.concat "" ["the stored "; string_of_name name; " defines a "; thingkind old_givens;
+                        " but the new definition is a "; kind
+                       ] 
+    in
+    let problem_count = (if oproof<>(false,false) then 1 else 0) +
+                        List.length ostored +
+                        List.length wproofs +
+                        List.length wused
+    in
+    let sentence_string es =
+      let es = List.filter (fun e -> e<>[]) es in
+      if es=[] then "" 
+      else Listfuns.sentencestring_of_list (String.concat "") ", " " and "  es
+    in
+    if problem_count=0 then () (* no uses, no problem so far as the user is concerned *)
+    else (* still ok if it's the _same_ conjecture *)
+      (let samething params pros givens seq ax =
+         let verdict =
+           sentence_string
+             [if eqbags Sequent.eqseqs (givens, old_givens) then [] 
+              else
+               ["different premises/GIVENs"];
+              if params=old_params then [] else ["different parameters"];
+              if eqbags (uncurry2 (=)) (List.map snd old_bpros, List.map snd pros) then []
+                                else ["different provisos"];
+              if Sequent.eqseqs (old_seq,seq) then []
+              else ["a different conclusion sequent"]
+             ]
+         in
+         if verdict="" then "" else String.concat "" ["Your new definition has "; verdict; " to the stored version."]
+       in
+       let verdict = match new_thing with
+                     | Rule ((params, bpros, givens, seq), ax) -> samething params bpros givens seq ax
+                     | Theorem (params, bpros, seq)            -> samething params bpros [] seq false
+                     | Tactic _                                -> thingdiff "tactic"
+                     | Macro _                                 -> thingdiff "macro"
+       in
+       if verdict="" then () (* it's the same thing as before, forget it *)
+       else 
+         (let message_list =
+            ["(Congratulations on activating a very obscure Jape error message.)\n
+             \n
+             In defining "; namestring; " IS "; string_of_thing new_thing; "\n
+             you will obliterate an existing "; thingkind old_givens; "\n
+             \n";
+             verdict; "\n
+             \n
+             If you make this change, Jape must "; 
+               sentence_string [if oproof<>(false,false) then ["delete a stored proof of"; namestring] else [];
+                                (match ostored with
+                                 | []  -> []
+                                 | [_] -> ["delete a proof which uses"; namestring] 
+                                 | _   -> ["delete "; wordstring_of_int (List.length ostored);
+                                           " proofs which use "; namestring
+                                          ]
+                                );
+                                (match wproofs with
+                                 | []  -> []
+                                 | [_] -> ["close a window with a proof of "; namestring]
+                                 | _   -> ["close "; wordstring_of_int (List.length wproofs);
+                                           " windows with proofs of "; namestring
+                                          ]
+                                );
+                                (match wused with
+                                 | []  -> []
+                                 | [_] -> ["close a window with a proof which uses "; namestring]
+                                 | _   -> ["close "; wordstring_of_int (List.length wproofs);
+                                           " windows with proofs whics use "; namestring
+                                          ]
+                                )
+                               ];
+             "\n
+              \n
+              Do you want to go ahead and make "; 
+              if problem_count=1 then "that change?" else "those changes?"
+            ]
+          in
+          if Alert.askCancel Alert.Error
+                             (String.concat "" message_list)
+                             [("OK", true)]
+                             false
+                             1
+          then (* do it *)
+            (!close_proofs (if oproof<>(false,false) then name::ostored else ostored);
+             !close_windows (wproofs @ wused)
+            )
+          else raise AddThing_ (* don't do it *)
+         )
+      )  
+  in
+  match freshThingtoprove name with
+  | Some (Rule ((old_params, old_bpros, old_givens, old_seq), old_ax) as r) -> 
+      obliterate r old_params old_bpros old_givens old_seq old_ax
+  | Some (Theorem (old_params, old_bpros, old_seq) as t)   -> 
+      obliterate t old_params old_bpros [] old_seq false
+  | Some (Tactic _)    
+  | Some (Macro _)     
+  | None               -> () (* it doesn't matter, it wasn't a rule or a theorem before *)
 
 (* for export *)
 let addstructurerule = addstructurerule compiledthingnamed thingnamed
+let addthing (name, thing, place) = check_addthing name thing; addthing (name, thing, place)
