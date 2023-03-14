@@ -428,6 +428,38 @@ let docommand displaystate env target comm =
 
 let badsel ss = showAlert ss; raise (Applycommand_ None)
 
+(* this is a horrid bit of de-modularisation. Thing.addthing needs to know which on-screen
+   proofs, if any, use a particularly-named rule or theorem. To do that it needs to scan
+   the proof histories. But they are wrapped up in the 'commands' recursion below. So 
+   commands leaks a bit of state to here.
+ *)
+
+let outerpinfs : proofinfo list ref = ref []
+
+let windows_which_use name =
+  let pinfs = !outerpinfs in
+  let used_names tps
+                 (Pinf {title=title; proofnum=proofnum; 
+                        hist=WinHist{proofhist=Hist{now=now; pasts=pasts; futures=futures}}}) =
+    let rd ns (Proofstate{tree=tree}) = raw_depends ns tree in
+    let uns = List.fold_left rd [] ((now::pasts)@futures) in
+    if List.mem name uns then (title,proofnum)::tps else tps
+  in
+  List.fold_left used_names [] pinfs
+
+let windowsnamed name =
+  let pinfs = List.filter (fun (Pinf {title=t,_}) -> t=name) !outerpinfs in
+  List.map (fun (Pinf{title=title; proofnum=proofnum}) -> title,proofnum) pinfs
+
+let to_be_closed : ((name * int) * int) list ref = ref []
+
+let close_windows stuff =
+  to_be_closed := stuff
+  
+let _ = Thing.windows_which_use := windows_which_use
+let _ = Thing.windowsnamed := windowsnamed
+let _ = Thing.close_windows := close_windows
+
 (* There appear to be two reasonable behaviours, given a selection and a command.
  * 1. (the original) -- resolve the selection to a single tip, if possible, and work there.
  * 2. (the new and odd) -- just take exactly what was given, and damn the consequences.
@@ -441,18 +473,18 @@ let badsel ss = showAlert ss; raise (Applycommand_ None)
  * It should fail if you make a text selection which is not on the path to whatever conclusion
  * you are working towards -- but then, what should the logic encoder (the tactic programmer)
  * do? At present we assume that if LETHYPSUBSTSEL fails, either you didn't text-select anything
- * or it wasn't in a hypothesis. The sort of thing you have to write is this (from hoare_problems.j)
+ * or it wasn't in a hypothesis. The sort of thing you have to write is this (from hoare_menus.j)
  
           MACRO rwMenu (tac, label, dir, shape, pat) IS
            WHEN
                  (LETHYPSUBSTSEL pat tac)
-                 (LETHYPSUBSTSEL (_B�_A/_xx�)
+                 (LETHYPSUBSTSEL (_B«_A/_xx»)
                          (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
                                          \You subformula-selected %t, which isn't of the right form.", 
                                          label, dir, shape, _A)
                                         ("OK", STOP) ("Huh?", SHOWHOWTO "TextSelect")))
                  (LETCONCSUBSTSEL pat tac)
-                 (LETCONCSUBSTSEL (_B�_A/_xx�)
+                 (LETCONCSUBSTSEL (_B«_A/_xx»)
                          (ALERT ("To use %s %s, you have to select (or subformula-select) something of the form %s. \
                                          \You subformula-selected %t, which isn't of the right form.", 
                                          label, dir, shape, _A)
@@ -2220,6 +2252,20 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   (* assignment to displayvars can force redisplay *)
   let nextargs =
     try
+    
+    (* demodularisation stuff here *)
+    outerpinfs := pinfs; (* oh dear *)
+    if !to_be_closed<>[] then
+      (Alert.showAlert Alert.Warning
+                       ("At present, Jape can't close windows for you. Please close the following windows:\n\n" ^
+                        Listfuns.sentencestring_of_list
+                          (fun ((title,idx),_) -> if idx=0 then string_of_name title else (string_of_name title ^ " (" ^ string_of_int idx ^")"))
+                          " , " " and " !to_be_closed 
+                       );
+       to_be_closed := [];
+       raise Thing.AddThing_
+      )
+    else
       match pinfs with
       | (Pinf
            {displayvarsvals = displayvarsvals;
@@ -2308,6 +2354,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             showAlert ["A conclusion should be selected; and none is."];
             env, mbs, DontShow, pinfs
 
+    | AddThing_ -> env, mbs, DontShow, pinfs
     | exn ->
         showAlert
           ["unexpected exception "; Printexc.to_string exn; " in commands"];
