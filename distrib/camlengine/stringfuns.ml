@@ -119,3 +119,17 @@ let fixedwidth_hexstring_of_int w i =
   Sml.string_of_chars (h w i [])
 
 let hexstring_of_int = fixedwidth_hexstring_of_int 1
+
+let rec wordstring_of_int = function
+ | 0 -> "zero"
+ | 1 -> "one"
+ | 2 -> "two"
+ | 3 -> "three"
+ | 4 -> "four"
+ | 5 -> "five"
+ | 6 -> "six"
+ | 7 -> "seven"
+ | 8 -> "eight"
+ | 9 -> "nine"
+ | n -> if n<0 && -10<n then "minus " ^ wordstring_of_int n else string_of_int n
+ 
