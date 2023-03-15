@@ -64,5 +64,3 @@ val namedthingswithproofs : bool -> name list -> name list
 val needsProof    : name -> thing -> bool
 val lacksProof    : name -> bool
 val thmLacksProof : name -> bool
-
-val proofs_which_depend_on : name -> name list
