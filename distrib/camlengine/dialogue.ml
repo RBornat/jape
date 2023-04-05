@@ -451,14 +451,8 @@ let windowsnamed name =
   let pinfs = List.filter (fun (Pinf {title=t,_}) -> t=name) !outerpinfs in
   List.map (fun (Pinf{title=title; proofnum=proofnum}) -> title,proofnum) pinfs
 
-let to_be_closed : ((name * int) * int) list ref = ref []
-
-let close_windows stuff =
-  to_be_closed := stuff
-  
 let _ = Thing.windows_which_use := windows_which_use
 let _ = Thing.windowsnamed := windowsnamed
-let _ = Thing.close_windows := close_windows
 
 (* There appear to be two reasonable behaviours, given a selection and a command.
  * 1. (the original) -- resolve the selection to a single tip, if possible, and work there.
@@ -1989,30 +1983,20 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 
         | "setfocus", [nstring] ->
             if not (null pinfs) then (
-              let
-                (Pinf
-                   {title = title;
-                    proofnum = proofnum;
-                    displayvarsvals = displayvarsvals;
-                    needsrefresh = needsrefresh;
-                    displaystate = displaystate;
-                    hist = hist;
-                    fromstore = fromstore})
-                =
-                List.hd pinfs
-              in
-              let pinfs =
-                Pinf {title = title; proofnum = proofnum; 
-                      displayvarsvals = recorddisplayvars env; (* just in case *)
-                      needsrefresh = needsrefresh; displaystate = displaystate;
-                      hist = hist; fromstore = fromstore} ::
-                  List.tl pinfs
-              in
               let (fg, bgs) = findproof pinfs nstring in
               newfocus (env, mbs, DontShow, fg :: bgs))
             else (
               showAlert ["GUI protocol error: setfocus "; nstring; " with no proof windows"];
               default)
+        
+        | "windowsclosed", nstrings ->
+            let rec wc pinfs = function
+              | [] -> (env, mbs, DontShow, pinfs)
+              | nstring :: ns ->
+                  let _, pinfs = findproof pinfs nstring in
+                  wc pinfs ns
+            in
+            wc pinfs nstrings
         
         | "windowwidened", [n] ->
             (* if a window gets narrower, then we have to redraw if we have one of the
@@ -2253,19 +2237,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   let nextargs =
     try
     
-    (* demodularisation stuff here *)
-    outerpinfs := pinfs; (* oh dear *)
-    if !to_be_closed<>[] then
-      (Alert.showAlert Alert.Warning
-                       ("At present, Jape can't close windows for you. Please close the following windows:\n\n" ^
-                        Listfuns.sentencestring_of_list
-                          (fun ((title,idx),_) -> if idx=0 then string_of_name title else (string_of_name title ^ " (" ^ string_of_int idx ^")"))
-                          " , " " and " !to_be_closed 
-                       );
-       to_be_closed := [];
-       raise Thing.AddThing_
-      )
-    else
+      (* demodularisation stuff here *)
+      outerpinfs := pinfs; (* oh dear *)
       match pinfs with
       | (Pinf
            {displayvarsvals = displayvarsvals;

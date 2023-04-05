@@ -109,6 +109,13 @@ public class Reply implements DebugConstants {
         send(uc);        
     }
     
+    public static void sendCOMMAND(String c, Integer[] is) {
+        String uc = "COMMAND "+c;
+        for (Integer i : is)
+            uc = uc+" "+i.intValue();
+        send(uc);        
+    }
+    
     public static void sendCOMMAND(String c, String s1, String s2) {
         send("COMMAND "+c+" "+argQuote(s1)+" "+argQuote(s2));        
     }

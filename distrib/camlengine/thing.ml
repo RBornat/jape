@@ -1524,7 +1524,6 @@ let close_proofs      : (name list -> unit)                 ref = ref (fun _ -> 
 (* filled in by Dialogue *)
 let windowsnamed      : (name -> ((name * int) * int) list) ref = ref (fun _ -> [])
 let windows_which_use : (name -> ((name * int) * int) list) ref = ref (fun _ -> [])
-let close_windows     : (((name * int) * int) list -> unit) ref = ref (fun _ -> ())
 
 let check_addthing name new_thing = 
   let obliterate old_thing old_params old_bpros old_givens old_seq old_ax =
@@ -1550,7 +1549,13 @@ let check_addthing name new_thing =
       if es=[] then "" 
       else Listfuns.sentencestring_of_list (String.concat "") ", " " and "  es
     in
-    if problem_count=0 then () (* no uses, no problem so far as the user is concerned *)
+    if problem_count=0 then 
+     ( (* no uses, no problem so far as the user is concerned -- unless it's an axiom ... *)
+       if old_ax then
+         (if Alert.ask Alert.Warning "You are renaming an axiom!" [("OK",false);("Cancel",true)] 1
+          then raise AddThing_
+         )
+     ) 
     else (* still ok if it's the _same_ conjecture *)
       (let samething params pros givens seq ax =
          let verdict =
@@ -1620,7 +1625,7 @@ let check_addthing name new_thing =
                              1
           then (* do it *)
             (!close_proofs (if oproof<>(false,false) then name::ostored else ostored);
-             !close_windows (wproofs @ wused)
+             Japeserver.force_close (List.map snd (wproofs @ wused))
             )
           else raise AddThing_ (* don't do it *)
          )

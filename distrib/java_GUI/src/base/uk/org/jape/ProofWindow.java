@@ -816,6 +816,10 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 		Reply.sendCOMMAND("setfocus", (focusv.get(0)).proofnum);
 	}
 
+	public synchronized void reportClosed(Integer[] proofnums) {
+	    Reply.sendCOMMAND("windowsclosed", proofnums);    
+	}
+	
 	public synchronized void makeReady() {
 	    for (int i = 0; i<focusv.size(); i++)
 		(focusv.get(i)).makeWindowReady();
@@ -849,6 +853,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	return w;
     }
 
+    
     public static void closeproof(int proofnum, boolean report) throws ProtocolError {
 	ProofWindow proof = findProof(proofnum);
 	if (report) 
@@ -862,6 +867,13 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	enableProofMenuItems();
     }
 
+    public static void closeproofs(Integer[] proofnums) throws ProtocolError {
+       for (Integer i : proofnums) 
+           closeproof (i.intValue(), false);
+       focusManager.reportClosed(proofnums);
+       focusManager.reportFocus();
+    }
+    
     private static void enableProofMenuItems() {
 	ProofWindow w = maybeFocussedWindow();
 	if (w!=null)

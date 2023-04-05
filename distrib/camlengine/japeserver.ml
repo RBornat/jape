@@ -470,10 +470,16 @@ let rec resettheory () =
   menus := [];
   menusVisible := false
 
-let rec openproof name number =
+let openproof name number =
   writef "OPENPROOF % %\n" [Str name; Int number]
 
-let rec closeproof number report = writef "CLOSEPROOF % %\n" [Int number; Bool report]
+let closeproof number report = writef "CLOSEPROOF % %\n" [Int number; Bool report]
+
+(* close several proofs, quietly. Reply will be this same list, plus a focus (eventually) *)
+let force_close ns = 
+  writef "FORCECLOSE\n" [];
+  List.iter (fun n -> writef "FORCECLOSEONE %\n" [Int n]) ns;
+  writef "FORCECLOSEEND\n" []
 
 (* this bit has to match JapeMenu.java, which says PROOFWINDOW_BAR=1 *)
 

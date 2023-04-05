@@ -85,4 +85,3 @@ val close_proofs      : (name list -> unit) ref
 (* filled in by Dialogue *)
 val windowsnamed      : (name -> ((name * int) * int) list) ref     
 val windows_which_use : (name -> ((name * int) * int) list) ref
-val close_windows     : (((name * int) * int) list -> unit) ref

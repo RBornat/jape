@@ -145,6 +145,7 @@ exception DeadGUI_
 
 val openproof  : string -> int -> unit
 val closeproof : int -> bool -> unit
+val force_close : int list -> unit
 
 val showfile : string -> unit
 val echo     : string -> string

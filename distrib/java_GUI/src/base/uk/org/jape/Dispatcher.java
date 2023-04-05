@@ -74,6 +74,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 	Vector<IntString> givenlist = new Vector<IntString>();
 	Vector<Insert> insertlist = new Vector<Insert>();
         Vector<String[]> radiobuttonlist = new Vector<String[]>();
+        Vector<Integer> proofnumlist = new Vector<Integer>();
 	try {
 	    while (true) {
 		String line = Engine.fromEngine().readLine();
@@ -379,6 +380,15 @@ public class Dispatcher extends Thread implements DebugConstants {
 			else
 			if (p=="CLOSEPROOF"&&len==3)
 			    ProofWindow.closeproof(toInt(cmd[1]), toBool(cmd[2]));
+                        else
+                        if (p == "FORCECLOSE" && len == 1)
+                            proofnumlist.removeAllElements();
+                        else
+                        if (p == "FORCECLOSEONE" && len == 2)
+                            proofnumlist.add(Integer.valueOf(toInt(cmd[1])));
+                        else
+                        if (p == "FORCECLOSE" && len == 1)
+                            ProofWindow.closeproofs(proofnumlist.toArray(new Integer[proofnumlist.size()]));
 			else
 			if (p=="PANEGEOMETRY"&&len==2)
 			Reply.reply(ProofWindow.getFocussedWindow().getPaneGeometry(toByte(cmd[1])));
