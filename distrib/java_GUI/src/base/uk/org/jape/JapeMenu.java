@@ -286,13 +286,15 @@ public class JapeMenu implements DebugConstants {
     
     public static final int PROOFWINDOW_BAR      = 1,
                             DIALOGWINDOW_BAR     = 2,
-                            TEXTDIALOGWINDOW_BAR = 4,
-                            OTHERWINDOW_BAR      = 8;
+                            TEXTDIALOG_BAR = 4,
+                            LEMMADIALOG_BAR      = 8,
+                            OTHERWINDOW_BAR      = 16;
     
     public static final int ALL_BARS = PROOFWINDOW_BAR | DIALOGWINDOW_BAR |
-                                       TEXTDIALOGWINDOW_BAR | OTHERWINDOW_BAR,
-                            EDIT_BARS = PROOFWINDOW_BAR | TEXTDIALOGWINDOW_BAR,
-                            UNDIALOG_BARS = ALL_BARS - (DIALOGWINDOW_BAR | TEXTDIALOGWINDOW_BAR);
+                                       TEXTDIALOG_BAR | LEMMADIALOG_BAR |
+                                       OTHERWINDOW_BAR,
+                            EDIT_BARS = PROOFWINDOW_BAR | TEXTDIALOG_BAR | LEMMADIALOG_BAR,
+                            UNDIALOG_BARS = PROOFWINDOW_BAR | OTHERWINDOW_BAR;
     
     protected static TitledMenuBar mkBar(int barKind, Window w, String title) {
         if (DebugVars.menuaction_tracing)
@@ -457,7 +459,7 @@ public class JapeMenu implements DebugConstants {
             if (w instanceof ProofWindow)
                 ((ProofWindow)w).closeProof();
             else
-                Alert.guiAbort("CloseProofAction on non-proof window");
+                Alert.guiAbort("CloseProofAction on non-proof window"); /* oh dear this shouldn't happen with TextDialog */
         }
     }
 
@@ -811,22 +813,22 @@ public class JapeMenu implements DebugConstants {
         
         editmenu.addSep(PROOFWINDOW_BAR/*|TEXTDIALOGWINDOW_BAR*/);
 
-        indexMenuItem(editmenu, "Cut", new UnimplementedAction("Edit: Cut"), TEXTDIALOGWINDOW_BAR).
+        indexMenuItem(editmenu, "Cut", new UnimplementedAction("Edit: Cut"), TEXTDIALOG_BAR).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, menumask));
 
-        indexMenuItem(editmenu, COPY, new CopyUnicodeAction(), PROOFWINDOW_BAR|TEXTDIALOGWINDOW_BAR).
+        indexMenuItem(editmenu, COPY, new CopyUnicodeAction(), PROOFWINDOW_BAR|TEXTDIALOG_BAR).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, menumask));
 
         indexMenuItem(editmenu, "Copy Proof", new CopyProofAction(), PROOFWINDOW_BAR).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C,
                                                   menumask+java.awt.event.ActionEvent.ALT_MASK));
         
-        indexMenuItem(editmenu, "Paste", new UnimplementedAction("Edit: Paste"), TEXTDIALOGWINDOW_BAR).
+        indexMenuItem(editmenu, "Paste", new UnimplementedAction("Edit: Paste"), TEXTDIALOG_BAR).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, menumask));
 
-        indexMenuItem(editmenu, "Clear", new UnimplementedAction("Edit: Clear"), TEXTDIALOGWINDOW_BAR);
+        indexMenuItem(editmenu, "Clear", new UnimplementedAction("Edit: Clear"), TEXTDIALOG_BAR);
 
-        indexMenuItem(editmenu, "Select All", new UnimplementedAction("Edit: Select All"), TEXTDIALOGWINDOW_BAR).
+        indexMenuItem(editmenu, "Select All", new UnimplementedAction("Edit: Select All"), TEXTDIALOG_BAR).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, menumask));
         
     }
