@@ -104,7 +104,6 @@ public class JapeMenu implements DebugConstants {
                 if (o instanceof I && ((I)o).label.equals(label)) {
                     itemv.remove(i); 
                     // Logger.log.println("menu now "+this);
-                    versionstamp++; // seems to be necessary
                     return;
                 }
             }
@@ -284,16 +283,16 @@ public class JapeMenu implements DebugConstants {
                                MAKE_LEMMA      = "Make lemma...",
                                OPEN_RECENT     = "Open Recent";
     
-    public static final int PROOFWINDOW_BAR      = 1,
-                            DIALOGWINDOW_BAR     = 2,
-                            TEXTDIALOG_BAR = 4,
-                            LEMMADIALOG_BAR      = 8,
-                            OTHERWINDOW_BAR      = 16;
+    public static final int PROOFWINDOW_BAR      = 1, // see japeserver.ml -- this must be 1
+                            TEXTDIALOG_BAR       = 2,
+                            LEMMADIALOG_BAR      = 4,
+                            OTHERWINDOW_BAR      = 8;
     
-    public static final int ALL_BARS = PROOFWINDOW_BAR | DIALOGWINDOW_BAR |
+    public static final int ALL_BARS = PROOFWINDOW_BAR | 
                                        TEXTDIALOG_BAR | LEMMADIALOG_BAR |
                                        OTHERWINDOW_BAR,
                             EDIT_BARS = PROOFWINDOW_BAR | TEXTDIALOG_BAR | LEMMADIALOG_BAR,
+                            DIALOG_BARS = TEXTDIALOG_BAR | LEMMADIALOG_BAR,
                             UNDIALOG_BARS = PROOFWINDOW_BAR | OTHERWINDOW_BAR;
     
     protected static TitledMenuBar mkBar(int barKind, Window w, String title) {
@@ -459,7 +458,7 @@ public class JapeMenu implements DebugConstants {
             if (w instanceof ProofWindow)
                 ((ProofWindow)w).closeProof();
             else
-                Alert.guiAbort("CloseProofAction on non-proof window"); /* oh dear this shouldn't happen with TextDialog */
+                Alert.guiAbort("CloseProofAction on non-proof window");
         }
     }
 
@@ -487,8 +486,6 @@ public class JapeMenu implements DebugConstants {
                     Toolkit.getDefaultToolkit().getSystemClipboard().
                         setContents(new StringSelection(s),null);
             }
-            else
-                Alert.guiAbort("CopyUnicodeAction on non-proof window");
         }
     }
 
@@ -616,8 +613,6 @@ public class JapeMenu implements DebugConstants {
         public void action(Window w) {
             if (w instanceof ProofWindow)
                 Reply.sendCOMMAND("redo_"+((ProofWindow)w).undoSuffix());
-            else
-                Alert.guiAbort("RedoAction not in ProofWindow");
         }
     }
     
@@ -650,8 +645,6 @@ public class JapeMenu implements DebugConstants {
         public void action(Window w) {
             if (w instanceof ProofWindow)
                 Reply.sendCOMMAND("undo_"+((ProofWindow)w).undoSuffix());
-            else
-                Alert.guiAbort("UndoAction not in ProofWindow");
         }
     }
     
@@ -725,7 +718,6 @@ public class JapeMenu implements DebugConstants {
     }
     
     private static I indexMenuItem(M menu, int index, String label, ItemAction action, int barKinds) {
-        versionstamp++;
         I i = makeI(menu.title, label, action, barKinds); 
         menu.insert(index, i);
         return i;
@@ -791,18 +783,17 @@ public class JapeMenu implements DebugConstants {
     }
     
     public static void addStdEditMenuItems(M editmenu) {
-        /* no Undo, Redo in text dialogs till I work out how to do it, sigh */
         
-        indexMenuItem(editmenu, "Undo", new UndoAction(), PROOFWINDOW_BAR/*|TEXTDIALOGWINDOW_BAR*/).
+        indexMenuItem(editmenu, "Undo", new UndoAction(), PROOFWINDOW_BAR|DIALOG_BARS).
         setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, menumask));
 
-        indexMenuItem(editmenu, "Redo", new RedoAction(), PROOFWINDOW_BAR/*|TEXTDIALOGWINDOW_BAR*/).
+        indexMenuItem(editmenu, "Redo", new RedoAction(), PROOFWINDOW_BAR|DIALOG_BARS).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z,
                                                   menumask+java.awt.event.ActionEvent.SHIFT_MASK));
         
-        editmenu.addSep(PROOFWINDOW_BAR/*|TEXTDIALOGWINDOW_BAR*/);
+        editmenu.addSep(PROOFWINDOW_BAR|DIALOG_BARS);
 
-        indexMenuItem(editmenu, "Apply tactic", new TacticCommandAction(), PROOFWINDOW_BAR/*|TEXTDIALOGWINDOW_BAR*/).
+        indexMenuItem(editmenu, "Apply tactic", new TacticCommandAction(), PROOFWINDOW_BAR).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T,
                                                   menumask));
 
@@ -813,22 +804,22 @@ public class JapeMenu implements DebugConstants {
         
         editmenu.addSep(PROOFWINDOW_BAR/*|TEXTDIALOGWINDOW_BAR*/);
 
-        indexMenuItem(editmenu, "Cut", new UnimplementedAction("Edit: Cut"), TEXTDIALOG_BAR).
+        indexMenuItem(editmenu, "Cut", new UnimplementedAction("Edit: Cut"), DIALOG_BARS).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, menumask));
 
-        indexMenuItem(editmenu, COPY, new CopyUnicodeAction(), PROOFWINDOW_BAR|TEXTDIALOG_BAR).
+        indexMenuItem(editmenu, COPY, new CopyUnicodeAction(), PROOFWINDOW_BAR|DIALOG_BARS).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, menumask));
 
         indexMenuItem(editmenu, "Copy Proof", new CopyProofAction(), PROOFWINDOW_BAR).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C,
                                                   menumask+java.awt.event.ActionEvent.ALT_MASK));
         
-        indexMenuItem(editmenu, "Paste", new UnimplementedAction("Edit: Paste"), TEXTDIALOG_BAR).
+        indexMenuItem(editmenu, "Paste", new UnimplementedAction("Edit: Paste"), DIALOG_BARS).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, menumask));
 
-        indexMenuItem(editmenu, "Clear", new UnimplementedAction("Edit: Clear"), TEXTDIALOG_BAR);
+        indexMenuItem(editmenu, "Clear", new UnimplementedAction("Edit: Clear"), DIALOG_BARS);
 
-        indexMenuItem(editmenu, "Select All", new UnimplementedAction("Edit: Select All"), TEXTDIALOG_BAR).
+        indexMenuItem(editmenu, "Select All", new UnimplementedAction("Edit: Select All"), DIALOG_BARS).
             setAccelerator(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, menumask));
         
     }

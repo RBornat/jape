@@ -211,7 +211,7 @@ public class LemmaDialog {
 					   null, options, options[0]);
 	final JDialog dialog = pane.createDialog(JapeWindow.getTopWindow(), "Make a lemma");
 	
-	JapeMenu.setDialogMenuBar(JapeMenu.TEXTDIALOGWINDOW_BAR|JapeMenu.DIALOGWINDOW_BAR, 
+	JapeMenu.setDialogMenuBar(JapeMenu.LEMMADIALOG_BAR|JapeMenu.DIALOG_BARS, 
 				  dialog, "Make Lemma dialog");
 
 	Component panelBlank = panelList.getEditor().getEditorComponent();

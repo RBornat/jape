@@ -203,7 +203,7 @@ public class TextDialog {
                 }
             });}
         
-        JapeMenu.setDialogMenuBar(JapeMenu.TEXTDIALOGWINDOW_BAR|JapeMenu.DIALOGWINDOW_BAR, 
+        JapeMenu.setDialogMenuBar(JapeMenu.TEXTDIALOG_BAR|JapeMenu.DIALOG_BARS, 
                                   dialog, title);
         dialog.setVisible(true);
         
