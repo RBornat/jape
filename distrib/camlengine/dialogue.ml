@@ -1741,7 +1741,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  default
              | Some (_, tree, provisos, givens, _, disproofopt) ->
                  let proofstate =
-                   mkstate ((mkvisproviso <* provisos)) givens tree
+                   mkstate ((mkvisproviso <* provisos)) givens tree true
                  in
                  newfocus
                    (env, mbs, DontShow,
