@@ -77,12 +77,5 @@ MACRO "Syllogism-tac" (rule, hpat1, hpat2, mpat, cpat) IS
                 rule
           )
        )
-       (LETGOAL _A 
-          (WHEN (LETHYP hpat1 (CUTIN (SEQ (rule mpat) (WITHHYPSEL (see (hpat1))))))
-                (LETHYP hpat2 (CUTIN (SEQ (rule mpat) SKIP (WITHHYPSEL (see (hpat2))))))
-                (LETHYP _A (Fail ("%t is not applicable to the conclusion %t and hypothesis %t", rule, cpat, _A)))
-                (Fail ("%t does not infer the conclusion %t", rule, _A))
-          )
-       )       
        (LETGOAL _A (Fail ("%t does not infer the conclusion %t", rule, _A)))       
 

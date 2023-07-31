@@ -47,10 +47,11 @@ type prooftree = Prooftree.Tree.Fmttree.prooftree
 let provisovars = provisovars termvars tmerge
 
 type proofstate = Proofstate of staterec
- and staterec = { cxt : cxt; tree : prooftree; givens : seq list;
+ and staterec = { cxt : cxt; tree : prooftree; wholetree : bool;
                   goal : path option; target : path option;
-                  root : (prooftree * path) option }
-
+                  root : (prooftree * path) option;
+                  givens : seq list
+                }
 
 let proofstate_cxt = fun (Proofstate {cxt = cxt}) -> cxt
 let proofstate_tree = fun (Proofstate {tree = tree}) -> tree
@@ -66,6 +67,7 @@ let withgivens (Proofstate s) givens = Proofstate {s with givens = givens}
 let withgoal (Proofstate s) goal = Proofstate {s with goal = goal}
 let withtarget (Proofstate s) target = Proofstate {s with target = target}
 let withroot (Proofstate s) root = Proofstate {s with root = root}
+let withwhole (Proofstate s) wholetree = Proofstate {s with wholetree = wholetree}
 
 let string_of_subtree pathopt tree =
   match pathopt with
@@ -101,10 +103,12 @@ let nextusefulgoal skip t path =
   (findRightwardsGoal skip t path |~~ (fun _ -> findAnyGoal t))
 
 let proofstep cxt subtree = function 
-  | Proofstate {tree = tree; goal = Some gpath} as state ->
+  | Proofstate {tree = tree; goal = Some gpath; wholetree = wholetree} as state ->
       let (gpath', tree') = insertprooftree cxt gpath tree subtree in
       (try Some (withcxt (withgoal (withtree state tree') (nextusefulgoal false tree' gpath'))
-                         (Provisofuns.verifytreeprovisos tree' cxt)
+                         (if wholetree then Provisofuns.verifytreeprovisos tree' cxt
+                                       else cxt
+                         )
                 )
        with
          | Provisofuns.Verifyproviso _ -> None

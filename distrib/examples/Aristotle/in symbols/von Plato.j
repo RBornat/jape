@@ -27,32 +27,8 @@
  */
 
 USE "Syllogisms syntax.j"
-USE "Syllogisms rules.j"
-
-INITIALISE autoAdditiveLeft true
-INITIALISE applyconjectures none    /* see RADIOBUTTON below */
-
-INITIALISE displaystyle box         /* see RADIOBUTTON below */
-INITIALISE outermostbox false       
-INITIALISE innerboxes false         /* see RADIOBUTTON below */
-
-INITIALISE outerassumptionword "assumption"
-INITIALISE innerassumptionword "assumption"
-
-INITIALISE multiassumptionlines false
-
-INITIALISE hidecut true 
-INITIALISE hidehyp true             
-INITIALISE priorAntes true
-INITIALISE hidewhy true             /* see RADIOBUTTON below */
-
-INITIALISE sayDerived false
-INITIALISE sayResolve false
-INITIALISE sayTheorem false
-
-INITIALISE multihypsel true
-
-AUTOMATCH see
+USE "../Syllogisms rules.j"
+USE "../Syllogisms appearance.j"
 
 RULE "subaltern ∏⁺⇒∑⁺" IS FROM ∏⁺(P,S) INFER ∑⁺(S,P)
 RULE "reversal ∏⁻⇒∏⁻" IS FROM ∏⁻(P,S) INFER ∏⁻(S,P)
@@ -139,35 +115,3 @@ MENU Rules IS
                                             see
                                       )
 END
-
-MENU Edit
-  RADIOBUTTON displaystyle
-       "sequent style"          IS tree
-  AND  "box style"              IS box
-  INITIALLY box
-  END
-  RADIOBUTTON innerboxes
-       "with boxes"          IS true
-  AND  "linear"              IS false
-  INITIALLY false
-  END
-  RADIOBUTTON hidewhy
-       "with step names"    IS false
-  AND  "just numbers"       IS true
-  INITIALLY true
-  END
-  RADIOBUTTON priorAntes
-       "with explicit antecedents"      IS true
-  AND  "just citations"                 IS false
-  INITIALLY true
-  END
-  RADIOBUTTON applyconjectures
-       "apply only proved theorems and rules"   IS none
-  AND  "apply unproved theorems"                IS theorems
-  AND  "apply unproved rules"                   IS rules
-  AND  "apply unproved theorems and rules"      IS all
-  INITIALLY none
-  END
-  
-END
-

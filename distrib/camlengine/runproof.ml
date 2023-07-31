@@ -83,7 +83,7 @@ let rec doBEGINPROOF env state =
   | Some state' -> state'
   | None -> state
 
-let rec mkstate provisos givens tree =
+let rec mkstate provisos givens tree wholetree =
   let (cxt, tree, uvs) =
     rewriteProoftree givens false
       (withexterior
@@ -96,11 +96,11 @@ let rec mkstate provisos givens tree =
              (nj_fold (uncurry2 max)
                 (maxtreeresnum tree ::
                      ((maxprovisoresnum <.> provisoactual) <* provisos)) 1 + 1);
-     givens = givens; tree = tree; goal = None; target = None; root = None}
+     givens = givens; tree = tree; wholetree = wholetree; goal = None; target = None; root = None}
 
 let rec startstate env provisos givens seq =
   let (Proofstate {tree = tree} as state) =
-    mkstate provisos givens (mkTip newcxt (rewriteseq newcxt seq))
+    mkstate provisos givens (mkTip newcxt (rewriteseq newcxt seq)) true
   in
   (* rewrite necessary - see comment on definition of mkTip *)
   doBEGINPROOF env (withgoal state (Some (rootPath tree)))

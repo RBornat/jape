@@ -33,10 +33,16 @@ type prooftree = Prooftree.Tree.Fmttree.prooftree
  and path = Prooftree.Tree.Fmttree.path
  
 (* should this be public? RB *)
+(* sometimes -- currently only in doCUTIN -- the tree is not the whole tree, so
+   tree provisos -- currently only DischargeProviso -- can't be reliably checked.
+   RB 2023/07/03
+ *)
 type proofstate = Proofstate of staterec
- and staterec = { cxt : cxt; tree : prooftree; givens : seq list;
+ and staterec = { cxt : cxt; tree : prooftree; wholetree : bool;
                   goal : path option; target : path option;
-                  root : (prooftree * path) option }
+                  root : (prooftree * path) option;
+                  givens : seq list
+                }
 
 val addautorule : bool * tactic -> unit
 val autorules : unit -> (bool * tactic) list
@@ -59,6 +65,7 @@ val withgoal : proofstate -> path option -> proofstate
 val withroot : proofstate -> (prooftree * path) option -> proofstate
 val withtarget : proofstate -> path option -> proofstate
 val withtree : proofstate -> prooftree -> proofstate
+val withwhole : proofstate -> bool -> proofstate
 
 val string_of_proofstate : bool -> proofstate -> string
 val string_of_subtree : path option -> prooftree -> string

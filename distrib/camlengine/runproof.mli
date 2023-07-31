@@ -36,7 +36,7 @@ open Tactictype
 
 
 val proofsdone : bool ref
-val mkstate    : visproviso list -> seq list -> prooftree -> proofstate
+val mkstate : visproviso list -> seq list -> prooftree -> bool -> proofstate
 val startstate : japeenv -> visproviso list -> seq list -> seq -> proofstate
 val addproof   : (string list -> unit) ->
                  (string list * string * string * int -> bool) -> 

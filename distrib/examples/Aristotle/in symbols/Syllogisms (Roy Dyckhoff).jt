@@ -27,7 +27,7 @@
  */
 
 USE "Syllogisms syntax.j"
-USE "Syllogisms rules.j"
+USE "../Syllogisms rules.j"
 USE "Syllogisms conjectures.j"
 
 INITIALISE autoAdditiveLeft true

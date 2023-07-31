@@ -1,0 +1,108 @@
+/*
+    Copyright (C) 2020 Richard Bornat
+     
+        richard@bornat.me.uk
+
+    This file is part of the Aristotleian deductive logic encoding, distributed with jape.
+
+    Jape is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    Jape is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with jape; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    (or look at http://www.gnu.org).
+
+*/
+
+/* Roy Dyckhoff's contradiction-free attack on syllogisms.
+   Encoded by RB, 07/2020
+ */
+
+USE "Syllogisms syntax.j"
+USE "../Syllogisms rules.j"
+USE "Syllogisms conjectures.j"
+
+INITIALISE autoAdditiveLeft true
+INITIALISE applyconjectures none
+
+INITIALISE displaystyle box
+INITIALISE outermostbox false
+
+INITIALISE hidecut true
+INITIALISE hidehyp true
+
+INITIALISE multihypsel true
+
+AUTOMATCH see
+
+RULES reversal ARE
+      FROM some S is P INFER some P is S
+  AND FROM no S is P INFER no P is S
+END
+
+RULES subaltern ARE
+      FROM every S is P INFER some S is P
+  AND FROM no S is P INFER some S is non P
+END
+
+RULE Barbara(M)  IS FROM every M is P AND every S is M INFER every S is P
+RULE Celarent(M) IS FROM no M is P AND every S is M INFER no S is P
+RULE Bocardo(M)  IS FROM some M is non P AND every M is S INFER some S is non P
+RULE Baroco(M)   IS FROM every P is M AND some S is non M INFER some S is non P
+RULE Disamis(M)  IS FROM some M is P AND every M is S INFER some S is P
+RULE Festino(M)  IS FROM no P is M AND some S is M INFER some S is non P
+
+MENU Rules IS
+
+  ENTRY "(B1, subaltern) every S is P ⇒ some S is P"    IS ForwardOrBackward ForwardCut 0 (LAYOUT B1 ALL subaltern'0)
+  ENTRY "(B2, subaltern) no S is P ⇒ some S is non P"    IS ForwardOrBackward ForwardCut 0 (LAYOUT B2 ALL subaltern'1)
+  ENTRY "(B3, reversal) some S is P ⇒ some P is S"   IS ForwardOrBackward ForwardCut 0 (LAYOUT B3 ALL reversal'0)
+  ENTRY "(B4, reversal) no P is S ⇒ no S is P"   IS ForwardOrBackward ForwardCut 0 (LAYOUT B4 ALL reversal'1)
+
+  SEPARATOR
+  
+  ENTRY "(Barbara)  every M is P, every S is M ⇒ every S is P" IS "Syllogism-tac" Barbara  (every _M is _P) (every _S is _M) _M (every _S is _P)
+  ENTRY "(Celarent) no M is P, every S is M ⇒ no S is P" IS "Syllogism-tac" Celarent (no _M is _P) (every _S is _M) _M (no _S is _P)
+  ENTRY "(Bocardo)  some M is non P, every M is S ⇒ some S is non P" IS "Syllogism-tac" Bocardo  (some _M is non _P) (every _M is _S) _M (some _S is non _P)
+  ENTRY "(Baroco)   every P is M, some S is non M ⇒ some S is non P" IS "Syllogism-tac" Baroco   (every _P is _M) (some _S is non _M) _M (some _S is non _P)
+  ENTRY "(Disamis)  some M is P, every M is S ⇒ some S is P" IS "Syllogism-tac" Disamis  (some _M is _P) (every _M is _S) _M (some _S is _P)
+  ENTRY "(Festino)  no P is M, some S is M ⇒ some S is non P" IS "Syllogism-tac" Festino  (no _P is _M) (some _S is _M) _M (some _S is non _P)
+
+  SEPARATOR
+  
+  ENTRY "subaltern (every⇒some, no⇒some-non)" IS WHEN (LETHYP (every _S is _P) (ForwardOrBackward ForwardCut 0 (LAYOUT B1 ALL subaltern'0)))
+                                          (LETHYP (no _S is _P) (ForwardOrBackward ForwardCut 0 (LAYOUT B2 ALL subaltern'1)))
+                                          (LETHYP _A (Fail ("subaltern is not applicable to antecedent %t", _A)))
+                                          (LETGOAL (some _S is _P) (LAYOUT B1 ALL subaltern'0))
+                                          (LETGOAL (some _S is non _P) (LAYOUT B2 ALL subaltern'1))
+                                          (LETGOAL _A (Fail ("subaltern is is not applicable to consequent %t", _A)))
+
+  ENTRY "reversal (no, some)" IS WHEN (LETHYP (some _S is _P) (ForwardOrBackward ForwardCut 0 (LAYOUT B3 ALL reversal'0)))
+                                     (LETHYP (no _S is _P) (ForwardOrBackward ForwardCut 0 (LAYOUT B4 ALL reversal'1)))
+                                     (LETHYP _A (Fail ("reversal is not applicable to antecedent %t", _A)))
+                                     (LETGOAL (some _P is _S) (LAYOUT B3 ALL reversal'0))
+                                     (LETGOAL (no _P is _S) (LAYOUT B4 ALL reversal'1))
+                                     (LETGOAL _A (Fail ("reversal is not applicable to consequent %t", _A)))
+  
+  SEPARATOR
+  
+  ENTRY same IS WHEN (LETHYP _A (see _A))
+                      see
+END
+
+MENU Edit
+  RADIOBUTTON displaystyle
+       "tree style"  IS tree
+  AND  "box style"   IS box
+  INITIALLY box
+  END
+END
+
