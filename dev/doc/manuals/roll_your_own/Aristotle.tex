@@ -2,15 +2,15 @@
 \chapter{Aristotlean syllogisms}
 \label{chap:Aristotle}
 
-Roy Dyckhoff was an enormous influence on Jape. His program MacLogic \citep{dyckhoff1989malt} showed Bernard and me that a novice could be guided through a formal proof (and we were such novices); after a proof was complete it showed a box-and-line rendering; and it included a Prolog encoding of his intuitionistic decision procedure \citep{dyckhoff1992contraction} which would tell the user when they'd made a false step and further progress was impossible. We were sure we could do better; in particular we designed Jape so that it didn't guide a novice but instead showed them where they were in a proof. But we never managed to incorporate a decision procedure into Jape, and Roy, though he listened politely while we enthusiastically promulgated the advantages of Jape, politely never let on that it was really that decision procedure which was the point of MacLogic. 
+Roy Dyckhoff was a fundamental influence on Jape. His program MacLogic \citep{dyckhoff1989malt} guided Bernard and me, both logic novices, through formal tree proofs using logical symbols; after the proof was made it showed us a box-and-line rendering; and it included a Prolog encoding of his intuitionistic decision procedure \citep{dyckhoff1992contraction} which would tell us if we'd made a step such that further progress was impossible. In terms of user interaction we were sure we could do better; in particular we designed Jape so that it didn't guide its users but instead showed them where they were in a proof, and gave them the choice of what to do next. Eventually I even managed to deal with making proofs directly in box-and-line form. But we never managed to incorporate a decision procedure into Jape, and Roy, though he listened politely while we enthusiastically promulgated the advantages of Jape over MacLogic, politely never let on that it was really that decision procedure which was the point of his program. 
 
-Roy's death in 2018 came as a shock. Just after his death an article of his on Aristotlean syllogisms was published \citep{dyckhoff2019indefinite}. I thought it might be fun to be able to check his proofs in Jape (he'd left them as a `logical exercise'). That paper was partly rooted in the work of von Plato \citep{von2016aristotle}, who showed how Aristotle was using a deductive logic, so I had to deal with that as well.
+Roy's death in 2018 came as a shock. Just after his death an article of his on Aristotlean syllogisms was published \citep{dyckhoff2019indefinite}. I thought it might be fun to be able to check his proofs in Jape (he'd left them as a `logical exercise'). That paper was related to the work of von Plato \citep{von2016aristotle}, who showed how Aristotle was using a deductive logic, so I had to deal with that as well.
 
-It was more difficult than I had expected, but I was working on it during the spring 2019 Covid lockdown, so I had time. I ended up doing it twice: once with symbolic operators, once again, more recently, with English words.
+It was more difficult than I had expected, and it even needed some changes to Jape, but I was working on it during the spring 2019 Covid lockdown, so I had time. I ended up doing it twice: once with symbolic operators, once again, more recently, with English words. I made the symbolic version first, so I describe it first.
 
 \section{In symbols}
 
-The encodings are in \textj{Syllogisms (von Plato).jt}, \textj{Syllogisms (Roy Dyckhoff).jt}, and the files they reference in the \textj{examples/Aristotle/in symbols} folder.
+The encodings are in the \textj{examples/Aristotle/in symbols} folder, in \textj{Syllogisms (von Plato).jt}, \textj{Syllogisms (Roy Dyckhoff).jt}.
 
 Von Plato's notation uses four kinds of formula, with terms $P$ and $M$
 \begin{quote}
@@ -27,7 +27,7 @@ $∑⁻(P,M)$ & Some $P$ is non $M$ \\
 \caption{The square of opposition}
 \label{fig:Aristotle:square_of_opposition}
 \end{figure}
-Figure \ref{fig:Aristotle:square_of_opposition} shows the relationships which mediaeval European logicians drew between these formulas: \emph{contradictory} if one must be false when the other is true; \emph{contrary} if they can't both be true (though they can both be false); \emph{subaltern} if one implies the other. Von Plato makes use of subaltern and contradictory, using superscript tack $^{⊥}$ as a `contradictory' operator; I couldn't find a way to do that in Unicode, so like Dyckhoff I use $^{*}$. $∏⁺(P,M)^{*}$ is $∑⁻(P,M)$; $∏⁻(P,M)^{*}$ is $∑⁺(P,M)$; and in each case the other way around as well. Dyckhoff points out that $A^{{*}{*}}$ is $A$. There is also a notion of `equivalence' or `reversal': $∏⁻(P,M)$ is equivalent to $∏⁻(M,P)$; $∑⁺(P,M)$ to $∑⁺(M,P)$.
+Figure \ref{fig:Aristotle:square_of_opposition} shows the relationships which mediaeval European logicians drew between these formulas: \emph{contradictory} if one must be false when the other is true; \emph{contrary} if they can't both be true (though they can both be false); \emph{subaltern} if one implies the other. Von Plato makes use of subaltern and contradictory, using superscript tack $^{⊥}$ as a `contradictory' operator; I couldn't find a way to make that mark in Unicode, so like Dyckhoff I use $^{*}$. $∏⁺(P,M)^{*}$ is $∑⁻(P,M)$; $∏⁻(P,M)^{*}$ is $∑⁺(P,M)$; and in each case the other way around as well. Dyckhoff points out that $A^{{*}{*}}$ is $A$. There is also a notion of `equivalence' or `reversal': $∏⁻(P,M)$ is equivalent to $∏⁻(M,P)$; $∑⁺(P,M)$ to $∑⁺(M,P)$.
 
 Defining the syntax is almost trivial\footnote{This example has shown me that Jape's syntax-description mechanism is deficient. Nowhere does it say what a syllogism looks like ...}
 \begin{japeish}
@@ -47,7 +47,7 @@ SEQUENT IS BAG ⊢ FORMULA
 \makebox[160pt]{\includegraphics[scale=0.5]{pics/Aristotle/Darapti_2}}\label{fig:Aristotle:Darapti_2}}
 \subfigure[without boxes and step names]{\centering
 \makebox[155pt]{\includegraphics[scale=0.5]{pics/Aristotle/Darapti_3}}\label{fig:Aristotle:Darapti_3}}
-\caption{Displaying proofs \`a la von Plato}
+\caption{Aristotelean proof appearances}
 \label{fig:Aristotle:Darapti_various}
 \end{figure}
 %Rules begin fairly normally, except that capriciously I have called tne identity rule `see' (more on this later)
@@ -63,17 +63,17 @@ SEQUENT IS BAG ⊢ FORMULA
 %
 %TACTIC Fail (x) IS SEQ (ALERT x) STOP
 %\end{japeish}
-The main difficulty of encoding von Plato's logic is the form of linear proofs. Figure \ref{fig:Aristotle:Darapti_1} shows how Jape would display a proof of a particular syllogism  -- Darapti: $∏⁺(M,P), ∏⁺(M,S) ⊢ ∑⁺(S,P)$ -- in box style with cuts and identity steps hidden. 
+The main difficulty of encoding von Plato's logic is the form of linear proofs. Figure \ref{fig:Aristotle:Darapti_1} shows how Jape, without taking account of von Plato's insights, would display a proof of a particular syllogism  -- Darapti: $∏⁺(M,P), ∏⁺(M,S) ⊢ ∑⁺(S,P)$ -- in box style with cuts and identity steps hidden. 
 
-Aristotlean linear proofs, according to von Plato, list the antecedent formulae, in order, just before each conclusion step. This can require identity (\textj{see}) lines; the first antecedent is allowed to be the last line of a box. In addition, the assumption introduced by the \emph{indirect proof} rule IP has to be specially labelled, as is line 5 in figure \ref{fig:Aristotle:Darapti_2}. Finally, the display should be linear without boxes and even without step names, as in figure \ref{fig:Aristotle:Darapti_3}. The encoding is set up to follow von Plato's display rules, but there's a menu `Appearance' which lets the user adjust various settings.
+Von Plato tells us that Aristotlean linear proofs list the antecedent formulae, in order, just before each conclusion step. This can require identity (\textj{see}) lines pointing to an earlier derivation of the antecedent; but the first antecedent is allowed to be the last line of a box. In addition, the assumption introduced by the \emph{indirect proof} rule IP has to be specially labelled, as is line 5 in figure \ref{fig:Aristotle:Darapti_2}. Finally, the display should be linear without boxes and even without step names, as in figure \ref{fig:Aristotle:Darapti_3}. The encoding in \textj{Syllogisms (von Plato).jt} is set up to display proofs following these principles, but there's a menu `Appearance' which lets the user adjust various settings.
 
-The encoding has to make use of new environment variables \textj{priorAntes} (set true), \textj{innerboxes} (set false) and \textj{hidewhy} (set true) to produce these effects, plus a special \textj{LAYOUT} mechanism described below. In addition, the tactics used to apply rules make heavy use of \textj{CUTIN} and \textj{see} to ensure that antecedents are, as far as possible, closed with an identity step -- helpful to the \textj{priorAntes} mechanism. There are radio buttons in the Appearance menu to control these variables.
+The Appearance menu makes use of environment variables \textj{priorAntes} (set true), \textj{innerboxes} (set false) and \textj{hidewhy} (set true), plus a special \textj{LAYOUT} mechanism described below. In addition, the tactics used to apply rules make heavy use of \textj{CUTIN} and \textj{see} to ensure that antecedents are, as far as possible, closed with an identity step -- helpful to the \textj{priorAntes} mechanism.
 
 There is a condition on the IP rule (Indirect Proof) which required me to invent a new proviso. Essentially the rule is
 \begin{japeish}
 FROM A* ⊢ B AND B* INFER A
 \end{japeish}
--- if the contrary of $A$ proves $B$ and we can separately prove the contrary of $B$, then by \emph{reductio ad absurdum} we can infer $A$. But the assumption $A^{*}$ has to be relevant to the proof: we can't trivially discharge it (i.e. $B$ cannot be $A^{*}$) and we can't have a proof of $B$ which doesn't discharge $A^{*}$ at all. Von Plato says that $A^{*}$ should have a single discharge: from reading his paper and Dyckhoff's I \emph{think} he means that it is discharged only in the left antecedent arm.\footnote{Because his linear proofs have no means of indicating the scope of an assumption, some confusion is to be expected.} The proviso is currently called \textj{NTDISCHARGE} (for Non-Trivial Discharge), and to avoid too many contrary markers in the proof I made an \textj{ALT} of different versions of \textj{IP}.
+-- if the contrary of $A$ proves $B$ and we can separately prove the contrary of $B$, then by \emph{reductio ad absurdum} we can infer $A$. But the assumption $A^{*}$ has to be relevant to the proof: we can't trivially discharge it (e.g. $B$ cannot be $A^{*}$) and we can't have a proof of $B$ which doesn't make use of $A^{*}$ at all. Von Plato says that $A^{*}$ should have a single discharge: from reading his paper and Dyckhoff's I \emph{think} he means that it is discharged only in the left antecedent arm.\footnote{Because his linear proofs have no means of indicating the scope of an assumption, some confusion is to be expected.} The proviso is currently called \textj{NTDISCHARGE} (for Non-Trivial Discharge), and to avoid too many contrary markers in the proof I made an \textj{ALT} of different versions of \textj{IP}.
 \begin{japeish}
 RULES IP(B) ARE \\
 \tab\tab WHERE NTDISCHARGE ∏⁺(S,P) FROM ∏⁺(S,P) ⊢ B AND B* INFER ∑⁻(S,P) \\ 
@@ -89,7 +89,7 @@ WHEN (LETGOAL \_A (LAYOUT "IP" ALL IP (LAYOUT ASSUMPTION ("contradicting \%t",\_
 \end{japeish}
 The rule which is applied is either \textj{IP'0}, \textj{IP'1}, \textj{IP'2} or \textj{IP'3}, depending on the conclusion of the step, but the first \textj{LAYOUT} names the step \textj{IP}. The second step applies \textj{LAYOUT} to the first antedecent, giving the text to be appended to `assumption'.
 
-But there's still a problem. The contrary marker $^{*}$ isn't really part of the logic, but it appears in proofs when you use the IP rule. Here, for example, is the first step in the proof of Darapti:
+But there's still a problem. The contrary marker $^{*}$ isn't really part of the logic, but it appears in partial proofs when you use the IP rule. Here, for example, is the first step in the proof of Darapti:
 \begin{quote}
 \includegraphics[scale=0.5]{pics/Aristotle/Darapti_0}
 \end{quote}
@@ -117,7 +117,7 @@ AUTOMATCH "contra-tac"
 \end{figure}
 Indeed, that's most often what happens. But not always: sometimes we realise what \textj{\_B*} should be, and we want to use \textj{see}, or a Given formula, to determine it. Figure \ref{fig:Aristotle:subaltern_0}, for example, is the first stage of the proof of a derived subaltern rule. There is absolutely nothing that \textj{\_B*} on line 3 can be, other than the Given \textj{∏⁻(P,S)}. We don't want to have to calculate what \textj{\_B} must be: surely the encoding of the theory should do that. 
 
-There's a rule \textj{dcontra}, a tactic \textj{remstar} that uses it, and a tactic \textj{dogiven} that uses \textj{remstar}; \textj{dogiven(0)} is the tactic that is applied by selecting the formula on line 2 and clicking \textj{∏⁻(P,S)} in the Given menu:
+There's a rule \textj{dcontra}, a tactic \textj{remstar} that uses it, and a tactic \textj{dogiven} that uses \textj{remstar}. The tactic \textj{dogiven(0)} is applied by selecting the formula on line 2 and clicking \textj{∏⁻(P,S)} in the Given menu:
 \begin{japeish}
 INITIALISE givenMenuTactic dogiven\\
 \\
@@ -139,5 +139,5 @@ The rest of the encoding is fairly straightforward, though it makes a lot of use
 
 Same filenames -- \textj{Syllogisms (von Plato).jt} and \textj{Syllogisms (Roy Dyckhoff).jt} -- but in \textj{examples/Aristotle/in words}
 
-I thought I might show my grandson the Aristotlean encoding, but I realised that the operators might be a barrier. So I redid it in English. von Plato says he did it in English first, and used symbols to save space in the published paper. I haven't shown it to my grandson yet, but the proofs do feel a bit easier in English ... hmm.
+I thought I might show my grandson the Aristotlean encoding, but I realised that the operators might be a barrier. So I redid it in English. Von Plato says he did it in English first, and used symbols to save space in the published paper. I haven't shown it to my grandson yet, but the proofs do feel a bit easier in English ... hmm: I wonder. That's enough of that.
 
