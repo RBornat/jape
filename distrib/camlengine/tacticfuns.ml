@@ -900,7 +900,7 @@ let rec doUNIQUE try__ = {try__ with taker = takeonlyone}
 
 let rec doANY try__ = {try__ with taker = takefirst}
 
-let rec doRESOLVE try__ = {try__ with ruler = resolve}
+let rec doRESOLVE try__ = {try__ with ruler = apply}
 
 (* sameterms was identity, but see comment above -- now it's unifyvarious;
    apply (no fancy resolution);
@@ -956,7 +956,7 @@ let doCUTIN f (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) =
     let nocando s = raise (Tacastrophe_ ["cannot use CUTIN tactic "; s]) in
     let cutrule = match uniqueCut () with
                   | Some r -> r
-                  | None   -> nocando "unless there is a unique simple cut rule"
+                  | None   -> nocando "unless there is a unique and simple cut rule"
     in
     if not (!autoAdditiveLeft) then nocando "unless the logic is stated without left contexts";
     let startAtTip = isTip (followPath tree (getGoalPath goal)) in
@@ -974,7 +974,7 @@ let doCUTIN f (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) =
     if !cutindebug then 
       consolereport ["CUTIN subtree = "; string_of_prooftree subtree];
     let (Proofstate {tree = tree'; goal = goal'} as state') =
-      prunestate path state
+      withwhole (prunestate path state) false
     in
     let tippath = getGoalPath goal' in
     let (Proofstate {tree = tree''; cxt = cxt''} as state'') =
@@ -1047,8 +1047,17 @@ let doCUTIN f (Proofstate {tree = tree; goal = goal; cxt = cxt} as state) =
     (* tippath is now useless *)
     (* if we were standing at a tip that has been closed, move on: otherwise stay put *)
     optf (fun s -> let s' = withgoal s goal in if startAtTip then nextGoal false s' else s')
-         (f (withgoal (withtree (withcxt state'' cxt''') wholeproof')
-                      (Some (subgoalPath wholeproof' (parentPath wholeproof' path) [-left])))) 
+         (f (withwhole      (* syntactically, this 'withX' stuff is backwards, as shown here *)
+               (withgoal 
+                  (withtree 
+                     (withcxt state'' cxt''') 
+                   wholeproof'
+                  )
+                  (Some (subgoalPath wholeproof' (parentPath wholeproof' path) [-left]))
+               )
+               true
+            )
+         ) 
   with
   | FollowPath_ stuff ->
       showAlert ["FollowPath_ in doCUTIN: ";
@@ -2322,7 +2331,7 @@ and doMAPTERMS display try__ contn name args =
 
 and doWITHSUBSTSEL display try__
                    (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens;
-                                target = target; root = root})
+                                target = target; root = root; wholetree = wholetree})
                    tacfun =
     match getunsidedselectedtext (), goal with
     | Some (path, concsels, hypsels, givensel), Some g ->
@@ -2334,7 +2343,7 @@ and doWITHSUBSTSEL display try__
             let alteredstate =
               Proofstate
                 {cxt = cxt'; tree = tree'; givens = givens; goal = goal;
-                 target = target; root = root}
+                 target = target; root = root; wholetree = wholetree}
             in
             tacfun 
               (if ishyp then {try__ with selhyps=[newel]}
@@ -2413,7 +2422,7 @@ and doFOLD name display try__ env contn (tactic, laws) =
 
 and doFOLDHYP name display try__ env contn (tactic, patterns) =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens; 
-                   target = target; root = root} (* as state *)) ->
+                   target = target; root = root; wholetree = wholetree} (* as state *)) ->
     let (_, cxt, env, patterns) = freshenv patterns cxt env in
     let patterns = (eval env <* patterns) in
     match rewriteseq cxt (getTip tree goal) with
@@ -2451,13 +2460,13 @@ and doFOLDHYP name display try__ env contn (tactic, patterns) =
              tryApply display try__ contn tactic [term]
                (Proofstate
                   {cxt = cxt; goal = goal; target = target; tree = tree;
-                   givens = givens; root = root})
+                   givens = givens; root = root; wholetree = wholetree})
         )
     | _ -> setReason ["FOLDHYP with multiple-conclusion sequent"]; None
 
 and doUNFOLDHYP name display try__ env contn (tactic, patterns) =
   fun (Proofstate {cxt = cxt; goal = goal; tree = tree; givens = givens;
-                   target = target; root = root} (* as state *)) ->
+                   target = target; root = root; wholetree = wholetree} (* as state *)) ->
     let (_, cxt, env, patterns) = freshenv patterns cxt env in
     let patterns = (eval env <* patterns) in
     match rewriteseq cxt (getTip tree goal) with
@@ -2495,7 +2504,7 @@ and doUNFOLDHYP name display try__ env contn (tactic, patterns) =
              tryApply display try__ contn tactic [term]
                (Proofstate
                   {cxt = cxt; goal = goal; target = target; tree = tree;
-                   givens = givens; root = root})
+                   givens = givens; root = root; wholetree = wholetree})
         )
     | _ -> setReason ["UNFOLDHYP with multiple-conclusion sequent"]; None
 
@@ -2993,7 +3002,7 @@ let rec applyLiteralTactic display env text state =
 
 let rec autoTactics display env rules (Proofstate {tree = tree; goal = oldgoal} as state) =
   let rec tryone matching tac goal
-                 (Proofstate {cxt = cxt; tree = tree; givens = givens; root = root} (* as state *)) =
+                 (Proofstate {cxt = cxt; tree = tree; givens = givens; root = root; wholetree = wholetree} (* as state *)) =
     let rec bad ss =
       showAlert (ss @ [" during autoTactics "; string_of_tactic tac]);
       None
@@ -3006,7 +3015,7 @@ let rec autoTactics display env rules (Proofstate {tree = tree; goal = oldgoal} 
             tac
             (Proofstate
                {cxt = cxt; tree = tree; givens = givens; root = root;
-                goal = Some goal; target = Some goal})
+                goal = Some goal; target = Some goal; wholetree = wholetree})
       with
       | None        -> None
       | Some state' -> if time'sUp () then None else Some state'
