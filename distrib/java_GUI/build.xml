@@ -127,7 +127,7 @@
         <delete file="build/jmod/${target}/Jape.jmod"/>
         <delete dir="build/jre/${os}/jre"/>
         <jmod destfile="build/jmod/${target}/Jape.jmod" classpath="build/jar/${target}/uk.org.jape.jar" mainclass="uk.org.jape.Jape"/>
-        <link destDir="build/jre/${os}/jre" modulepath="build/jmod/${target}" modules="uk.org.jape" includeManPages="false" includeHeaders="false">
+        <link destDir="build/jre/${os}/jre" modulepath="build/jmod/${target}" modules="uk.org.jape,jdk.accessibility" includeManPages="false" includeHeaders="false">
         </link>
     </target>
     
