@@ -127,6 +127,12 @@
         <delete file="build/jmod/${target}/Jape.jmod"/>
         <delete dir="build/jre/${os}/jre"/>
         <jmod destfile="build/jmod/${target}/Jape.jmod" classpath="build/jar/${target}/uk.org.jape.jar" mainclass="uk.org.jape.Jape"/>
+        <!-- ant link is java jlink -->
+        <!-- force inclusion of jdk.accessibility, to get Access Bridge. This is mad, but blame Oracle. On startup, if the user has
+             activated jabswitch, it looks for Access Bridge to implement Tool Tips on Windows, and that's in jdk.accessibility.
+             Thanks to StackOverflow for the fix, which is third answer in this:
+               https://stackoverflow.com/questions/15260989/exception-in-thread-main-java-awt-awterror-assistive-technology-not-found
+         -->
         <link destDir="build/jre/${os}/jre" modulepath="build/jmod/${target}" modules="uk.org.jape,jdk.accessibility" includeManPages="false" includeHeaders="false">
         </link>
     </target>
