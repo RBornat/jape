@@ -258,7 +258,7 @@ public class tr
       System.err.println("      java -jar tr.jar  '(\\D)(\\d\\d*)' '$1\\$$2'  prefix all digit sequences with a $.");
       System.err.println("      java -jar tr.jar  '(\\D)(\\d+)'    '$1\\$$2'  ditto.");
       System.err.println("      java -jar tr.jar  '\\u2ae0' '\\u207b\\u00b9'  translate inverted perpendicular into superscript -1.");
-      System.err.println("      java -jar tr.jar  -- -I -O                 occurences of -I into -O.");
+      System.err.println("      java -jar tr.jar  -- -I -O                 occurrences of -I into -O.");
 
       System.exit(0);
     }

@@ -74,7 +74,7 @@ class Trie:
 class Cursor:
     """
         Represents the state of an automaton that is ``desugaring''
-        an input stream by replacing occurences of domain elements of
+        an input stream by replacing occurrences of domain elements of
         a trie by the corresponding range elements. Ambiguities in
         are resolved by translating the maximal-left-substring in the
         domain.

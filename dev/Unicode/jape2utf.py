@@ -177,8 +177,8 @@ def usage():
        --width=<int>  -- characters per line of the encoding table
 
       Compiler-readable
-       --enc=fmt      -- output the inut encoding using fmt (one char per line)
-       -E             -- equivlent to --enc="%(char)%03d 0x%(enc)04x %(name)s"
+       --enc=fmt      -- output the input encoding using fmt (one char per line)
+       -E             -- equivalent to --enc="%(char)%03d 0x%(enc)04x %(name)s"
        
        Examples: 
        
