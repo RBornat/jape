@@ -54,6 +54,7 @@ val instantiateRule : (term, term) mapping -> (bool * proviso) list -> seq list 
 val compiletoprove : paraparam list * proviso list * seq list * seq -> (bool * proviso) list * seq list * seq
 val formulageneralisable : paraparam list -> term -> bool
 
+val storableprovisos : visproviso list -> (bool * proviso) list (* with invisibles stripped out *)
 val addthing : name * thing * thingplace -> unit
 val thingnamed : name -> (thing * thingplace) option
 val thinginfo : name -> (thing * thingplace) option (* including invisible provisos *)
@@ -81,7 +82,10 @@ exception AddThing_
 (* filled in by Proofstore *)
 val is_proofnamed     : (name -> bool * bool) ref                   
 val proofs_which_use  : (name -> name list) ref                     
-val close_proofs      : (name list -> unit) ref 
+val discard_proofs      : (name list -> unit) ref 
 (* filled in by Dialogue *)
 val windowsnamed      : (name -> ((name * int) * int) list) ref     
 val windows_which_use : (name -> ((name * int) * int) list) ref
+val addpendingclosures: (int list -> unit) ref
+val pendingclosures   : int list ref
+

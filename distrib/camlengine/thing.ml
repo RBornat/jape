@@ -1520,7 +1520,7 @@ exception AddThing_
 (* filled in by Proofstore *)
 let is_proofnamed     : (name -> bool * bool) ref               = ref (fun _ -> false, false)   
 let proofs_which_use  : (name -> name list)                 ref = ref (fun _ -> [])
-let close_proofs      : (name list -> unit)                 ref = ref (fun _ -> ())
+let discard_proofs    : (name list -> unit)                 ref = ref (fun _ -> ())
 (* filled in by Dialogue *)
 let windowsnamed      : (name -> ((name * int) * int) list) ref = ref (fun _ -> [])
 let windows_which_use : (name -> ((name * int) * int) list) ref = ref (fun _ -> [])
