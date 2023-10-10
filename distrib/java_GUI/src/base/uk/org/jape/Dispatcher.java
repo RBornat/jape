@@ -74,7 +74,7 @@ public class Dispatcher extends Thread implements DebugConstants {
 	Vector<IntString> givenlist = new Vector<IntString>();
 	Vector<Insert> insertlist = new Vector<Insert>();
         Vector<String[]> radiobuttonlist = new Vector<String[]>();
-        Vector<Integer> proofnumlist = new Vector<Integer>();
+        Vector<Integer> closeprooflist = new Vector<Integer>();
 	try {
 	    while (true) {
 		String line = Engine.fromEngine().readLine();
@@ -381,14 +381,14 @@ public class Dispatcher extends Thread implements DebugConstants {
 			if (p=="CLOSEPROOF"&&len==3)
 			    ProofWindow.closeproof(toInt(cmd[1]), toBool(cmd[2]));
                         else
-                        if (p == "FORCECLOSE" && len == 1)
-                            proofnumlist.removeAllElements();
+                        if (p == "CLOSEPROOFS" && len == 1)
+                            closeprooflist.removeAllElements();
                         else
-                        if (p == "FORCECLOSEONE" && len == 2)
-                            proofnumlist.add(Integer.valueOf(toInt(cmd[1])));
+                        if (p == "CLOSEPROOFSONE" && len == 2)
+                            closeprooflist.add(Integer.valueOf(toInt(cmd[1])));
                         else
-                        if (p == "FORCECLOSE" && len == 1)
-                            ProofWindow.closeproofs(proofnumlist.toArray(new Integer[proofnumlist.size()]));
+                        if (p == "CLOSEPROOFSEND" && len == 1)
+                            ProofWindow.closeproofs(closeprooflist.toArray(new Integer[closeprooflist.size()]));
 			else
 			if (p=="PANEGEOMETRY"&&len==2)
 			Reply.reply(ProofWindow.getFocussedWindow().getPaneGeometry(toByte(cmd[1])));
