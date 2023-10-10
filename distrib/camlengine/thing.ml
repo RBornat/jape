@@ -1039,6 +1039,13 @@ let rec uniqueCut () =
   | [_, r] -> Some r
   | _      -> None
 
+(* things are stored without the invisible provisos which are generated during
+   proof from visible provisos. This affects check_addthing.
+ *)
+let storableprovisos vps =
+  let rec unvisproviso b vp = b, provisoactual vp in
+  (unvisproviso true <* (provisovisible <| vps))
+
 (* in an attempt to keep conjectures always in the order they were initially inserted, 
  * even though they may be altered by proofs (see addproof in prooftree.sml),
  * the thing store has an additional level of ref(..).
@@ -1524,6 +1531,8 @@ let discard_proofs    : (name list -> unit)                 ref = ref (fun _ -> 
 (* filled in by Dialogue *)
 let windowsnamed      : (name -> ((name * int) * int) list) ref = ref (fun _ -> [])
 let windows_which_use : (name -> ((name * int) * int) list) ref = ref (fun _ -> [])
+let addpendingclosures : (int list -> unit)                 ref = ref (fun _ -> ())
+let pendingclosures   : int list                            ref = ref []
 
 let check_addthing name new_thing = 
   let obliterate old_thing old_params old_bpros old_givens old_seq old_ax =
@@ -1531,7 +1540,22 @@ let check_addthing name new_thing =
     let namestring = string_of_name name in
     let oproof  = !is_proofnamed name in
     let ostored = !proofs_which_use name in
-    let wproofs = !windowsnamed name in
+    consolereport ["** check_addthing\n";
+                   "windowsnamed "; namestring; " = "; 
+                     bracketed_string_of_list (string_of_pair (string_of_pair string_of_name string_of_int ",")
+                                                              string_of_int 
+                                                              ","
+                                              )
+                                              ";" (!windowsnamed name);
+                   "\npendingclosures = "; bracketed_string_of_list string_of_int ";" !pendingclosures 
+                  ];
+    let wproofs = (not <.> (Miscellaneous.swapargs List.mem) !pendingclosures <.> snd) <| !windowsnamed name in
+    let _ = consolereport ["wproofs = "; 
+                   bracketed_string_of_list (string_of_pair (string_of_pair string_of_name string_of_int ",")
+                                                             string_of_int 
+                                                             ","
+                                              ) ";" wproofs
+                  ] in
     let wused   = !windows_which_use name in
     let thingkind givens = if givens=[] then "rule" else "theorem" in
     let thingdiff kind = 
@@ -1549,87 +1573,89 @@ let check_addthing name new_thing =
       if es=[] then "" 
       else Listfuns.sentencestring_of_list (String.concat "") ", " " and "  es
     in
-    if problem_count=0 then 
-     ( (* no uses, no problem so far as the user is concerned -- unless it's an axiom ... *)
-       if old_ax then
-         (if Alert.ask Alert.Warning "You are renaming an axiom!" [("OK",false);("Cancel",true)] 1
-          then raise AddThing_
-         )
-     ) 
-    else (* still ok if it's the _same_ conjecture *)
-      (let samething params pros givens seq ax =
-         let verdict =
-           sentence_string
-             [if eqbags Sequent.eqseqs (givens, old_givens) then [] 
-              else
-               ["different premises/GIVENs"];
-              if params=old_params then [] else ["different parameters"];
-              if eqbags (uncurry2 (=)) (List.map snd old_bpros, List.map snd pros) then []
-                                else ["different provisos"];
-              if Sequent.eqseqs (old_seq,seq) then []
-              else ["a different conclusion sequent"]
-             ]
-         in
-         if verdict="" then "" else String.concat "" ["Your new definition has "; verdict; " to the stored version."]
-       in
-       let verdict = match new_thing with
-                     | Rule ((params, bpros, givens, seq), ax) -> samething params bpros givens seq ax
-                     | Theorem (params, bpros, seq)            -> samething params bpros [] seq false
-                     | Tactic _                                -> thingdiff "tactic"
-                     | Macro _                                 -> thingdiff "macro"
-       in
-       if verdict="" then () (* it's the same thing as before, forget it *)
-       else 
-         (let message_list =
-            ["(Congratulations on activating a very obscure Jape error message.)\n
-             \n
-             In defining "; namestring; " IS "; string_of_thing new_thing; "\n
-             you will obliterate an existing "; thingkind old_givens; "\n
-             \n";
-             verdict; "\n
-             \n
-             If you make this change, Jape must "; 
-               sentence_string [if oproof<>(false,false) then ["delete a stored proof of"; namestring] else [];
-                                (match ostored with
-                                 | []  -> []
-                                 | [_] -> ["delete a proof which uses"; namestring] 
-                                 | _   -> ["delete "; wordstring_of_int (List.length ostored);
-                                           " proofs which use "; namestring
-                                          ]
-                                );
-                                (match wproofs with
-                                 | []  -> []
-                                 | [_] -> ["close a window with a proof of "; namestring]
-                                 | _   -> ["close "; wordstring_of_int (List.length wproofs);
-                                           " windows with proofs of "; namestring
-                                          ]
-                                );
-                                (match wused with
-                                 | []  -> []
-                                 | [_] -> ["close a window with a proof which uses "; namestring]
-                                 | _   -> ["close "; wordstring_of_int (List.length wproofs);
-                                           " windows with proofs whics use "; namestring
-                                          ]
-                                )
-                               ];
-             "\n
+    if old_ax then
+      (if Alert.ask Alert.Warning "You are renaming an axiom!" [("OK",false);("Cancel",true)] 1
+       then raise AddThing_
+      );
+    (* ok if it's the _same_ conjecture *)
+    let samething params pros givens seq ax =
+      let showpros ps = if null ps then "no provisos"
+                        else sentencestring_of_list (string_of_visproviso <.> mkvisproviso) ", " " and " ps
+      in
+      let storablebps bps = storableprovisos (mkvisproviso <* bps) in
+      let verdict =
+        sentence_string
+          [if eqbags Sequent.eqseqs (givens, old_givens) then [] 
+           else
+            ["different premises/GIVENs"];
+           if params=old_params then [] else ["different parameters"];
+           if eqbags (uncurry2 (=)) (List.map snd (storablebps old_bpros), List.map snd pros) then []
+                             else ["different provisos (stored version has "; showpros (storablebps old_bpros);
+                                                          "; new version has "; showpros pros;
+                                                          ")"
+                                  ];
+           if Sequent.eqseqs (old_seq,seq) then []
+           else ["a different conclusion sequent"]
+          ]
+      in
+      if verdict="" then "" else String.concat "" ["Your new definition has "; verdict; " to the stored version."]
+    in
+    let verdict = match new_thing with
+                  | Rule ((params, bpros, givens, seq), ax) -> samething params bpros givens seq ax
+                  | Theorem (params, bpros, seq)            -> samething params bpros [] seq false
+                  | Tactic _                                -> thingdiff "tactic"
+                  | Macro _                                 -> thingdiff "macro"
+    in
+    if verdict="" then () (* it's the same thing as before, forget it *)
+    else 
+      (let message_list =
+         ["(Congratulations on activating a very obscure Jape error message.)\n
+          \n
+          In defining "; namestring; " IS "; string_of_thing new_thing; "\n
+          you will obliterate an existing "; thingkind old_givens; "\n
+          \n";
+          verdict; 
+          if problem_count=0 then "" else
+            ("\n
               \n
-              Do you want to go ahead and make "; 
-              if problem_count=1 then "that change?" else "those changes?"
-            ]
-          in
-          if Alert.askCancel Alert.Error
-                             (String.concat "" message_list)
-                             [("OK", true)]
-                             false
-                             1
-          then (* do it *)
-            (!close_proofs (if oproof<>(false,false) then name::ostored else ostored);
-             Japeserver.force_close (List.map snd (wproofs @ wused))
-            )
-          else raise AddThing_ (* don't do it *)
+              In addition, Jape must " ^ 
+                sentence_string [if oproof<>(false,false) then ["delete a stored proof of"; namestring] else [];
+                                 (match ostored with
+                                  | []  -> []
+                                  | [_] -> ["delete a proof which uses"; namestring] 
+                                  | _   -> ["delete "; wordstring_of_int (List.length ostored);
+                                            " proofs which use "; namestring
+                                           ]
+                                 );
+                                 (match wproofs with
+                                  | []  -> []
+                                  | [_] -> ["close a window with a proof of "; namestring]
+                                  | _   -> ["close "; wordstring_of_int (List.length wproofs);
+                                            " windows with proofs of "; namestring
+                                           ]
+                                 );
+                                 (match wused with
+                                  | []  -> []
+                                  | [_] -> ["close a window with a proof which uses "; namestring]
+                                  | _   -> ["close "; wordstring_of_int (List.length wproofs);
+                                            " windows with proofs which use "; namestring
+                                           ]
+                                 )
+                                ]  
+             )
+         ]
+       in
+       if Alert.askCancel Alert.Error
+                          (String.concat "" message_list)
+                          [("OK", true)]
+                          false
+                          1
+       then (* do it *)
+         (!discard_proofs (if oproof<>(false,false) then name::ostored else ostored);
+          !addpendingclosures (List.map snd (wproofs @ wused))
          )
-      )  
+       else raise AddThing_ (* don't do it *)
+      )
   in
   match freshThingtoprove name with
   | Some (Rule ((old_params, old_bpros, old_givens, old_seq), old_ax) as r) -> 
