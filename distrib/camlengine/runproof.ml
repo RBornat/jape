@@ -107,7 +107,7 @@ let rec startstate env provisos givens seq =
 
 let realaddproof = addproof
 
-let rec addproof report query name proved =
+let addproof report query name proved =
   fun (Proofstate {cxt = cxt; tree = tree; givens = givens})
     disproofopt ->
     realaddproof report query name proved tree givens cxt disproofopt
