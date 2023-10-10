@@ -435,6 +435,7 @@ let badsel ss = showAlert ss; raise (Applycommand_ None)
  *)
 
 let outerpinfs : proofinfo list ref = ref []
+let pendingclosures = Thing.pendingclosures
 
 let windows_which_use name =
   let pinfs = !outerpinfs in
@@ -448,11 +449,18 @@ let windows_which_use name =
   List.fold_left used_names [] pinfs
 
 let windowsnamed name =
-  let pinfs = List.filter (fun (Pinf {title=t,_}) -> t=name) !outerpinfs in
+  let pinfs = List.filter (fun (Pinf {title=(t,_)}) -> t=name) !outerpinfs in
   List.map (fun (Pinf{title=title; proofnum=proofnum}) -> title,proofnum) pinfs
 
+(* this does NOT have to be efficient *)
+let rec addpendingclosures = function
+  | pn::pns -> if not (List.mem pn !pendingclosures) then pendingclosures := pn::!pendingclosures;
+               addpendingclosures pns
+  | []      -> ()
+  
 let _ = Thing.windows_which_use := windows_which_use
 let _ = Thing.windowsnamed := windowsnamed
+let _ = Thing.addpendingclosures := addpendingclosures
 
 (* There appear to be two reasonable behaviours, given a selection and a command.
  * 1. (the original) -- resolve the selection to a single tip, if possible, and work there.
@@ -1016,11 +1024,11 @@ and biggestproofnum name pinfs =
     pinfs (0, 0)
 
 and endproof num name st dis =
+  addpendingclosures [num];
   let proved = isproven st in
   let disproved = disproof_finished dis in
   Runproof.addproof showAlert uncurried_screenquery name proved st disproved (model_of_disproofstate dis) &&
-          (Japeserver.closeproof num true;
-           markproof (parseablestring_of_name name) (proved, disproved);
+          (markproof (parseablestring_of_name name) (proved, disproved);
            true
           )
 
@@ -1207,7 +1215,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
       ("Don't save", (fun () -> n)) (fun () -> cancel) ()
   in
 
-          let askResettheory anyway =
+  let askResettheory anyway =
     if resetable () then
       if needssaving () then
         askSave "erasing the current theory" true true false
@@ -1218,7 +1226,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   in
   
   let doResettheory () =
-    List.iter (fun (Pinf p) -> Japeserver.closeproof p.proofnum false) pinfs;
+    List.iter (fun (Pinf p) -> Japeserver.closeproof p.proofnum false) pinfs; (* let this happen *)
     Japeserver.resettheory ();
     reset ();
     defaultenv (), [], DontShow, []
@@ -2018,19 +2026,19 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             
         | "closeproof", [nstring] ->
             (* when closing proofs we must consider proof hist AND disproof hist *)
+            (* we don't close the proof window here, or do the focus. That's done before the 
+               next cycle of commands. Reason: see demodularisation above.
+             *)
             let n = atoi nstring in
-            let
-              (Pinf {hist = hist; title = t, _; fromstore = fromstore},
-               pinfs')
-              =
-              findproof pinfs nstring
+            let (Pinf {hist = hist; title = t, _; fromstore = fromstore}, _)
+                  = findproof pinfs nstring
             in
             let proofhist = winhist_proofhist hist in
             let disproofhist = winhist_disproofhist hist in
             let proofstate = hist_now proofhist in
             let disproof = optf hist_now disproofhist in
-            let closed () = newfocus (env, mbs, DontShow, pinfs') in
-            let closeOK () = Japeserver.closeproof n true; closed() in
+            let closed () = env, mbs, DontShow, pinfs in
+            let closeOK () = closed() in
             (* a proof can be finished in no steps.  But if it comes from store, we don't
                re-record it unless you've developed it.
              *)
@@ -2233,11 +2241,12 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
 
         | _ -> raise (Catastrophe_ ["funny hit (commands): "; string_of_command command])
   in
+  (* this is the body of commands *)
   (* assignment to displayvars can force redisplay *)
   let nextargs =
     try
     
-      (* demodularisation stuff here *)
+      (* demodularisation stuff here oh dear oh dear*)
       outerpinfs := pinfs; (* oh dear *)
       match pinfs with
       | (Pinf
@@ -2310,6 +2319,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
              | DontShow -> administer (Some displaystate)
             )
       | [] -> administer None
+
     with
     | Catastrophe_ ss ->
         showAlert ("catastrophic engine error: " :: ss);
@@ -2333,6 +2343,11 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
           ["unexpected exception "; Printexc.to_string exn; " in commands"];
         env, mbs, DontShow, pinfs
   in
+  
+  (* demodularisation stuff here, oh dear oh dear *)
+  (* this will receive windowsclosed reply *)
+  Japeserver.closeproofs !pendingclosures; pendingclosures := [];
+
   commands nextargs
 
 and start () =
