@@ -289,7 +289,7 @@ let rec verifycxtprovisos cxt =
           notins h bhfvs (notins g bcfvs [])
       | None -> expandFreshProviso true f left right []
     in
-    (* the checker function above is wierd.  But it checks the list of provisos
+    (* the checker function above is weird.  But it checks the list of provisos
      * left-to-right, eliminating the ones that are a consequence of what is left,
      * so we want the _visible_ provisos first
      *)

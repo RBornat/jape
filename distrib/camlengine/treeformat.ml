@@ -52,7 +52,7 @@ module type Fmt =
     val format_of_layout : (term -> string) -> (term -> int list) -> (term -> string) -> treelayout -> treeformat
     val layouts_of_format : treeformat -> treelayout list
     (* because of the use of negative numbers in paths to navigate internal cuts, and the 
-     * wierd way that the root of an internal cut is addressed (see prooftree.sml), 
+     * weird way that the root of an internal cut is addressed (see prooftree.sml), 
      * DON'T DON'T DON'T do manipulations of the list in a FmtPath.
      *
      * IN PARTICULAR, note that FmtPath [] is NOT NECESSARILY the root path of a tree: use
@@ -194,7 +194,7 @@ module Fmt : Fmt with type treelayout = Treelayout.treelayout
       | SimpleFormat   -> ls
 
     (* because of the use of negative numbers in paths to navigate internal cuts, and the 
-     * wierd way that the root of an internal cut is addressed (see prooftree.sml), 
+     * weird way that the root of an internal cut is addressed (see prooftree.sml), 
      * DON'T DON'T DON'T do manipulations of the list in a FmtPath.
      *
      * IN PARTICULAR, note that FmtPath [] is NOT NECESSARILY the root path of a tree: use

@@ -81,7 +81,7 @@ let rec knownproofvar facts v =
   | _ -> false
 
 (* This function is deciding whether a variable v can be made equal to some term t
-   by unification and/or instatiation of parameters.  It is used in simplifySubst.
+   by unification and/or instantiation of parameters.  It is used in simplifySubst.
    
    Provisos, read as facts that we can depend on, make it much more possible to
    distinguish what is and isn't equal in substitutions.
