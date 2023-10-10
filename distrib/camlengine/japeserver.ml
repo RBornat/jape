@@ -476,10 +476,12 @@ let openproof name number =
 let closeproof number report = writef "CLOSEPROOF % %\n" [Int number; Bool report]
 
 (* close several proofs, quietly. Reply will be this same list, plus a focus (eventually) *)
-let force_close ns = 
-  writef "FORCECLOSE\n" [];
-  List.iter (fun n -> writef "FORCECLOSEONE %\n" [Int n]) ns;
-  writef "FORCECLOSEEND\n" []
+let closeproofs ns = 
+  if ns<>[] then
+    (writef "CLOSEPROOFS\n" [];
+     List.iter (fun n -> writef "CLOSEPROOFSONE %\n" [Int n]) ns;
+     writef "CLOSEPROOFSEND\n" []
+    )
 
 (* this bit has to match JapeMenu.java, which says PROOFWINDOW_BAR=1 *)
 
