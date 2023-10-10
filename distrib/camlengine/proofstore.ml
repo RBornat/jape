@@ -46,7 +46,7 @@ type seq = Sequent.seq
 let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     proof_children, addproof, saved, proofnames, provedthings, saveable,
     proved, disproved, provedordisproved, inproofstore, saveproof,
-    saveproofs, proofs_which_use, is_proofnamed, close_proofs =
+    saveproofs, proofs_which_use, is_proofnamed, discard_proofs =
 
   let proofs : (name, (bool * prooftree * name list * bool * (seq * model) option)) mapping ref =
     ref empty
@@ -88,7 +88,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     | Some (v,tree,_,_,disproof) -> subtrees tree <> [], bool_of_opt disproof
     | None                       -> false, false
   
-  and close_proofs names = proofs := !proofs -- names
+  and discard_proofs names = proofs := !proofs -- names
   
   (* when we prove something, we may prove a different sequent from the one that was 
    * proposed, and a different set of provisos.  We shall check, and update the 
@@ -99,6 +99,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
    *)
   (* First step: don't allow circular proofs.  
    * Future step:  check when a proof changes the meaning of a theorem
+         -- which is done now (see Thing.check_addthing)
    * RB 8/x/96 
    *)
   (* and I REALLY REALLY MUST extend this to redefinition of Rules ... *)
@@ -112,31 +113,32 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     (* don't bother with Rule/Theorem distinction: proof_depends is just as quick *)
     (* does derived rules stuff matter here? *)
     let rec putitin name thing givens place =
-      addthing (name, thing, place);
+      addthing (name, thing, place); (* addthing gets thing with only visible provisos *)
       proofs :=
         (!proofs ++ (name |-> (proved, proof, ds, disproved, disproofopt)));
       allsaved := false;
       true
     in
-    let rec storedprovisos vps =
-      let rec unvisproviso b vp = b, provisoactual vp in
-      (unvisproviso true <* (provisovisible <| vps))
-    in
+    (* this strips out invisible provisos before storing a proof. This confuses
+       Thing.check_addthing, because CookedRule and CookedTheorem contain invisible
+       provisos. So those must be stripped out before checking if a proof actually
+       matches the stored thing to be proved. Oh dear. RB 07/10/2023
+     *)
     let rec doit () =
       match givens, thingnamed name with
       | [], Some (Theorem (params, _, _), place) ->
-          putitin name (Theorem (params, storedprovisos provisos, seq)) []
+          putitin name (Theorem (params, storableprovisos provisos, seq)) []
             place
       | _ :: _, Some (Theorem (params, _, _), place) ->
           alert
             ["replacing theorem "; parseablestring_of_name name;
              " with derived rule"];
           putitin name
-            (Rule ((params, storedprovisos provisos, givens, seq), false))
+            (Rule ((params, storableprovisos provisos, givens, seq), false))
             givens place
       | _, Some (Rule ((params, _, _, _), _), place) ->
           putitin name
-            (Rule ((params, storedprovisos provisos, givens, seq), false))
+            (Rule ((params, storableprovisos provisos, givens, seq), false))
             givens place
       | _ ->
           raise
@@ -267,7 +269,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
   freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
   proof_children, addproof, saved, proofnames, provedthings, saveable,
   proved, disproved, provedordisproved, inproofstore, saveproof,
-  saveproofs, proofs_which_use, is_proofnamed, close_proofs
+  saveproofs, proofs_which_use, is_proofnamed, discard_proofs
 
 let rec thingswithproofs triv =
      (fun n ->
@@ -306,4 +308,4 @@ let lacksProof name =
 (* special export *)
 let _ = Thing.proofs_which_use := proofs_which_use
 let _ = Thing.is_proofnamed := is_proofnamed
-let _ = Thing.close_proofs := close_proofs
+let _ = Thing.discard_proofs := discard_proofs
