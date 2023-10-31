@@ -2038,7 +2038,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             let proofstate = hist_now proofhist in
             let disproof = optf hist_now disproofhist in
             let closed () = env, mbs, DontShow, pinfs in
-            let closeOK () = closed() in
+            let closeOK () = addpendingclosures [n]; closed() in
             (* a proof can be finished in no steps.  But if it comes from store, we don't
                re-record it unless you've developed it.
              *)
