@@ -435,7 +435,7 @@ let badsel ss = showAlert ss; raise (Applycommand_ None)
  *)
 
 let outerpinfs : proofinfo list ref = ref []
-let pendingclosures = Thing.pendingclosures
+let pendingclosures = Checkthing.pendingclosures
 
 let windows_which_use name =
   let pinfs = !outerpinfs in
@@ -458,9 +458,9 @@ let rec addpendingclosures = function
                addpendingclosures pns
   | []      -> ()
   
-let _ = Thing.windows_which_use := windows_which_use
-let _ = Thing.windowsnamed := windowsnamed
-let _ = Thing.addpendingclosures := addpendingclosures
+let _ = Checkthing.windows_which_use := windows_which_use
+let _ = Checkthing.windowsnamed := windowsnamed
+let _ = Checkthing.addpendingclosures := addpendingclosures
 
 (* There appear to be two reasonable behaviours, given a selection and a command.
  * 1. (the original) -- resolve the selection to a single tip, if possible, and work there.
@@ -2337,7 +2337,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             showAlert ["A conclusion should be selected; and none is."];
             env, mbs, DontShow, pinfs
 
-    | AddThing_ -> env, mbs, DontShow, pinfs
+    | Checkthing.AddThing_ -> env, mbs, DontShow, pinfs
     | exn ->
         showAlert
           ["unexpected exception "; Printexc.to_string exn; " in commands"];

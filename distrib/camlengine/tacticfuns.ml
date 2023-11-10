@@ -1878,7 +1878,7 @@ let rec doJAPE tryf display env ts =
                       | _ -> raise MatchinJAPEparam_
                     in
                     let params = (param <* args) in
-                    addthing
+                    Checkthing.addthing
                       (name, Tactic (params, transTactic tactic), InLimbo);
                     (* cleanup(); (*DO ME SOON*)*)
                     resetcaches ();

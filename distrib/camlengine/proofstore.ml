@@ -1,5 +1,5 @@
 (*
-    Copyright (C) 2003-19 Richard Bornat & Bernard Sufrin
+    Copyright (C) 2003-23 Richard Bornat & Bernard Sufrin
      
         richard@bornat.me.uk
         sufrin@comlab.ox.ac.uk
@@ -104,7 +104,8 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
    *)
   (* and I REALLY REALLY MUST extend this to redefinition of Rules ... *)
 
-  and addproof alert query name proved proof givens cxt disproved disproofopt =
+  (* we give this the Checkthing version of addthing *)
+  and addproof addthing alert query name proved proof givens cxt disproved disproofopt =
     let cxt = rewritecxt cxt in
     let seq = rewriteseq cxt (sequent proof) in
     let provisos = provisos cxt in
@@ -304,8 +305,3 @@ let rec needsProof a1 a2 =
 
 let lacksProof name =
   needsProof name (fst (_The (thingnamed name)))
-
-(* special export *)
-let _ = Thing.proofs_which_use := proofs_which_use
-let _ = Thing.is_proofnamed := is_proofnamed
-let _ = Thing.discard_proofs := discard_proofs

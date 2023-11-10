@@ -33,7 +33,7 @@ open Sml
 exception Use_ = Paragraph.Use_
 exception Tacastrophe_ = Miscellaneous.Tacastrophe_
 
-let addproof = Proofstore.addproof
+let addproof = Proofstore.addproof Checkthing.addthing
 let ( &~~ ) = Optionfuns.( &~~ )
 let applyLiteralTactic = Tacticfuns.applyLiteralTactic None
 let applyconjectures = Miscellaneous.applyconjectures

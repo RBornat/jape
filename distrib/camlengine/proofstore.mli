@@ -49,7 +49,12 @@ val provedordisproved : name -> (bool * bool) option
 val proofnamed : name ->
                  (bool * prooftree * (bool * proviso) list * seq list * bool * (seq * model) option) option
 
-val addproof : (string list -> unit) ->                          (* alert *)
+val is_proofnamed    : name -> bool * bool
+val proofs_which_use : name -> name list
+val discard_proofs   : name list -> unit
+
+val addproof : ((name * thing * thingplace) -> unit) ->          (* addthing *)
+               (string list -> unit) ->                          (* alert *)
                (string list * string * string * int -> bool) ->  (* query *)
                name -> bool -> prooftree -> seq list -> cxt ->   (* name proved proof givens cxt *)
                bool -> (seq * model) option -> bool              (* disproved disproof -> success *)
