@@ -33,7 +33,7 @@ open Sml
 exception Use_ = Paragraph.Use_
 exception Tacastrophe_ = Miscellaneous.Tacastrophe_
 
-let addproof = Proofstore.addproof Checkthing.addthing
+let addproof = Proofstore.addproof
 let ( &~~ ) = Optionfuns.( &~~ )
 let applyLiteralTactic = Tacticfuns.applyLiteralTactic None
 let applyconjectures = Miscellaneous.applyconjectures
@@ -107,10 +107,10 @@ let rec startstate env provisos givens seq =
 
 let realaddproof = addproof
 
-let addproof report query name proved =
+let addproof checked_addthing report query name proved =
   fun (Proofstate {cxt = cxt; tree = tree; givens = givens})
     disproofopt ->
-    realaddproof report query name proved tree givens cxt disproofopt
+    realaddproof checked_addthing report query name proved tree givens cxt disproofopt
 
 (* at present a proof is recorded in the proof store as a proof tree, and in a 
  * file as a SEQ tactic wich will rebuild that tree.  This works for the time
@@ -132,7 +132,7 @@ let addproof report query name proved =
 exception NoProof_ of string list
 (* moved out for OCaml *)
 
-let doProof report query env name stage seq (params, givens, pros, tac) disproofopt =
+let doProof checked_addthing report query env name stage seq (params, givens, pros, tac) disproofopt =
   (* ReplayTac now does all the work of setting up the parameters for a replay *)
   let tac = mkReplayTac tac in
   let (pros', givens, seq) = compiletoprove (params, pros, givens, seq) in
@@ -194,7 +194,7 @@ let doProof report query env name stage seq (params, givens, pros, tac) disproof
         in
         if stage = Complete then
           begin
-            let _ = (addproof report query name proved state disproved disproofopt : bool) in
+            let _ = (addproof checked_addthing report query name proved state disproved disproofopt : bool) in
             None
           end
         else Some (name, state, disproofopt)))

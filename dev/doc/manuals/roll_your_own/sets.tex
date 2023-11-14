@@ -123,7 +123,7 @@ TACTIC "↔-E(R) forward"(Z) IS "↔-E forward" "↔-E(R)"\\
 TACTIC "↔-E forward"(rule) IS\\
 \tab WHEN (LETHYP (\_A↔\_B) (ForwardCut2 rule))\\
 \tab \tab (LETHYP \_A (ForwardCut rule))\\
-\tab \tab (JAPE(fail(what's this in rule forward?)))
+\tab \tab (Fail (what's this in rule forward?))
 \end{japeish}
 
 Using the rewrite rules is, as we have seen in \chapref{funcprog}, a little more complicated. The Substitution menu is
@@ -148,7 +148,7 @@ TACTIC ForwardSubst (ruleLR, ruleRL,pat) IS\\
 \tab \tab \tab \tab (LETHYP \_Q \\
 \tab \tab \tab \tab \tab (ALT (WITHHYPSEL hyp) \\
 \tab \tab \tab \tab \tab \tab (FAIL (the hypothesis you formula-selected wasn't a pat formula))))\\
-\tab \tab \tab \tab (JAPE (SUBGOAL 1))) \\
+\tab \tab \tab \tab (SUBGOAL 1)) \\
 \tab \tab \tab (WITHSUBSTSEL hyp))\\
 \tab \tab (LETCONCSUBSTSEL \_P\\
 \tab \tab \tab (WITHSUBSTSEL ruleLR)\\
@@ -157,10 +157,10 @@ TACTIC ForwardSubst (ruleLR, ruleRL,pat) IS\\
 \tab \tab \tab \tab \tab (ALT (WITHHYPSEL hyp) \\
 \tab \tab \tab \tab \tab \tab (FAIL(the hypothesis you formula-selected wasn't a pat formula))))\\
 \tab \tab \tab \tab SKIP))\\
-\tab \tab (JAPE (fail(please text-select one or more instances of a sub-formula to replace)))
+\tab \tab (Fail (please text-select one or more instances of a sub-formula to replace))
 \end{japeish}
 
-\textsc{lethypsubstsel} \textit{pattern tactic...} succeeds when the user's subformula-selections describe a substitution in a hypothesis (left-hand side) formula; \textsc{letconcsubstsel} succeeds when they describe a substitution in a conclusion (right-hand side). Working backwards with letconcsubstsel the tactic is fairly straightforward: it applies ruleLR (one of the argument rewrite rules) on the substution formula that the user has defined, and then, if the user has selected a hypothesis, tries to unify it with the conclusion of the first antecedent of the rewrite. Working forwards it makes a cut, applies ruleRL (the other rewrite rule, which will do its work in the opposite direction to ruleLR) and then either applies the user's selected hypothesis (alt...) or skips the first antecedent (jape(subgoal 1)) and then does \textsc{withsubstsel} hyp, which uses the user's original subformula-selection to construct a substitution in the current problem sequent, and also does an automatic \textsc{withhypsel} on it, so that the hyp is bound to make use of that hypothesis\.footnote{It seems reasonable that withsubstsel should include an automatic withhyp/withconcsel, because if the newly-constructed hypothesis isn't to be used, why was it constructed?} The automatic \textsc{withhypsel} enables us, as in this example, to distinguish between two selected hypotheses: the one selected for application as an equality, and the one subformula-selected for rewriting.\footnote{The encoding uses the out-of-date terminology `text selection', because it was written before subformula selection was implemented, when all you could do was select character sequences.}
+\textsc{lethypsubstsel} \textit{pattern tactic...} succeeds when the user's subformula-selections describe a substitution in a hypothesis (left-hand side) formula; \textsc{letconcsubstsel} succeeds when they describe a substitution in a conclusion (right-hand side). Working backwards with letconcsubstsel the tactic is fairly straightforward: it applies ruleLR (one of the argument rewrite rules) on the substution formula that the user has defined, and then, if the user has selected a hypothesis, tries to unify it with the conclusion of the first antecedent of the rewrite. Working forwards it makes a cut, applies ruleRL (the other rewrite rule, which will do its work in the opposite direction to ruleLR) and then either applies the user's selected hypothesis (alt...) or skips the first antecedent (subgoal 1) and then does \textsc{withsubstsel} hyp, which uses the user's original subformula-selection to construct a substitution in the current problem sequent, and also does an automatic \textsc{withhypsel} on it, so that the hyp is bound to make use of that hypothesis\.footnote{It seems reasonable that withsubstsel should include an automatic withhyp/withconcsel, because if the newly-constructed hypothesis isn't to be used, why was it constructed?} The automatic \textsc{withhypsel} enables us, as in this example, to distinguish between two selected hypotheses: the one selected for application as an equality, and the one subformula-selected for rewriting.\footnote{The encoding uses the out-of-date terminology `text selection', because it was written before subformula selection was implemented, when all you could do was select character sequences.}
 
 \section{Syntax of set operations}
 
@@ -256,28 +256,28 @@ TACTIC FOBSS (Forward, Rule) IS \\
 \tab WHEN\tab (LETHYP \_P\\
 \tab \tab \tab (ALT\tab (Forward Rule)\\
 \tab \tab \tab \tab (WHEN\tab (LETARGSEL \_Q \\
-\tab \tab \tab \tab \tab \tab (JAPE(failgivingreason(Rule is not applicable to assumption ' \_P ' \\
-\tab \tab \tab \tab \tab \tab \tab \tab \tab \tab with argument ' \_Q '))))\\
-\tab \tab \tab \tab \tab (JAPE(failgivingreason(Rule is not applicable to assumption ' \_P ')))))) \\
+\tab \tab \tab \tab \tab \tab (Fail (Rule is not applicable to assumption ' \_P ' \\
+\tab \tab \tab \tab \tab \tab \tab \tab \tab \tab with argument ' \_Q ')))\\
+\tab \tab \tab \tab \tab (Fail (Rule is not applicable to assumption ' \_P '))))) \\
 \tab \tab (LETCONCSUBSTSEL \_P \\
 \tab \tab \tab (ALT\tab (WITHSUBSTSEL (WITHHYPSELRule))\\
 \tab \tab \tab \tab (LETGOAL \_Q\\
-\tab \tab \tab \tab \tab (JAPE(failgivingreason(Rule is not applicable to conclusion ' \_Q '\\
-\tab \tab \tab \tab \tab \tab \tab \tab \tab \tab with substitution ' \_P '))))))\\
+\tab \tab \tab \tab \tab (Fail (Rule is not applicable to conclusion ' \_Q '\\
+\tab \tab \tab \tab \tab \tab \tab \tab \tab \tab with substitution ' \_P ')))))\\
 \tab \tab (ALT\tab (WITHSELECTIONS Rule)\\
-\tab \tab \tab (JAPE(failgivingreason(Rule is not applicable to that conclusion)))) \\
+\tab \tab \tab (Fail (Rule is not applicable to that conclusion))) \\
 \\
 TACTIC FSSOB (Forward, Rule) IS \\
 \tab WHEN\tab (LETHYPSUBSTSEL \_P (Forward Rule)) \\
 \tab \tab (ALT\tab (WITHSELECTIONS Rule)\\
 \tab \tab \tab (WHEN\tab (LETARGSEL \_P\\
-\tab \tab \tab \tab \tab (JAPE(failgivingreason(Rule is not applicable with argument ' \_P '))))\\
-\tab \tab \tab \tab (JAPE(failgivingreason(Rule is not applicable))))) \\
+\tab \tab \tab \tab \tab (Fail (Rule is not applicable with argument ' \_P ')))\\
+\tab \tab \tab \tab (Fail (Rule is not applicable)))) \\
 \\
 TACTIC ForwardCutwithSubstSel(Rule) IS\\
 \tab SEQ\tab cut \\
 \tab \tab (WHEN\tab (LETSUBSTSEL \_A Rule (WITHSUBSTSEL hyp))\\
-\tab \tab \tab \tab (JAPE (fail(please text-select one or more instances of a sub-formula))))
+\tab \tab \tab \tab (Fail (please text-select one or more instances of a sub-formula)))
 \end{japeish}
 
 I incorporate extension as an axiomatic definition. I don't include the outer quantification, as rules are implicitly-quantified schemata. It's encoded in the Definitions panel (see below) as

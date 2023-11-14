@@ -104,8 +104,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
    *)
   (* and I REALLY REALLY MUST extend this to redefinition of Rules ... *)
 
-  (* we give this the Checkthing version of addthing *)
-  and addproof addthing alert query name proved proof givens cxt disproved disproofopt =
+  and addproof checked_addthing alert query name proved proof givens cxt disproved disproofopt =
     let cxt = rewritecxt cxt in
     let seq = rewriteseq cxt (sequent proof) in
     let provisos = provisos cxt in
@@ -114,7 +113,7 @@ let freezesaved, thawsaved, clearproofs, proofnamed, proof_depends,
     (* don't bother with Rule/Theorem distinction: proof_depends is just as quick *)
     (* does derived rules stuff matter here? *)
     let rec putitin name thing givens place =
-      addthing (name, thing, place); (* addthing gets thing with only visible provisos *)
+      checked_addthing (name, thing, place); (* addthing gets thing with only visible provisos *)
       proofs :=
         (!proofs ++ (name |-> (proved, proof, ds, disproved, disproofopt)));
       allsaved := false;

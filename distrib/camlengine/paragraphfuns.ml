@@ -31,7 +31,6 @@ open Runproof
 open Sml
 open Tactictype
 open Thing
-open Checkthing (* provides new addthing *)
 open Structurerule
 
 exception Catastrophe_ = Miscellaneous.Catastrophe_
@@ -125,7 +124,7 @@ let rec entrynames place con (p, es) =
   | _ -> raise (Catastrophe_ (paragraphid p :: " found in " :: place))
   
 (* now designed for nj_revfold, cos it produces japeenv and proofs and buttonfns *)
-let rec interpret
+let rec interpret checked_addthing
   report query where params provisos enter
     (paragraph, (env, proofs, buttonfns as res)) =
   let rec _Par =
@@ -220,9 +219,9 @@ let rec interpret
           (filterparams svs params, visprovisos (filterpros svs provisos),
            sequent)
       in
-      addthing (name, thing, where); res
+      checked_addthing (name, thing, where); res
   | File (_, paras) ->
-      nj_revfold (interpret report query where [] [] enter) paras res
+      nj_revfold (interpret checked_addthing report query where [] [] enter) paras res
   | FontSpec stuff -> setfontstuff stuff; res
   | ForceDef stuff -> addforcedef stuff; res
   | HitDef stuff   -> adddoubleclick stuff; res
@@ -243,7 +242,7 @@ let rec interpret
       end;
       res
   | MacroDef (TacticHeading (name, params), macro) ->
-      addthing (name, Macro (params, macro), where); res
+      checked_addthing (name, Macro (params, macro), where); res
   | Menu (mproof, mlabel, mparas) ->
       let rec tacentry name =
         MCdata (Mentry (name, None, "apply " ^ parseablestring_of_name name))
@@ -287,7 +286,7 @@ let rec interpret
       Menu.addmenu mproof mlabel;
       Menu.addmenudata mproof mlabel mes;
       nj_revfold
-        (interpret report query (InMenu mlabel) params provisos enter) mps
+        (interpret checked_addthing report query (InMenu mlabel) params provisos enter) mps
         (env, proofs, buttonfns)
   | Panel (plabel, pparas, kind) ->
       let rec tacentry name = Pentry (name, parseablestring_of_name name) in
@@ -322,7 +321,7 @@ let rec interpret
       Menu.addpanel kind plabel;
       Menu.addpaneldata plabel pes;
       nj_revfold
-        (interpret report query (InPanel plabel) params provisos enter)
+        (interpret checked_addthing report query (InPanel plabel) params provisos enter)
         pps (env, proofs, buttonfns)
   | StructureRule (stype, rule) ->
       addstructurerule report query stype rule; res
@@ -330,7 +329,7 @@ let rec interpret
       (name, stage, seq, (givens, params, provisos, tac), disproofopt (* as p *)) ->
       let rec updateplace (thing, oldplace) =
         if where <> oldplace && where <> InLimbo then
-          addthing (name, thing, where)
+          checked_addthing (name, thing, where)
       in
       (match givens, thingnamed name with
 	   | [], Some (Theorem _, _ as info) -> updateplace info
@@ -342,10 +341,10 @@ let rec interpret
 		   raise Use_
 	   | _, Some (Rule _, _ as info) -> updateplace info
 	   | [], None ->
-		   addthing
+		   checked_addthing
 			 (name, Theorem (params, visprovisos provisos, seq), where)
 	   | _ :: _, None ->
-		   addthing
+		   checked_addthing
 			 (name,
 			  Rule ((params, visprovisos provisos, givens, seq), false),
 			  where)
@@ -358,7 +357,7 @@ let rec interpret
       consolereport
         ["checking "; word_of_proofstage stage; " "; string_of_name name];
       let res =
-        match doProof report query env name stage seq 
+        match doProof checked_addthing report query env name stage seq 
                       (params, givens, provisos, tac) disproofopt
         with
           Some r -> env, r :: proofs, buttonfns
@@ -373,31 +372,31 @@ let rec interpret
             visprovisos (filterpros rvs provisos), top, bottom),
            axiom)
       in
-      addthing (name, thing, where); res
+      checked_addthing (name, thing, where); res
   | RuleGroup (RuleHeading (name, params, provisos), paras) ->
-      addalttactic name paras params where;
+      addalttactic checked_addthing name paras params where;
       (* in the menu/panel *)
       nj_revfold
-        (interpret report query where (_Par params) (_Pro provisos) false)
+        (interpret checked_addthing report query where (_Par params) (_Pro provisos) false)
         paras res
   | TacticDef (TacticHeading (name, params), tac) ->
-      addthing (name, Tactic (params, tac), where); res
+      checked_addthing (name, Tactic (params, tac), where); res
   | Theory (RuleHeading (name, params, provisos), paras) ->
-      addalttactic name paras params InLimbo;
+      addalttactic checked_addthing name paras params InLimbo;
       (* not in a menu/panel *)
       nj_revfold
-        (interpret report query where (_Par params) (_Pro provisos) enter)
+        (interpret checked_addthing report query where (_Par params) (_Pro provisos) enter)
         paras res
 
-and addalttactic name paras params where =
-  addthing
+and addalttactic checked_addthing name paras params where =
+  checked_addthing
     (name, Tactic (params, TheoryAltTac (optionfilter rulename paras)),
      where)
 
-and interpretParasFrom report query (env, proofs, buttonfuns as res) filenames =
+and interpretParasFrom checked_addthing report query (env, proofs, buttonfuns as res) filenames =
   freezesaved ();
   let r = (try
-             nj_revfold (interpret report query InLimbo [] [] true)
+             nj_revfold (interpret checked_addthing report query InLimbo [] [] true)
                (nj_fold (fun (x, y) -> x @ y)
                         ((paragraphs_of_file report query env <.> disQuote) <*
                         filenames)
@@ -417,6 +416,6 @@ let rec conjecturename =
     Conjecture (RuleHeading (name, _, _), _) -> name
   | _                                        -> raise Use_
 
-let interpret report query params provisos res paragraph = (* for export *)
-  interpret report query InLimbo params provisos true (paragraph, res)
+let interpret checked_addthing report query params provisos res paragraph = (* for export *)
+  interpret checked_addthing report query InLimbo params provisos true (paragraph, res)
 

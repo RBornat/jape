@@ -35,6 +35,7 @@ open Sequent
 open Thing
 
 val interpret :
+  ((name * thing * thingplace) -> unit) ->
   (string list -> unit) ->
   (string list * string * string * int -> bool) -> paraparam list ->
   proviso list ->
@@ -44,6 +45,7 @@ val interpret :
     japeenv * (name * proofstate * (seq * model) option) list *
       (name * (string * bool -> unit)) list
 val interpretParasFrom :
+  ((name * thing * thingplace) -> unit) ->
   (string list -> unit) ->
   (string list * string * string * int -> bool) ->
   japeenv * (name * proofstate * (seq * model) option) list *

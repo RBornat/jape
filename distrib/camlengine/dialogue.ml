@@ -462,6 +462,8 @@ let _ = Checkthing.windows_which_use := windows_which_use
 let _ = Checkthing.windowsnamed := windowsnamed
 let _ = Checkthing.addpendingclosures := addpendingclosures
 
+let checked_addthing t = Checkthing.addthing t
+
 (* There appear to be two reasonable behaviours, given a selection and a command.
  * 1. (the original) -- resolve the selection to a single tip, if possible, and work there.
  * 2. (the new and odd) -- just take exactly what was given, and damn the consequences.
@@ -865,7 +867,7 @@ let parseargs args =
 exception QuitJape
 
 (* interpretParasFrom includes its own disQuote, so no need for one here *)
-let doUse = Paragraphfuns.interpretParasFrom
+let doUse = Paragraphfuns.interpretParasFrom checked_addthing
 
 (* we have a mechanism -- in mbs, set up by paragraphfuns -- for allowing the GUI to 
    control the values of variables in the engine.  We have another mechanism -- see 
@@ -1027,7 +1029,7 @@ and endproof num name st dis =
   addpendingclosures [num];
   let proved = isproven st in
   let disproved = disproof_finished dis in
-  Runproof.addproof showAlert uncurried_screenquery name proved st disproved (model_of_disproofstate dis) &&
+  Runproof.addproof checked_addthing showAlert uncurried_screenquery name proved st disproved (model_of_disproofstate dis) &&
           (markproof (parseablestring_of_name name) (proved, disproved);
            true
           )
@@ -1064,7 +1066,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     in
     (* consolereport ["para is "; paratext]; *)
     try 
-      let _ = (Paragraphfuns.interpret showAlert uncurried_screenquery [] []
+      let _ = (Paragraphfuns.interpret checked_addthing showAlert uncurried_screenquery [] []
                   (env, [], []) (getpara env paratext) :
                   japeenv * (name * proofstate * (seq * model) option) list *
                             (name * (string * bool -> unit)) list)

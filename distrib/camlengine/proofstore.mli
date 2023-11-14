@@ -53,7 +53,7 @@ val is_proofnamed    : name -> bool * bool
 val proofs_which_use : name -> name list
 val discard_proofs   : name list -> unit
 
-val addproof : ((name * thing * thingplace) -> unit) ->          (* addthing *)
+val addproof : ((name * thing * thingplace) -> unit) ->          (* checked_addthing *)
                (string list -> unit) ->                          (* alert *)
                (string list * string * string * int -> bool) ->  (* query *)
                name -> bool -> prooftree -> seq list -> cxt ->   (* name proved proof givens cxt *)
