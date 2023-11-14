@@ -287,30 +287,36 @@ TACTIC genstep IS \\
 In this chapter we are dealing with an encoding of an \textit{algorithm}, not a proper logic. It's possible to get strange answers by running the steps in the wrong order. On the other hand, it's easy to write a tactic which automatically runs the algorithm. That tactic is long-winded because it has to deal, case-by-case, with the various sizes of binding structures. If only Jape could handle families of rules...
 
 \begin{japeish}
-TACTIC Auto IS\\
-\tab WHEN\tab (LETGOAL (\_x:\_T) "x:T")\\
-\tab \tab (LETGOAL (\_c:\_T) \\
-\tab \tab \tab (ALT\tab "x:T" "n:num" "s:string" "true:bool" "false:bool"\\
-\tab \tab \tab \tab (JAPE (fail (\_c isn't a constant from the context, \\
-\tab \tab \tab \tab \tab \tab \tab or one of the fixed constants))) \\
-\tab \tab \tab )\\
-\tab \tab )\\
-\tab \tab (LETGOAL (\_F \_G:\_T) "F G : T" Auto Auto)\\
-\tab \tab (LETGOAL ((\_E,\_F):\_T) "(E,F) : T1×T2" Auto Auto)\\
-\tab \tab (LETGOAL ((λ\_x.\_E):\_T) "λx.E : T1→T2" Auto)\\
-\tab \tab (LETGOAL (if \_E then \_ET else \_EF fi:\_T) "if E then ET else EF fi : T" Auto Auto Auto)\\
-\tab \tab (LETGOAL (let \_x=\_E in \_F end:\_T) \\
-\tab \tab \tab \tab letrules Auto generalise Auto)\\
-\tab \tab (LETGOAL (let \_x1=\_E1, \_x2=\_E2 in \_F end:\_T) \\
-\tab \tab \tab \tab letrules Auto Auto generalise generalise Auto)\\
-\tab \tab ... \textit{etc...}\\
-\tab \tab (LETGOAL (letrec \_x=\_E in \_F end:\_T) \\
-\tab \tab \tab \tab letrecrules Auto generalise Auto)\\
-\tab \tab (LETGOAL (letrec \_x1=\_E1, \_x2=\_E2 in \_F end:\_T) \\
-\tab \tab \tab \tab letrecrules Auto Auto generalise generalise Auto)\\
-\tab \tab ... \textit{etc...}\\
-\tab \tab (LETGOAL (\_E:\_T) (JAPE (fail (\_E is not a recognisable program formula (Auto)))))\\
-\tab \tab (LETGOAL \_E (JAPE (fail (\_E is not a recognisable judgement (Auto)))))
+TACTIC Auto IS  \\
+\tab WHEN\tab (LETGOAL (\_x:\_T) "x:T") \\
+\tab \tab (LETGOAL (\_c:\_T)  \\
+\tab \tab \tab (ALT "x:T" "n:num" "s:string" "true:bool" "false:bool" \\
+\tab \tab \tab \tab (Fail (\_c isn't a constant from the context, or one of the fixed constants)) \\
+\tab \tab \tab ) \\
+\tab \tab ) \\
+\tab \tab (LETGOAL (\_F \_G:\_T) "F G : T" Auto Auto) \\
+\tab \tab (LETGOAL ((\_E,\_F):\_T) "(E,F) : T1×T2" Auto Auto) \\
+\tab \tab (LETGOAL ((λ\_x.\_E):\_T) "λx.E : T1→T2" Auto) \\
+\tab \tab (LETGOAL (if \_E then \_ET else \_EF fi:\_T) "if E then ET else EF fi : T" Auto Auto Auto) \\
+\tab \tab (LETGOAL (let \_x=\_E in \_F end:\_T)  \\
+\tab \tab \tab letrules Auto generalise Auto) \\
+\tab \tab (LETGOAL (let \_x1=\_E1 , \_x2=\_E2 in \_F end:\_T)  \\
+\tab \tab \tab letrules Auto Auto generalise generalise Auto) \\
+\tab \tab (LETGOAL (let \_x1=\_E1 , \_x2=\_E2 , \_x3=E3 in \_F end:\_T)  \\
+\tab \tab \tab letrules Auto Auto Auto generalise generalise generalise Auto) \\
+\tab \tab (LETGOAL (let \_x1=\_E1 , \_x2=\_E2 , \_x3=E3 , \_x4=\_E4 in \_F end:\_T)  \\
+\tab \tab \tab letrules Auto Auto Auto Auto generalise generalise generalise generalise Auto) \\
+\tab \tab (LETGOAL (letrec \_x=\_E in \_F end:\_T)  \\
+\tab \tab \tab letrecrules Auto generalise Auto) \\
+\tab \tab (LETGOAL (letrec \_x1=\_E1 , \_x2=\_E2 in \_F end:\_T) \\ 
+\tab \tab \tab letrecrules Auto Auto generalise generalise Auto) \\
+\tab \tab (LETGOAL (letrec \_x1=\_E1 , \_x2=\_E2 , \_x3=E3 in \_F end:\_T)  \\
+\tab \tab \tab letrecrules Auto Auto Auto generalise generalise generalise Auto) \\
+\tab \tab (LETGOAL (letrec \_x1=\_E1 , \_x2=\_E2 , \_x3=E3 , \_x4=\_E4 in \_F end:\_T)  \\
+\tab \tab \tab letrecrules Auto Auto Auto Auto generalise generalise generalise generalise Auto) \\
+\tab \tab (LETGOAL (\_E:\_T) (Fail (\_E is not a recognisable program formula (Auto)))) \\
+\tab \tab (LETGOAL (\_T ≺ \_S) generalise) \\
+\tab \tab (LETGOAL \_E (Fail (\_E is not a recognisable judgement (Auto)))) \\
 \end{japeish}
 
 There's a similar AutoStep tactic which lets the user make just one step of the algorithm.
