@@ -302,7 +302,7 @@ let disproof_finished =
       let res =
         disproofstate_countermodel state && disproofstate_conclusive state
       in
-      (* consolereport ["disproof_finished ", string_of_disproofstate state, " => ", string_of_int res]; *)
+      (* consolereport ["disproof_finished "; string_of_disproofstate state; " => "; string_of_bool res]; *)
       res
   | None -> false
 
@@ -1026,14 +1026,17 @@ and biggestproofnum name pinfs =
     pinfs (0, 0)
 
 and endproof num name st dis =
-  addpendingclosures [num];
   let proved = isproven st in
   let disproved = disproof_finished dis in
-  Runproof.addproof checked_addthing showAlert uncurried_screenquery name proved st disproved (model_of_disproofstate dis) &&
-          (markproof (parseablestring_of_name name) (proved, disproved);
-           true
-          )
-
+  if proved || disproved then (* belt and braces ... *)
+    (addpendingclosures [num];
+     Runproof.addproof checked_addthing showAlert uncurried_screenquery name proved st disproved (model_of_disproofstate dis) &&
+     (markproof (parseablestring_of_name name) (proved, disproved);
+      true
+     )
+    )
+  else false
+  
 and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisstate) =
   
   let findproof pinfs nstring =
@@ -1537,7 +1540,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                Japeserver.emptymenusandpanels (!autoAdditiveLeft && List.length (getsyntacticturnstiles())=1);
                reloadmenusandpanels Proofstore.provedordisproved (get_oplist ());
                mbcache := empty;
-               newfocus (env, mbs, DontShow, addproofs false env ps pinfs)
+               newfocus (env, mbs, DontShow, addproofs false env ps pinfs) (* ok because it isn't closing *)
              with
              | ParseError_ rs -> showAlert rs; default
              | Use_ -> default)
@@ -1765,10 +1768,8 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  let proof = winhist_proofnow hist in
                  let disproof = winhist_disproofnow hist in
                  if finished proof disproof then
-                   if endproof proofnum t proof disproof
-                   then
-                     newfocus (env, mbs, DontShow, pinfs')
-                   else default
+                   let _ = endproof proofnum t proof disproof (* must return true ... *)
+                   in default
                  else (showAlert ["Not finished yet!"]; default)
             )
 
@@ -1782,7 +1783,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  let proofstate =
                    mkstate ((mkvisproviso <* provisos)) givens tree true
                  in
-                 newfocus
+                 newfocus (* ok because it isn't closing *)
                    (env, mbs, DontShow,
                     addproofs true env [name, proofstate, disproofopt]
                       pinfs)
@@ -1994,7 +1995,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
         | "setfocus", [nstring] ->
             if not (null pinfs) then (
               let (fg, bgs) = findproof pinfs nstring in
-              newfocus (env, mbs, DontShow, fg :: bgs))
+              newfocus (env, mbs, DontShow, fg :: bgs)) (* ok because it isn't closing *)
             else (
               showAlert ["GUI protocol error: setfocus "; nstring; " with no proof windows"];
               default)
