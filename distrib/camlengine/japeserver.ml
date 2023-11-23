@@ -203,7 +203,7 @@ and out8 c =
 let intlist_of_ask s is = writef s is; ints_of_reply (readline s)
 let string_of_ask  s is = writef s is; readline s
 
-let listen () = writef "GET\n" []; readline "GET"
+let listen proved disproved = writef "GET % %\n" [Bool proved; Bool disproved]; readline "GET"
 let terminateGUI () = writef "TERMINATE\n" []
 let dropdead () = writef "ENGINECRASHED\n" []; exit(2)
 

@@ -135,7 +135,7 @@ val markpanelentry   : string -> string -> (bool * bool) -> unit
 
 (* this version of jape is started by the GUI *)
 
-val listen       : unit -> string
+val listen       : bool -> bool -> string (* proved disproved command *)
 val terminateGUI : unit -> unit
 
 val drawLine   : pos -> pos -> unit (* don't extend beyond pos2; use linethickness from setproofparams *)
