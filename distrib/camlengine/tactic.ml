@@ -58,6 +58,8 @@ let showargasint : (term -> int) option ref = ref None
 let readintasarg : term array option ref = ref None
 let stripextrabag = ref false
 
+let moaned_about_JAPE = ref false
+
 let rec catelim_string_of_tactic sep t tail =
   let withNLs = String.sub sep 0 1 = "\n" in
   let nextsep = if withNLs then sep ^ "\t" else sep in
@@ -636,7 +638,14 @@ and transTactic tacterm =
               | "GOALPATH"         -> SetgoalTac (parsegoalexpr (onearg ts))
               | "PROVE"            -> CompTac (_SEQ1TAC f ts)
               | "CUTIN"            -> CutinTac (_SEQ1TAC f ts)
-              | "JAPE"             -> AdHocTac [onearg ts]
+              | "JAPE"             -> if not !moaned_about_JAPE then
+                                        (Alert.showAlert 
+                                            Alert.Warning
+                                            "The JAPE tactical is very very very strongly deprecated. \
+                                             The file(s) you just downloaded use it. Please don't.";
+                                         moaned_about_JAPE := true
+                                        );
+                                      AdHocTac [onearg ts]
               | "FLATTEN"          -> AssocFlatTac (debracket (onearg ts))
               | "MAPTERMS"         -> MapTac (explodeForExecute (onearg ts))
               | "SEQ"              -> _SEQTAC ts
