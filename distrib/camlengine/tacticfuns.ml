@@ -1878,11 +1878,23 @@ let rec doJAPE tryf display env ts =
                       | _ -> raise MatchinJAPEparam_
                     in
                     let params = (param <* args) in
-                    Checkthing.addthing
-                      (name, Tactic (params, transTactic tactic), InLimbo);
-                    (* cleanup(); (*DO ME SOON*)*)
-                    resetcaches ();
-                    Some state
+                      (* only allow it to define tactics/macros, not to obliterate other stuff *)
+                      (let fail s =  
+                         setReason ["Jape (tactic ...) attempts to redefine "; s; " ";
+                                    string_of_name name; "; not permitted."
+                                   ];
+                         None
+                       in
+                       match thingnamed name with
+                       | None
+                       | Some (Tactic  _, _) 
+                       | Some (Macro   _, _) -> addthing (name, Tactic (params, transTactic tactic), InLimbo);
+                                                (* cleanup(); (*DO ME SOON*)*)
+                                                resetcaches ();
+                                                Some state
+                       | Some (Rule    _, _) -> fail "rule"
+                       | Some (Theorem _, _) -> fail "theorem"
+                      );
                   with
                   | MatchinJAPEparam_ ->
                       setReason ["Badly-formed parameters for JAPE(set)"]; None)
