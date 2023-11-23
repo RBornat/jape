@@ -103,13 +103,13 @@ let currentstylename = ref "tree"
 
 let rec proofStyle s =
   match lowercase s with
-    "tree" -> treestyle
+  | "tree" -> treestyle
   | "box" -> boxstyle
   | _ -> treestyle
 
 let rec setdisplaystyle s =
   if !currentstylename <> s then
-    begin currentstyle := proofStyle s; currentstylename := s end
+    (currentstyle := proofStyle s; currentstylename := s )
 
 let rec getdisplaystyle () = !currentstylename
 
@@ -157,7 +157,7 @@ let rec sortoutSelection state pathkind =
   in
   let rec fhit_of_hit a1 a2 =
     match a1, a2 with
-      s, FormulaHit fh -> fh
+    | s, FormulaHit fh -> fh
     | s, h ->
         raise
           (Catastrophe_
@@ -213,7 +213,7 @@ let rec findSelection state =
   let (tcs, ths) =
     nj_fold
       (function
-         (AmbigHit (_, (p, h)), ss), (tcs, ths) -> tcs, (p, h, ss) :: ths
+       | (AmbigHit (_, (p, h)), ss), (tcs, ths) -> tcs, (p, h, ss) :: ths
        | (ConcHit (p, c), ss), (tcs, ths) -> (p, c, ss) :: tcs, ths
        | (HypHit (p, h), ss), (tcs, ths) -> tcs, (p, h, ss) :: ths)
       thits ([], [])
@@ -226,7 +226,7 @@ let rec findSelection state =
           (Catastrophe_ ["findSelection (interaction) - no stored proof"])
   in
   match conchits, hyphits, reasonhits with
-    [cpath, conc], _, [] ->
+  | [cpath, conc], _, [] ->
       (* we have a definite conclusion path, which we are going to _trust_, and hang the consequences *)
       let hyps =
         List.map
@@ -279,7 +279,7 @@ let rec findSelection state =
           match
             Prooftree.Tree.Fmttree.allTipPaths (Prooftree.Tree.Fmttree.followPath tree path)
           with
-            [cpath] -> if ok cpath then cpath else path
+          | [cpath] -> if ok cpath then cpath else path
           | [] -> path
           | paths ->
               (* is this a BadSel_ candidate? *)
@@ -299,10 +299,10 @@ let rec findSelection state =
       Some (FormulaSel (path, None, hypels, tcs, ths, givensel))
   | [], [], [rpath] -> Some (ReasonSel rpath)
   | [], [], [] ->
-      begin match thits, givensel with
-        [], [] -> None
-      | _      -> Some (TextSel (thits, givensel))
-      end
+      (match thits, givensel with
+       | [], [] -> None
+       | _      -> Some (TextSel (thits, givensel))
+      )
   | _ ->
       raise
         (Catastrophe_
@@ -359,8 +359,8 @@ fun gooddrag d = (* you can't drag from or to one side of a formula *)
 *)
   
 
-let rec getCommand displayopt =
-  let text = Japeserver.listen () in
+let rec getCommand proved disproved displayopt =
+  let text = Japeserver.listen proved disproved in
   let rec getdisplay () =
     try _The displayopt with
       None_ ->
@@ -370,43 +370,43 @@ let rec getCommand displayopt =
   in
   let rec mkpos x y =
     try pos (atoi x) (atoi y) with
-      _ ->
+    | _ ->
         raise
           (Catastrophe_ ["bad pos in getCommand (interaction): "; text])
   in
   let rec mkclass c =
     try displayclass_of_int (atoi c) with
-      _ -> raise (Catastrophe_ ["bad class in getCommand (interaction): "; text])
+    | _ -> raise (Catastrophe_ ["bad class in getCommand (interaction): "; text])
   in
   let rec parseselections =
     function
-      x :: y :: c :: others ->
+    | x :: y :: c :: others ->
         (mkpos x y, mkclass c) :: parseselections others
     | [] -> []
     | _ -> raise (Catastrophe_ ["bad selection tail in getCommand (interaction): "; text])
   in
   match words text with
-    "ACT" :: x :: y :: c :: _ ->
-      begin match
+  | "ACT" :: x :: y :: c :: _ ->
+      (match
         locateHit (getdisplay ()) (mkpos x y) (Some (mkclass c)) HitPath
-      with
-        Some h ->
-          begin match findSelection (getdisplay ()) with
-            Some s ->
-              HitCommand (_The (storedProof (getdisplay ())), h, s)
-          | None ->
-              (* raise
-                (Catastrophe_
-                   ["getCommand (interaction) sees hit but not selection: ";
-                    text]) *)
-                showAlert("You double-clicked on a greyed out formula\n(this has no effect)");
-                getCommand displayopt             
-          end
+       with
+       | Some h ->
+          (match findSelection (getdisplay ()) with
+           | Some s ->
+               HitCommand (_The (storedProof (getdisplay ())), h, s)
+           | None ->
+               (* raise
+                 (Catastrophe_
+                    ["getCommand (interaction) sees hit but not selection: ";
+                     text]) *)
+                 showAlert("You double-clicked on a greyed out formula\n(this has no effect)");
+                 getCommand proved disproved displayopt             
+          )
       | None ->
           raise
             (Catastrophe_
                ["getCommand (interaction) can't decode hit: "; text])
-      end
+      )
   | "SELECT" :: x :: y :: c :: others ->
       (* the SELECT/DESELECT mechanism used to be designed for incremental change, presumably in a desire to 
        * reduce interface traffic and computations with the proof in greyen/blacken decisions.  But actually
@@ -423,12 +423,12 @@ let rec getCommand displayopt =
       let class__ = mkclass c in
       let sels = parseselections others in
       notifyselect (getdisplay ()) (Some (mkpos x y, class__)) sels;
-      getCommand displayopt
+      getCommand proved disproved displayopt
   | "DESELECT" :: sels ->
       let sels = parseselections sels in
       (* DESELECT sels means something has been taken away, and this is the selection now. *)
       notifyselect (getdisplay ()) None sels;
-      getCommand displayopt
+      getCommand proved disproved displayopt
   (* | "DRAGQ" :: x :: y :: _ ->
          dropsource :=
            els_of_formulahit "getCommand DRAGQ"
@@ -446,7 +446,7 @@ let rec getCommand displayopt =
   | "COMMAND" :: comm -> TextCommand comm
   | _ ->
       showAlert ("getCommand (interaction) cannot understand " ^ text);
-      getCommand displayopt
+      getCommand proved disproved displayopt
 
 let showallprovisos = ref false
 
@@ -473,7 +473,7 @@ let displayGivens givens =
 let rec printProvisos outstream cxt =
   let ps = sortprovisos (provisos (rewritecxt cxt)) in
   match ps with
-    [] -> ()
+  | [] -> ()
   | ps ->
       output_string outstream "(PROVIDED ";
       List.iter
@@ -486,7 +486,7 @@ let rec printProvisos outstream cxt =
 
 let rec printGivens outstream givens =
   match givens with
-    [] -> ()
+  | [] -> ()
   | gs ->
       output_string outstream "(GIVEN ";
       List.iter
@@ -511,7 +511,7 @@ let rec alterTip displaystate cxt gpath tree root ((selishyp, selpath, selel), s
     let (cxt, subst) = _Subst_of_selection false ss cxt in
     let (Seq (st, hs, cs)) =
       try Prooftree.Tree.Fmttree.findTip tree gpath with
-        _ -> raise (Catastrophe_ ["findTip failed in alterTip"])
+      | _ -> raise (Catastrophe_ ["findTip failed in alterTip"])
     in
     let (newel, side) =
       replaceelement (if selishyp then hs else cs) selel subst

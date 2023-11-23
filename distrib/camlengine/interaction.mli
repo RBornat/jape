@@ -48,7 +48,7 @@ val refreshProof : displaystate -> unit
 val displayProvisos : cxt -> unit
 val displayGivens : seq list -> unit
 val showallprovisos : bool ref
-val getCommand : displaystate option -> command
+val getCommand : bool -> bool -> displaystate option -> command (* proved, disproved, displaystate *)
 val findSelection : displaystate -> path sel option
 val findLayoutSelection : displaystate -> hitkind -> path option
 val findDisproofSelections: unit -> pos list * (pos * string list) list

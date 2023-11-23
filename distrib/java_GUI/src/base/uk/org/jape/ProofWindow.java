@@ -825,6 +825,15 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 		(focusv.get(i)).makeWindowReady();
 	}
 	
+	public synchronized void tagFocusedWindow(boolean proved, boolean disproved) {
+	    if (LocalSettings.UnicodeWindowTitles && focusv.size()>0) {
+	        ProofWindow w = focusv.get(0);
+	        w.setTitle((proved ? LocalSettings.tick+"  " : "")+
+	                   (disproved ? LocalSettings.cross+"  " : "")+
+	                   w.showntitle
+	                  );
+	    }
+	}
 	public synchronized void deleteAllWindowListeners() {
 	    for (int i = 0; i<focusv.size(); i++)
 		(focusv.get(i)).deleteWindowListener();
@@ -899,8 +908,9 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	    return w;
     }
 
-    public static void makeReady() {
+    public static void makeReady(boolean proved, boolean disproved) {
 	focusManager.makeReady();
+	focusManager.tagFocusedWindow(proved, disproved);
     }
 
     /* this doesn't work any more: has to be in a more global place */

@@ -88,11 +88,11 @@ public class Dispatcher extends Thread implements DebugConstants {
 			String p = cmd[0].intern();
 			int len = cmd.length;
 			
-			// GET means client is listening
-			if (p=="GET"&&len==1) {
+			// GET means client is listening; arguments are proved, disproved
+			if (p=="GET"&&len==3) {
 			    if (Reply.openchannel()) {
 				JapeWindow.ensureMenusAvailable();
-				ProofWindow.makeReady();
+				ProofWindow.makeReady(toBool(cmd[1]),toBool(cmd[2]));
 			    }
 			}
 			else
