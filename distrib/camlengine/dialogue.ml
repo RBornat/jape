@@ -428,14 +428,14 @@ let docommand displaystate env target comm =
 
 let badsel ss = showAlert ss; raise (Applycommand_ None)
 
-(* this is a horrid bit of de-modularisation. Thing.addthing needs to know which on-screen
+(* Thing.addthing needs to know which on-screen
    proofs, if any, use a particularly-named rule or theorem. To do that it needs to scan
    the proof histories. But they are wrapped up in the 'commands' recursion below. So 
-   commands leaks a bit of state to here.
+   we have to see what the pinfs that commands can see actually are.
  *)
 
-let outerpinfs : proofinfo list ref = ref []
-let pendingclosures = Checkthing.pendingclosures
+let outerpinfs        : proofinfo list ref = ref []
+let pendingclosures   : int list       ref = ref []
 
 let windows_which_use name =
   let pinfs = !outerpinfs in
@@ -458,11 +458,151 @@ let rec addpendingclosures = function
                addpendingclosures pns
   | []      -> ()
   
-let _ = Checkthing.windows_which_use := windows_which_use
-let _ = Checkthing.windowsnamed := windowsnamed
-let _ = Checkthing.addpendingclosures := addpendingclosures
+(* There is a horridness lurking here which has only just been noticed. If adding a thing
+   obliterates an existing rule or theorem, then all the stored proofs which use that rule
+   or theorem, and all the proofs in progress ditto, have to be invalidated, unless the 
+   new rule or theorem is evidently the same. This was first noticed in Runproof.doProof,
+   but it applies to addthing entirely. RB 2023/03/11
+ *)
+(* so now addthing looks at every thing that is added. It's used everywhere there's an
+   addthing call, I hope. RB 2023/06/11 
+ *)
 
-let checked_addthing t = Checkthing.addthing t
+exception AddThing_
+
+let check_addthing name new_thing = 
+  let obliterate old_thing old_params old_bpros old_givens old_seq old_ax =
+    (* we are about to obliterate a Rule or a Theorem. Let's see if that matters *)
+    let namestring = string_of_name name in
+    let oproof  = is_proofnamed name in
+    let ostored = proofs_which_use name in
+    consolereport ["** check_addthing\n";
+                   "windowsnamed "; namestring; " = "; 
+                     bracketed_string_of_list (string_of_pair (string_of_pair string_of_name string_of_int ",")
+                                                              string_of_int 
+                                                              ","
+                                              )
+                                              ";" (windowsnamed name);
+                   "\npendingclosures = "; bracketed_string_of_list string_of_int ";" !pendingclosures 
+                  ];
+    let wproofs = (not <.> (Miscellaneous.swapargs List.mem) !pendingclosures <.> snd) <| windowsnamed name in
+    let _ = consolereport ["wproofs = "; 
+                   bracketed_string_of_list (string_of_pair (string_of_pair string_of_name string_of_int ",")
+                                                             string_of_int 
+                                                             ","
+                                              ) ";" wproofs
+                  ] in
+    let wused   = windows_which_use name in
+    let thingkind givens = if givens=[] then "rule" else "theorem" in
+    let thingdiff kind = 
+      String.concat "" ["the stored "; string_of_name name; " defines a "; thingkind old_givens;
+                        " but the new definition is a "; kind
+                       ] 
+    in
+    let problem_count = (if oproof<>(false,false) then 1 else 0) +
+                        List.length ostored +
+                        List.length wproofs +
+                        List.length wused
+    in
+    let sentence_string es =
+      let es = List.filter (fun e -> e<>[]) es in
+      if es=[] then "" 
+      else Listfuns.sentencestring_of_list (String.concat "") ", " " and "  es
+    in
+    if old_ax then
+      (if Alert.ask Alert.Warning "You are renaming an axiom!" [("OK",false);("Cancel",true)] 1
+       then raise AddThing_
+      );
+    (* ok if it's the _same_ conjecture *)
+    let samething params pros givens seq ax =
+      let showpros ps = if null ps then "no provisos"
+                        else sentencestring_of_list (Proviso.string_of_visproviso <.> mkvisproviso) ", " " and " ps
+      in
+      let storablebps bps = storableprovisos (mkvisproviso <* bps) in
+      let verdict =
+        sentence_string
+          [if eqbags Sequent.eqseqs (givens, old_givens) then [] 
+           else
+            ["different premises/GIVENs"];
+           if params=old_params then [] else ["different parameters"];
+           if eqbags (uncurry2 (=)) (List.map snd (storablebps old_bpros), List.map snd pros) then []
+                             else ["different provisos (stored version has "; showpros (storablebps old_bpros);
+                                                          "; new version has "; showpros pros;
+                                                          ")"
+                                  ];
+           if Sequent.eqseqs (old_seq,seq) then []
+           else ["a different conclusion sequent"]
+          ]
+      in
+      if verdict="" then "" else String.concat "" ["Your new definition has "; verdict; " to the stored version."]
+    in
+    let verdict = match new_thing with
+                  | Rule ((params, bpros, givens, seq), ax) -> samething params bpros givens seq ax
+                  | Theorem (params, bpros, seq)            -> samething params bpros [] seq false
+                  | Tactic _                                -> thingdiff "tactic"
+                  | Macro _                                 -> thingdiff "macro"
+    in
+    if verdict="" then () (* it's the same thing as before, forget it *)
+    else 
+      (let message_list =
+         ["(Congratulations on activating a very obscure Jape error message.)\n
+          \n
+          In defining "; namestring; " IS "; string_of_thing new_thing; "\n
+          you will obliterate an existing "; thingkind old_givens; "\n
+          \n";
+          verdict; 
+          if problem_count=0 then "" else
+            ("\n
+              \n
+              In addition, Jape must " ^ 
+                sentence_string [if oproof<>(false,false) then ["delete a stored proof of"; namestring] else [];
+                                 (match ostored with
+                                  | []  -> []
+                                  | [_] -> ["delete a proof which uses"; namestring] 
+                                  | _   -> ["delete "; wordstring_of_int (List.length ostored);
+                                            " proofs which use "; namestring
+                                           ]
+                                 );
+                                 (match wproofs with
+                                  | []  -> []
+                                  | [_] -> ["close a window with a proof of "; namestring]
+                                  | _   -> ["close "; wordstring_of_int (List.length wproofs);
+                                            " windows with proofs of "; namestring
+                                           ]
+                                 );
+                                 (match wused with
+                                  | []  -> []
+                                  | [_] -> ["close a window with a proof which uses "; namestring]
+                                  | _   -> ["close "; wordstring_of_int (List.length wproofs);
+                                            " windows with proofs which use "; namestring
+                                           ]
+                                 )
+                                ]  
+             )
+         ]
+       in
+       if Alert.askCancel Alert.Error
+                          (String.concat "" message_list)
+                          [("OK", true)]
+                          false
+                          1
+       then (* do it *)
+         (discard_proofs (if oproof<>(false,false) then name::ostored else ostored);
+          addpendingclosures (List.map snd (wproofs @ wused))
+         )
+       else raise AddThing_ (* don't do it *)
+      )
+  in
+  match freshThingtoprove name with
+  | Some (Rule ((old_params, old_bpros, old_givens, old_seq), old_ax) as r) -> 
+      obliterate r old_params old_bpros old_givens old_seq old_ax
+  | Some (Theorem (old_params, old_bpros, old_seq) as t)   -> 
+      obliterate t old_params old_bpros [] old_seq false
+  | Some (Tactic _)    
+  | Some (Macro _)     
+  | None               -> () (* it doesn't matter, it wasn't a rule or a theorem before *)
+
+let checked_addthing (name, thing, place) = check_addthing name thing; addthing (name, thing, place)
 
 (* There appear to be two reasonable behaviours, given a selection and a command.
  * 1. (the original) -- resolve the selection to a single tip, if possible, and work there.
@@ -2117,7 +2257,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
   in
   
   (* for the time being, until there is effective proof/disproof focus, we have too many buttons *)
-  let administer displayopt =
+  let administer proved disproved displayopt =
     List.iter Button.enable
       [UndoProofbutton   , proofundoable ();
        RedoProofbutton   , proofredoable ();
@@ -2144,7 +2284,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
     with
     | None_ ->
         raise (Catastrophe_ ["textselectionmode not in environment"]));
-    let command = getCommand displayopt in
+    let command = getCommand proved disproved displayopt in
     setComment [];
     (* consolereport (("in administer; command is " :: string_of_command command) @ [ "; pinfs are ",
             bracketed_string_of_list (string_of_int:int->string) ","
@@ -2319,9 +2459,9 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
                  env, mbs, DontShow, pinfs
              | ShowBoth ->
                  doShowProof cxt (showState displaystate proofstate !autoselect) ShowDisproof
-             | DontShow -> administer (Some displaystate)
+             | DontShow -> administer (isproven proofstate) (disproof_finished disproof) (Some displaystate)
             )
-      | [] -> administer None
+      | [] -> administer false false None
 
     with
     | Catastrophe_ ss ->
@@ -2340,7 +2480,7 @@ and commands (env, mbs, (showit : showstate), (pinfs : proofinfo list) as thisst
             showAlert ["A conclusion should be selected; and none is."];
             env, mbs, DontShow, pinfs
 
-    | Checkthing.AddThing_ -> env, mbs, DontShow, pinfs
+    | AddThing_ -> env, mbs, DontShow, pinfs
     | exn ->
         showAlert
           ["unexpected exception "; Printexc.to_string exn; " in commands"];
