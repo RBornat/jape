@@ -41,7 +41,8 @@ type displaystaterec =
         locateElement     : element -> pos list;
         refineSelection   : bool;
         notifyselect      : (pos * displayclass) option -> (pos * displayclass) list -> unit;
-        storedProof       : unit -> prooftree option }
+        storedProof       : unit -> prooftree option 
+      }
 
  and displaystate = DisplayState of displaystaterec
 
