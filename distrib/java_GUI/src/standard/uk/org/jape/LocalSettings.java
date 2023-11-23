@@ -95,7 +95,7 @@ public class LocalSettings implements SelectionConstants {
 
     // window titling
     
-    public static final boolean UnicodeWindowTitles = false;
+    public static final boolean UnicodeWindowTitles = true; // nowadays Unicode is everywhere
     
     public static final String howToFormulaSelect =
 	"Formula selection is done with a single left-button click of the mouse.";

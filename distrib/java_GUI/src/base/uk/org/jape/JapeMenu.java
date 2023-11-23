@@ -373,16 +373,16 @@ public class JapeMenu implements DebugConstants {
 
     private static void setJMenuBar(int barKind, JapeWindow w) {
         if (DebugVars.menuaction_tracing)
-            Logger.log.println("JapeMenu.setJMenuBar "+barKind+" "+JapeUtils.enQuote(w.title));
-        w.setJMenuBar(mkBar(barKind, w, w.title));
+            Logger.log.println("JapeMenu.setJMenuBar "+barKind+" "+JapeUtils.enQuote(w.uidtitle));
+        w.setJMenuBar(mkBar(barKind, w, w.uidtitle));
         w.getJMenuBar().revalidate();
         if (DebugVars.menuaction_tracing)
-            Logger.log.println(JapeUtils.enQuote(w.title)+" now has menu bar "+w.getJMenuBar());
+            Logger.log.println(JapeUtils.enQuote(w.uidtitle)+" now has menu bar "+w.getJMenuBar());
     }
 
     public static int setBar(JapeWindow w, int stamp) {
         if (DebugVars.menuaction_tracing)
-            Logger.log.println("JapeMenu.setBar "+JapeUtils.enQuote(w.title)+
+            Logger.log.println("JapeMenu.setBar "+JapeUtils.enQuote(w.uidtitle)+
                                " "+stamp+
                                " ("+versionstamp+"; "+(w.getJMenuBar()!=null)+")");
         if (w.getJMenuBar()==null || stamp<versionstamp) {

@@ -264,7 +264,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
         public void emptyPanel() {
                 if (panelempty_tracing)
-                        Logger.log.println("emptying panel "+window.title);
+                        Logger.log.println("emptying panel "+window.uidtitle);
                 window.setVisible(false);
                 window.model.removeAllElements();
                 Component[] cs = window.getContentPane().getComponents();
@@ -417,7 +417,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                 }
 
                 public boolean equals(Object o) {
-                        return o instanceof PanelWindow ? ((PanelWindow)o).title.equals(this.title) :
+                        return o instanceof PanelWindow ? ((PanelWindow)o).uidtitle.equals(this.uidtitle) :
                                 super.equals(o);
                 }
 
@@ -540,12 +540,12 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                         for (int i=0; i<buttonv.size(); i++)  {
                                 PanelButton b = (PanelButton)buttonv.get(i);
                                 if (b.label.equals(key)) {
-                                        b.doAction(this.title, list.getSelectedIndex());
+                                        b.doAction(this.uidtitle, list.getSelectedIndex());
                                         return;
                                 }
                         }
                         Alert.guiAbort("PanelWindow.actionPerformed: no button "+JapeUtils.enQuote(key)+
-                                        " in panel "+this.title);
+                                        " in panel "+this.uidtitle);
                 }
 
                 protected class ButtonWatcher implements ListSelectionListener {
@@ -583,14 +583,14 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
 
                 public Dimension getMaximumSize() {
                         if (panellayout_tracing)
-                                Logger.log.println("panel "+this.title+" getMaximumSize called");
+                                Logger.log.println("panel "+this.uidtitle+" getMaximumSize called");
                         return super.getMaximumSize();
                 }
 
                 // the Container class seems to cache this, but I think it needs calling more than once ...
                 public Dimension getPreferredSize() {
                         if (panellayout_tracing)
-                                Logger.log.println("panel "+this.title+" getPreferredSize called");
+                                Logger.log.println("panel "+this.uidtitle+" getPreferredSize called");
                         return super.getPreferredSize();
                 }
 
@@ -691,7 +691,7 @@ public class PanelWindowData implements DebugConstants, ProtocolConstants {
                                         buttonPane.setBounds(0, buttonTop, pane.getWidth(), buttonPaneSize.height); 
                                         scrollPane.setBounds(0, 0, pane.getWidth(), Math.max(0, buttonTop));
                                         if (panellayout_tracing) {
-                                                Logger.log.print("panelwindow "+PanelWindow.this.title+" layout: ");
+                                                Logger.log.print("panelwindow "+PanelWindow.this.uidtitle+" layout: ");
                                                 JapeUtils.showContainer(pane);
                                         }
                                 }

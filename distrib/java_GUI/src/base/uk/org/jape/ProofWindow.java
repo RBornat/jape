@@ -157,7 +157,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
     protected boolean servesAsControl() { return true; }
 
     public boolean equals(Object o) {
-	return o instanceof ProofWindow ? ((ProofWindow)o).title.equals(title) &&
+	return o instanceof ProofWindow ? ((ProofWindow)o).uidtitle.equals(uidtitle) &&
 					       ((ProofWindow)o).proofnum==proofnum :
 					  super.equals(o);
     }
@@ -794,7 +794,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	private synchronized boolean setTopInfocusv(ProofWindow w) {
 	    int i = focusv.indexOf(w);
 	    if (i==-1)
-		Alert.guiAbort("unfocussable proof "+w.title);
+		Alert.guiAbort("unfocussable proof "+w.uidtitle);
 	    else
 		if (i!=0) {
 		    focusv.remove(i);
@@ -806,7 +806,7 @@ public class ProofWindow extends JapeWindow implements DebugConstants, ProtocolC
 	private synchronized void removeFromfocusv(ProofWindow w) {
 	    int i = focusv.indexOf(w);
 	    if (i==-1)
-		Alert.guiAbort("unremovable proof "+w.title);
+		Alert.guiAbort("unremovable proof "+w.uidtitle);
 	    else
 		focusv.remove(i);
 	}

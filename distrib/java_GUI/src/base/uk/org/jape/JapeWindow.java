@@ -41,17 +41,17 @@ import javax.swing.JFrame;
 @SuppressWarnings("serial")
 public abstract class JapeWindow extends JFrame {
 
-    final String title;
+    final String uidtitle, showntitle;
 
     public JapeWindow(String title) {
         this(title, -1);
     }
 
     @SuppressWarnings("unused")
-    public JapeWindow(final String title, int proofnum) {
-        super((LocalSettings.UnicodeWindowTitles || proofnum<0) ? title :
-            ("Proof #"+proofnum));
-        this.title=title; // ignoring whatever else may happen outside, this is a uid
+    public JapeWindow(final String utitle, int proofnum) {
+        super((LocalSettings.UnicodeWindowTitles || proofnum<0) ? utitle : ("Proof #"+proofnum));
+        this.uidtitle=utitle; // ignoring whatever else may happen outside, this is a uid
+        this.showntitle=getTitle();
         windowList.addToWindowv(this);
         windowListener = new WindowAdapter() {
             public void windowActivated(WindowEvent e) {
@@ -63,7 +63,7 @@ public abstract class JapeWindow extends JFrame {
                 }
                 else
                     Logger.log.println("JapeWindow.windowListener late windowActivated "+JapeUtils.enQuote(
-                            title )+"; "+e);
+                            uidtitle )+"; "+e);
             }
         };
         addWindowListener(windowListener);
@@ -98,7 +98,7 @@ public abstract class JapeWindow extends JFrame {
         public synchronized String stringOfWindowv() {
             String s = "[";
             for (int i=0; i<windowv.size(); i++) {
-                s=s+JapeUtils.enQuote(((JapeWindow)windowv.get(i)).title);
+                s=s+JapeUtils.enQuote(((JapeWindow)windowv.get(i)).uidtitle);
                 s=s+" "+((JapeWindow)windowv.get(i)).isVisible();
                 if (i+1<windowv.size())
                     s=s+"; ";
@@ -109,18 +109,18 @@ public abstract class JapeWindow extends JFrame {
         public synchronized void addToWindowv(JapeWindow w) {
             windowv.add(w);
             if (windowv_tracing)
-                Logger.log.println("JapeWindow.WindowList "+JapeUtils.enQuote(w.title)+
+                Logger.log.println("JapeWindow.WindowList "+JapeUtils.enQuote(w.uidtitle)+
                         ", "+stringOfWindowv());
 
         }
 
         public synchronized void setTopWindow(JapeWindow w) {
             if (windowv_tracing)
-                Logger.log.print("JapeWindow.setTopWindow before "+JapeUtils.enQuote(w.title)+
+                Logger.log.print("JapeWindow.setTopWindow before "+JapeUtils.enQuote(w.uidtitle)+
                         ", "+stringOfWindowv());
             int i = windowv.indexOf(w);
             if (i==-1)
-                Alert.guiAbort("untoppable window "+w.title);
+                Alert.guiAbort("untoppable window "+w.uidtitle);
             else {
                 windowv.remove(i);
                 windowv.insertElementAt(w,0);
@@ -131,11 +131,11 @@ public abstract class JapeWindow extends JFrame {
 
         public synchronized void removeFromWindowv(JapeWindow w) {
             if (windowv_tracing)
-                Logger.log.print("JapeWindow.removeFromWindowv before "+JapeUtils.enQuote(w.title)+
+                Logger.log.print("JapeWindow.removeFromWindowv before "+JapeUtils.enQuote(w.uidtitle)+
                         ", "+stringOfWindowv());
             int i = windowv.indexOf(w);
             if (i==-1)
-                Alert.guiAbort("unremovable window "+w.title);
+                Alert.guiAbort("unremovable window "+w.uidtitle);
             else
                 windowv.remove(i);
             if (windowv_tracing)
@@ -164,7 +164,7 @@ public abstract class JapeWindow extends JFrame {
             int len = windowv.size();
             for (int i=0; i<len; i++) {
                 JapeWindow w = (JapeWindow)windowv.get(i);
-                if (w.title.equals(title))
+                if (w.uidtitle.equals(title))
                     return w;
             }
             return null;
@@ -210,7 +210,7 @@ public abstract class JapeWindow extends JFrame {
 
     @SuppressWarnings("unused")
     private String titleForMenu(int proofnum) {
-        return LocalSettings.UnicodeWindowTitles || proofnum<0 ? title : proofnum+":"+title;
+        return LocalSettings.UnicodeWindowTitles || proofnum<0 ? uidtitle : proofnum+":"+uidtitle;
     }
 
     private String titleForMenu() {
@@ -250,7 +250,7 @@ public abstract class JapeWindow extends JFrame {
 
     public void closeWindow() {
         if (windowv_tracing)
-            Logger.log.println("JapeWindow.closeWindow "+JapeUtils.enQuote(title)+
+            Logger.log.println("JapeWindow.closeWindow "+JapeUtils.enQuote(uidtitle)+
                     ", "+windowList.stringOfWindowv());
         windowList.removeFromWindowv(this);
         // Linux gives us spurious events after the window has gone, so kill the listener
