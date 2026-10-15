@@ -3,4 +3,23 @@ Jape is a configurable proof calculator and supports the interactive discovery o
 
 Get releases via [the release page](https://github.com/RBornat/jape/releases), and please report problems via [the issues page](https://github.com/RBornat/jape/issues).
 
-Richard Bornat 2022/01/03
+#### Richard Bornat 2022/01/03
+
+
+-------------------------
+
+
+### In Memoriam
+Richard Bornat died earlier this year. We had been colleagues for more than
+50 years.
+
+I will continue to do the best I can to support people who still
+want to use Jape.
+
+I am presently working with my students on a technologicaly up-to-date
+successor to **Jape** that will incorporate some of the lessons we learned
+since 1991, when we first built it.
+
+#### Bernard Sufrin, Oxford, 15th October 2026
+
+
